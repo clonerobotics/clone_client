@@ -1,0 +1,36 @@
+syntax="proto3";
+
+package clone.controller;
+
+import "google/protobuf/empty.proto";
+
+import "clone_client/proto/data_types.proto";
+
+service SupervisorGRPC {
+  rpc GetCompressorInfo(google.protobuf.Empty) returns (CompressorInfoResponse);
+  rpc StartCompressor(google.protobuf.Empty) returns (clone.data_types.ServerResponse);
+  rpc StopCompressor(google.protobuf.Empty) returns (clone.data_types.ServerResponse);
+  rpc SetCompressorPressure(clone.data_types.CompressorPressure) returns (clone.data_types.ServerResponse);
+  rpc SetMuscles(clone.data_types.MuscleMovement) returns (clone.data_types.ServerResponse);
+  rpc LooseMuscles(google.protobuf.Empty) returns (clone.data_types.ServerResponse);
+  rpc LockMuscles(google.protobuf.Empty) returns (clone.data_types.ServerResponse);
+  rpc SetPressures(clone.data_types.MusclePressureSetting) returns (clone.data_types.ServerResponse);
+  rpc GetValves(clone.data_types.GetNodesRequest) returns (ValveListResponse);
+}
+
+
+message ValveListResponse{
+  clone.data_types.MusclesValveInfo valve_list=1;
+  clone.data_types.ServerResponse response=2;
+}
+
+message CompressorInfoResponse {
+  CompressorInfo info=1;
+  clone.data_types.ServerResponse response=2;
+}
+
+message CompressorInfo {
+  bool is_running=1;
+  float pressure=2;
+  float desired_pressure=3;
+}
