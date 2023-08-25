@@ -8,14 +8,14 @@ from clone_client.client import Client
 HOSTNAME = os.environ.get("HOSTNAME", gethostname())
 
 
-async def api_run():
+async def api_run() -> None:
     async with Client(HOSTNAME) as client:
         # Start the compressor and wait for the desired pressure to be reached
         # before doing anything else.
         await client.start_compressor()
         await client.wait_for_desired_pressure()
 
-        for _ in range(1e3):
+        for _ in range(int(1e3)):
             # Generate random actions, available values are [-1, 0, 1]. Floats are allowed, however they make no impact.
             actions = [randint(0, 2) - 1 for _ in range(client.number_of_muscles)]  # nosec
 

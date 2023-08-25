@@ -5,19 +5,11 @@ import struct
 from typing import cast, Mapping, Sequence
 
 Pressure = float
-Angle = int
-
-PortAddress = str
-ValveID = str
 NodeID = int
 MuscleName = str
 
-ValveAnglesDataType = Mapping[NodeID, Angle]
-ValveMusclePressuresDataType = Mapping[NodeID, Pressure]
-ValveMuscleMovementsDataType = Mapping[NodeID, float]
 MusclePressuresDataType = Sequence[Pressure]  # For client side translations only
 MuscleMovementsDataType = Sequence[float]  # For client side translations only
-ValveAddressPacked = int
 
 
 @dataclasses.dataclass(frozen=True)

@@ -49,7 +49,7 @@ def ensure_local(value: str) -> str:
 
 
 P = ParamSpec("P")
-R = TypeVar("R", covariant=True)
+R = TypeVar("R")
 CatchType = Optional[List[Type[BaseException]]]
 
 
