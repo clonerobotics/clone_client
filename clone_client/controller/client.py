@@ -8,8 +8,8 @@ from clone_client.controller.config import ControllerClientConfig
 
 # pylint: disable=E0611
 from clone_client.controller.proto.supervisor_pb2 import (
-    CompressorInfo,
-    CompressorInfoResponse,
+    PressureGenInfo,
+    PressureGenInfoResponse,
     ValveListResponse,
 )
 from clone_client.controller.proto.supervisor_pb2_grpc import SupervisorGRPCStub
@@ -18,10 +18,10 @@ from clone_client.grpc_client import GRPCAsyncClient
 
 # pylint: disable=E0611
 from clone_client.proto.data_types_pb2 import (
-    CompressorPressure,
     GetNodesRequest,
     MuscleMovement,
     MusclePressureSetting,
+    PressureGenPressure,
     ServerResponse,
 )
 from clone_client.types import (
@@ -41,29 +41,29 @@ class ControllerClient(GRPCAsyncClient):
         self.stub = SupervisorGRPCStub(self.channel)
         self.config = config
 
-    async def get_compressor_info(self) -> CompressorInfo:
-        """Send request to get the compressor info."""
+    async def get_pressuregen_info(self) -> PressureGenInfo:
+        """Send request to get the pressuregen info."""
         try:
-            response: CompressorInfoResponse = await self.stub.GetCompressorInfo(
+            response: PressureGenInfoResponse = await self.stub.GetPressureGenInfo(
                 Empty(), timeout=self.config.info_gathering_rpc_timeout
             )
             handle_response(response.response)
             return response.info
 
         except RpcError as err:
-            golem_err = translate_rpc_error("GetCompressorInfo", self.socket_address, err)
+            golem_err = translate_rpc_error("GetPressureGenInfo", self.socket_address, err)
             raise golem_err from err
 
-    async def set_compressor_pressure(self, pressure: float) -> None:
-        """Send request to set the compressor pressure."""
+    async def set_pressuregen_pressure(self, pressure: float) -> None:
+        """Send request to set the pressuregen pressure."""
         try:
-            await self.stub.SetCompressorPressure(
-                CompressorPressure(pressure=pressure),
+            await self.stub.SetPressureGenPressure(
+                PressureGenPressure(pressure=pressure),
                 timeout=self.config.critical_rpc_timeout,
             )
 
         except RpcError as err:
-            golem_err = translate_rpc_error("SetCompressorPressure", self.socket_address, err)
+            golem_err = translate_rpc_error("SetPressureGenPressure", self.socket_address, err)
             raise golem_err from err
 
     async def set_muscles(self, movements: MuscleMovementsDataType) -> None:
@@ -92,20 +92,20 @@ class ControllerClient(GRPCAsyncClient):
             golem_err = translate_rpc_error("SetPressures", self.socket_address, err)
             raise golem_err from err
 
-    async def start_compressor(self) -> None:
-        """Send request to start the compressor."""
+    async def start_pressuregen(self) -> None:
+        """Send request to start the pressuregen."""
         try:
-            await self.stub.StartCompressor(Empty(), timeout=self.config.critical_rpc_timeout)
+            await self.stub.StartPressureGen(Empty(), timeout=self.config.critical_rpc_timeout)
         except RpcError as err:
-            golem_err = translate_rpc_error("StartCompressor", self.socket_address, err)
+            golem_err = translate_rpc_error("StartPressureGen", self.socket_address, err)
             raise golem_err from err
 
-    async def stop_compressor(self) -> None:
-        """Send request to stop the compressor."""
+    async def stop_pressuregen(self) -> None:
+        """Send request to stop the pressuregen."""
         try:
-            await self.stub.StopCompressor(Empty(), timeout=self.config.critical_rpc_timeout)
+            await self.stub.StopPressureGen(Empty(), timeout=self.config.critical_rpc_timeout)
         except RpcError as err:
-            golem_err = translate_rpc_error("StopCompressor", self.socket_address, err)
+            golem_err = translate_rpc_error("StopPressureGen", self.socket_address, err)
             raise golem_err from err
 
     async def loose_all(self) -> None:

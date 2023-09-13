@@ -15,7 +15,7 @@ from clone_client.controller.client import (
 
 # pylint: disable=E0611
 from clone_client.controller.proto.supervisor_pb2 import (
-    CompressorInfo as GRPCCompressorInfo,
+    PressureGenInfo as GRPCPressureGenInfo,
 )
 from clone_client.discovery import Discovery
 from clone_client.exceptions import (
@@ -34,11 +34,11 @@ from clone_client.state_store.rcv_client import (
     StateStoreReceiverClient,
 )
 from clone_client.types import (
-    CompressorInfo,
     HandInfo,
     MuscleMovementsDataType,
     MuscleName,
     MusclePressuresDataType,
+    PressureGenInfo,
     ValveAddress,
 )
 from clone_client.utils import convert_grpc_instance_to_own_representation
@@ -124,14 +124,14 @@ class Client:
             self._ordering_rev[index] = muscle_name
 
     async def wait_for_desired_pressure(self, timeout_ms: int = 10000) -> None:
-        """Block the execution until current compressor pressure is equal or more than desired pressure."""
+        """Block the execution until current pressuregen pressure is equal or more than desired pressure."""
         start = time()
         while True:
             await asyncio.sleep(0.01)
             if time() - start >= timeout_ms / 1000:
                 raise DesiredPressureNotAchievedError(timeout_ms)
 
-            info = await self.get_compressor_info()
+            info = await self.get_pressuregen_info()
             if info.pressure >= info.desired_pressure:
                 break
 
@@ -152,26 +152,26 @@ class Client:
         """Send instruction to the controller to lock all muscles."""
         await self.controller_tunnel.lock_all()
 
-    async def start_compressor(self) -> None:
-        """Start compressor"""
-        await self.controller_tunnel.start_compressor()
+    async def start_pressuregen(self) -> None:
+        """Start pressuregen"""
+        await self.controller_tunnel.start_pressuregen()
 
-    async def stop_compressor(self) -> None:
-        """Stop compressor"""
-        await self.controller_tunnel.stop_compressor()
+    async def stop_pressuregen(self) -> None:
+        """Stop pressuregen"""
+        await self.controller_tunnel.stop_pressuregen()
 
-    async def set_compressor_pressure(self, pressure: float) -> None:
-        """Stop compressor and set new desired pressure"""
-        await self.controller_tunnel.set_compressor_pressure(pressure)
+    async def set_pressuregen_pressure(self, pressure: float) -> None:
+        """Stop pressuregen and set new desired pressure"""
+        await self.controller_tunnel.set_pressuregen_pressure(pressure)
 
     async def get_valve_nodes(self, rediscover: bool = False) -> Set[ValveAddress]:
         """Send request to get discovered valve nodes."""
         return await self.controller_tunnel.get_nodes(rediscover)
 
-    async def get_compressor_info(self) -> CompressorInfo:
-        """Send request to get current information about compressor metadata."""
-        compressor_info: GRPCCompressorInfo = await self.controller_tunnel.get_compressor_info()
-        return convert_grpc_instance_to_own_representation(compressor_info, CompressorInfo)
+    async def get_pressuregen_info(self) -> PressureGenInfo:
+        """Send request to get current information about pressuregen metadata."""
+        pressuregen_info: GRPCPressureGenInfo = await self.controller_tunnel.get_pressuregen_info()
+        return convert_grpc_instance_to_own_representation(pressuregen_info, PressureGenInfo)
 
     async def get_hand_info(self, reload: bool = False) -> HandInfo:
         """

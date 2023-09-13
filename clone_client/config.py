@@ -52,7 +52,6 @@ class Config(BaseSettings):
 
     communication: CommunicationConfig = Field(CommunicationConfig(), title="Communication configuration")
     max_retries: int = Field(3, title="Maximum number of retries before failing.")
-    delay: int = Field(1, title="Delay between retries in seconds.")
 
 
 CONFIG: Config = Config()

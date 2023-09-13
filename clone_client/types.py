@@ -49,9 +49,12 @@ class HandInfo:
 
 
 @dataclasses.dataclass
-class CompressorInfo:
-    """Information about the compressor."""
+class PressureGenInfo:
+    """Information about the pressuregen."""
 
     desired_pressure: float
     pressure: float
     is_running: bool
+    temperature: float
+    is_active: bool
+    variant: str

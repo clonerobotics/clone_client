@@ -5,6 +5,7 @@
 The Clone client package offers high-level API to directly control the Clone Hand. Current repository version contains already built version of the package, development is done outside GitHub and for that reasons we do not accept pull requests, however we are open for any suggestions and bug reports using the issue tracking system.
 
 **`⚠ Package In Development`**
+
 This repository is in pre-beta, prone to drastic changes in the future, so please be aware of this. We will be slowly migrating development onto GitHub with the full introduction of releases and pull requests.
 
 We use GitHub tagging mechanism for each update of the package for convenience.
@@ -40,15 +41,15 @@ If you want more information about what is happening during initialization proce
 
 ### Using controller
 
-The controller is a simple communication interface that allows you to send commands to the hand. It mostly controls muscles and compressor.
+The controller is a simple communication interface that allows you to send commands to the hand. It mostly controls muscles and pressuregen.
 
 ```python
 from clone_client.client import Client
 
 async def entrypoint():
     async with Client("hand_name") as client:
-        # Start the compressor and wait for it to reach desired pressure
-        client.start_compressor()
+        # Start the pressuregen and wait for it to reach desired pressure
+        client.start_pressuregen()
         client.wait_for_desired_pressure()
 
         # Send muscles instructions
@@ -70,28 +71,28 @@ It is encouraged to keep sending the same values in a constant loop and stop sen
 
 ### Reading feedback data
 
-Clone Hand is equipped with a set of sensors that allow you to read current pressure in each muscle. You can also check the current and desired (target) pressure of the compressor.
+Clone Hand is equipped with a set of sensors that allow you to read current pressure in each muscle. You can also check the current and desired (target) pressure of the pressuregen.
 
 ```python
 from clone_client.client import Client
 
 async def entrypoint():
     async with Client("hand_name") as client:
-        # Start the compressor and wait for it to reach desired pressure
-        client.start_compressor()
+        # Start the pressuregen and wait for it to reach desired pressure
+        client.start_pressuregen()
         client.wait_for_desired_pressure()
 
-        # Get current information about compressor
-        compressor_info = client.get_compressor_info()
+        # Get current information about pressuregen
+        pressuregen_info = client.get_pressuregen_info()
 
-        # Whether or not compressor controller is running
-        print("Is running", compressor_info.is_running)
+        # Whether or not pressuregen controller is running
+        print("Is running", pressuregen_info.is_running)
 
-        # Current pressure in the compressor
-        print("Current pressure", compressor_info.pressure)
+        # Current pressure in the pressuregen
+        print("Current pressure", pressuregen_info.pressure)
 
-        # Desired pressure in the compressor
-        print("Desired pressure", compressor_info.desired_pressure)
+        # Desired pressure in the pressuregen
+        print("Desired pressure", pressuregen_info.desired_pressure)
 
         # Get current pressure in the muscles
         pressures = client.get_pressures()
@@ -158,7 +159,7 @@ Returns the name (`str`) of the muscle with given index (`int`).
 
 > `wait_for_desired_pressure(self, timeout)`
 
-Block the execution until timeout (`float`) is reached or until current compressor pressure is equal or more than desired pressure.
+Block the execution until timeout (`float`) is reached or until current pressuregen pressure is equal or more than desired pressure.
 
 Raises `clone_client.exceptions.DesiredPressureNotAchievedError` if timeout is reached.
 
@@ -178,25 +179,25 @@ Looses all muscles. Equivalent of sending all `-1` values to `set_muscles` funct
 
 Locks all muscles. Equivalent of sending all `0` values to `set_muscles` function.
 
-> `start_compressor(self)`
+> `start_pressuregen(self)`
 
-Starts the compressor.
+Starts the pressuregen.
 
-> `stop_compressor(self)`
+> `stop_pressuregen(self)`
 
-Stops the compressor.
+Stops the pressuregen.
 
-> `set_compressor_pressure(self)`
+> `set_pressuregen_pressure(self)`
 
-Sets the desired pressure of the compressor. **Currently unimplemented.**
+Sets the desired pressure of the pressuregen. **Currently unimplemented.**
 
 > `get_valve_nodes(self)`
 
 Returns a `set` of `clone_client.types.ValveAddress` with all valve nodes connected to the hand. For higher level programs a `muscle_names` property is recommended.
 
-> `get_compressor_info(self)`
+> `get_pressuregen_info(self)`
 
-Returns a `clone_client.types.CompressorInfo` with current compressor information.
+Returns a `clone_client.types.pressuregenInfo` with current pressuregen information.
 
 > `get_hand_info(self)`
 

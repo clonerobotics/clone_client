@@ -53,12 +53,21 @@ class RpcTimeoutError(ServerRequestError):
         super().__init__(message)
 
 
+class ServiceTimeoutError(ServerRequestError):
+    """Got timeout connecting to RPC"""
+
+    def __init__(self, call_name: str):
+        message = f"Call to {call_name} timed out internally."
+        super().__init__(message)
+
+
 ERROR_CODE_TRANSLATION: Dict[int, Type[ServerRequestError]] = {
     RequestErrorCodes.ACQUISITION: DataAcquisitionError,
     RequestErrorCodes.UNSUPPORTED_REQUEST: UnsupportedRequestError,
     RequestErrorCodes.INSTRUCTION: ServerInstructionError,
     RequestErrorCodes.INVALID_SERVER_STATE: ServerInvalidStateError,
-    RequestErrorCodes.TIMEOUT: RpcTimeoutError,
+    RequestErrorCodes.SERVICE_TIMEOUT: ServiceTimeoutError,
+    RequestErrorCodes.RPC_TIMEOUT: RpcTimeoutError,
     RequestErrorCodes.UNKNOWN: UnknownRpcError,
 }
 

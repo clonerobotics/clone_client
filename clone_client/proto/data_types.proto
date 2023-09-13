@@ -10,7 +10,8 @@ enum ErrorType{
   INVALID_SERVER_STATE = 2;
   ACQUISITION = 3;
   UNKNOWN = 4;
-  TIMEOUT = 5;
+  RPC_TIMEOUT = 5;
+  SERVICE_TIMEOUT = 6;
 }
 
 message MuscleMovement{
@@ -50,6 +51,6 @@ message GetNodesRequest {
   bool rediscover = 1;
 }
 
-message CompressorPressure{
+message PressureGenPressure{
   float pressure=1;
 }

@@ -10,9 +10,9 @@ HOSTNAME = os.environ.get("HOSTNAME", gethostname())
 
 async def api_run() -> None:
     async with Client(HOSTNAME) as client:
-        # Start the compressor and wait for the desired pressure to be reached
+        # Start the pressure generator and wait for the desired pressure to be reached
         # before doing anything else.
-        await client.start_compressor()
+        await client.start_pressuregen()
         await client.wait_for_desired_pressure()
 
         for _ in range(int(1e3)):
@@ -35,8 +35,8 @@ async def api_run() -> None:
         # Loose all the muscles
         await client.loose_all()
 
-        # Optionally stop compressor after the job is done
-        await client.stop_compressor()
+        # Optionally stop pressure generator after the job is done
+        await client.stop_pressuregen()
 
 
 if __name__ == "__main__":
