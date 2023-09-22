@@ -5,15 +5,32 @@ isort:skip_file
 import builtins
 import clone_client.proto.data_types_pb2
 import google.protobuf.descriptor
+import google.protobuf.internal.enum_type_wrapper
 import google.protobuf.message
 import sys
+import typing
 
-if sys.version_info >= (3, 8):
+if sys.version_info >= (3, 10):
     import typing as typing_extensions
 else:
     import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
+
+class _PressureGenVariant:
+    ValueType = typing.NewType("ValueType", builtins.int)
+    V: typing_extensions.TypeAlias = ValueType
+
+class _PressureGenVariantEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_PressureGenVariant.ValueType], builtins.type):
+    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    AIR_COMPRESSOR: _PressureGenVariant.ValueType  # 0
+    WATER_PUMP: _PressureGenVariant.ValueType  # 1
+
+class PressureGenVariant(_PressureGenVariant, metaclass=_PressureGenVariantEnumTypeWrapper): ...
+
+AIR_COMPRESSOR: PressureGenVariant.ValueType  # 0
+WATER_PUMP: PressureGenVariant.ValueType  # 1
+global___PressureGenVariant = PressureGenVariant
 
 @typing_extensions.final
 class ValveListResponse(google.protobuf.message.Message):
@@ -37,43 +54,52 @@ class ValveListResponse(google.protobuf.message.Message):
 global___ValveListResponse = ValveListResponse
 
 @typing_extensions.final
-class CompressorInfoResponse(google.protobuf.message.Message):
+class PressureGenInfo(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    DESIRED_PRESSURE_FIELD_NUMBER: builtins.int
+    PRESSURE_FIELD_NUMBER: builtins.int
+    IS_RUNNING_FIELD_NUMBER: builtins.int
+    IS_ACTIVE_FIELD_NUMBER: builtins.int
+    TEMPERATURE_FIELD_NUMBER: builtins.int
+    VARIANT_FIELD_NUMBER: builtins.int
+    desired_pressure: builtins.float
+    pressure: builtins.float
+    is_running: builtins.bool
+    is_active: builtins.bool
+    temperature: builtins.float
+    variant: global___PressureGenVariant.ValueType
+    def __init__(
+        self,
+        *,
+        desired_pressure: builtins.float = ...,
+        pressure: builtins.float = ...,
+        is_running: builtins.bool = ...,
+        is_active: builtins.bool = ...,
+        temperature: builtins.float = ...,
+        variant: global___PressureGenVariant.ValueType = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["desired_pressure", b"desired_pressure", "is_active", b"is_active", "is_running", b"is_running", "pressure", b"pressure", "temperature", b"temperature", "variant", b"variant"]) -> None: ...
+
+global___PressureGenInfo = PressureGenInfo
+
+@typing_extensions.final
+class PressureGenInfoResponse(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
     INFO_FIELD_NUMBER: builtins.int
     RESPONSE_FIELD_NUMBER: builtins.int
     @property
-    def info(self) -> global___CompressorInfo: ...
+    def info(self) -> global___PressureGenInfo: ...
     @property
     def response(self) -> clone_client.proto.data_types_pb2.ServerResponse: ...
     def __init__(
         self,
         *,
-        info: global___CompressorInfo | None = ...,
+        info: global___PressureGenInfo | None = ...,
         response: clone_client.proto.data_types_pb2.ServerResponse | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing_extensions.Literal["info", b"info", "response", b"response"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing_extensions.Literal["info", b"info", "response", b"response"]) -> None: ...
 
-global___CompressorInfoResponse = CompressorInfoResponse
-
-@typing_extensions.final
-class CompressorInfo(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    IS_RUNNING_FIELD_NUMBER: builtins.int
-    PRESSURE_FIELD_NUMBER: builtins.int
-    DESIRED_PRESSURE_FIELD_NUMBER: builtins.int
-    is_running: builtins.bool
-    pressure: builtins.float
-    desired_pressure: builtins.float
-    def __init__(
-        self,
-        *,
-        is_running: builtins.bool = ...,
-        pressure: builtins.float = ...,
-        desired_pressure: builtins.float = ...,
-    ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["desired_pressure", b"desired_pressure", "is_running", b"is_running", "pressure", b"pressure"]) -> None: ...
-
-global___CompressorInfo = CompressorInfo
+global___PressureGenInfoResponse = PressureGenInfoResponse

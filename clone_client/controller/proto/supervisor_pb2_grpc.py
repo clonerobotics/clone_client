@@ -16,24 +16,24 @@ class SupervisorGRPCStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.GetCompressorInfo = channel.unary_unary(
-                '/clone.controller.SupervisorGRPC/GetCompressorInfo',
+        self.GetPressureGenInfo = channel.unary_unary(
+                '/clone.controller.SupervisorGRPC/GetPressureGenInfo',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-                response_deserializer=clone__client_dot_controller_dot_proto_dot_supervisor__pb2.CompressorInfoResponse.FromString,
+                response_deserializer=clone__client_dot_controller_dot_proto_dot_supervisor__pb2.PressureGenInfoResponse.FromString,
                 )
-        self.StartCompressor = channel.unary_unary(
-                '/clone.controller.SupervisorGRPC/StartCompressor',
-                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-                response_deserializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
-                )
-        self.StopCompressor = channel.unary_unary(
-                '/clone.controller.SupervisorGRPC/StopCompressor',
+        self.StartPressureGen = channel.unary_unary(
+                '/clone.controller.SupervisorGRPC/StartPressureGen',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
                 )
-        self.SetCompressorPressure = channel.unary_unary(
-                '/clone.controller.SupervisorGRPC/SetCompressorPressure',
-                request_serializer=clone__client_dot_proto_dot_data__types__pb2.CompressorPressure.SerializeToString,
+        self.StopPressureGen = channel.unary_unary(
+                '/clone.controller.SupervisorGRPC/StopPressureGen',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
+                )
+        self.SetPressureGenPressure = channel.unary_unary(
+                '/clone.controller.SupervisorGRPC/SetPressureGenPressure',
+                request_serializer=clone__client_dot_proto_dot_data__types__pb2.PressureGenPressure.SerializeToString,
                 response_deserializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
                 )
         self.SetMuscles = channel.unary_unary(
@@ -66,25 +66,25 @@ class SupervisorGRPCStub(object):
 class SupervisorGRPCServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def GetCompressorInfo(self, request, context):
+    def GetPressureGenInfo(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def StartCompressor(self, request, context):
+    def StartPressureGen(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def StopCompressor(self, request, context):
+    def StopPressureGen(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def SetCompressorPressure(self, request, context):
+    def SetPressureGenPressure(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -123,24 +123,24 @@ class SupervisorGRPCServicer(object):
 
 def add_SupervisorGRPCServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'GetCompressorInfo': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetCompressorInfo,
+            'GetPressureGenInfo': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetPressureGenInfo,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-                    response_serializer=clone__client_dot_controller_dot_proto_dot_supervisor__pb2.CompressorInfoResponse.SerializeToString,
+                    response_serializer=clone__client_dot_controller_dot_proto_dot_supervisor__pb2.PressureGenInfoResponse.SerializeToString,
             ),
-            'StartCompressor': grpc.unary_unary_rpc_method_handler(
-                    servicer.StartCompressor,
-                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-                    response_serializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.SerializeToString,
-            ),
-            'StopCompressor': grpc.unary_unary_rpc_method_handler(
-                    servicer.StopCompressor,
+            'StartPressureGen': grpc.unary_unary_rpc_method_handler(
+                    servicer.StartPressureGen,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                     response_serializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.SerializeToString,
             ),
-            'SetCompressorPressure': grpc.unary_unary_rpc_method_handler(
-                    servicer.SetCompressorPressure,
-                    request_deserializer=clone__client_dot_proto_dot_data__types__pb2.CompressorPressure.FromString,
+            'StopPressureGen': grpc.unary_unary_rpc_method_handler(
+                    servicer.StopPressureGen,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.SerializeToString,
+            ),
+            'SetPressureGenPressure': grpc.unary_unary_rpc_method_handler(
+                    servicer.SetPressureGenPressure,
+                    request_deserializer=clone__client_dot_proto_dot_data__types__pb2.PressureGenPressure.FromString,
                     response_serializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.SerializeToString,
             ),
             'SetMuscles': grpc.unary_unary_rpc_method_handler(
@@ -179,7 +179,7 @@ class SupervisorGRPC(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def GetCompressorInfo(request,
+    def GetPressureGenInfo(request,
             target,
             options=(),
             channel_credentials=None,
@@ -189,14 +189,14 @@ class SupervisorGRPC(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/clone.controller.SupervisorGRPC/GetCompressorInfo',
+        return grpc.experimental.unary_unary(request, target, '/clone.controller.SupervisorGRPC/GetPressureGenInfo',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-            clone__client_dot_controller_dot_proto_dot_supervisor__pb2.CompressorInfoResponse.FromString,
+            clone__client_dot_controller_dot_proto_dot_supervisor__pb2.PressureGenInfoResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def StartCompressor(request,
+    def StartPressureGen(request,
             target,
             options=(),
             channel_credentials=None,
@@ -206,31 +206,14 @@ class SupervisorGRPC(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/clone.controller.SupervisorGRPC/StartCompressor',
-            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-            clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def StopCompressor(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/clone.controller.SupervisorGRPC/StopCompressor',
+        return grpc.experimental.unary_unary(request, target, '/clone.controller.SupervisorGRPC/StartPressureGen',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def SetCompressorPressure(request,
+    def StopPressureGen(request,
             target,
             options=(),
             channel_credentials=None,
@@ -240,8 +223,25 @@ class SupervisorGRPC(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/clone.controller.SupervisorGRPC/SetCompressorPressure',
-            clone__client_dot_proto_dot_data__types__pb2.CompressorPressure.SerializeToString,
+        return grpc.experimental.unary_unary(request, target, '/clone.controller.SupervisorGRPC/StopPressureGen',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def SetPressureGenPressure(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/clone.controller.SupervisorGRPC/SetPressureGenPressure',
+            clone__client_dot_proto_dot_data__types__pb2.PressureGenPressure.SerializeToString,
             clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

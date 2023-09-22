@@ -30,7 +30,8 @@ class _ErrorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._Enum
     INVALID_SERVER_STATE: _ErrorType.ValueType  # 2
     ACQUISITION: _ErrorType.ValueType  # 3
     UNKNOWN: _ErrorType.ValueType  # 4
-    TIMEOUT: _ErrorType.ValueType  # 5
+    RPC_TIMEOUT: _ErrorType.ValueType  # 5
+    SERVICE_TIMEOUT: _ErrorType.ValueType  # 6
 
 class ErrorType(_ErrorType, metaclass=_ErrorTypeEnumTypeWrapper): ...
 
@@ -39,7 +40,8 @@ INSTRUCTION: ErrorType.ValueType  # 1
 INVALID_SERVER_STATE: ErrorType.ValueType  # 2
 ACQUISITION: ErrorType.ValueType  # 3
 UNKNOWN: ErrorType.ValueType  # 4
-TIMEOUT: ErrorType.ValueType  # 5
+RPC_TIMEOUT: ErrorType.ValueType  # 5
+SERVICE_TIMEOUT: ErrorType.ValueType  # 6
 global___ErrorType = ErrorType
 
 @typing_extensions.final
@@ -198,7 +200,7 @@ class GetNodesRequest(google.protobuf.message.Message):
 global___GetNodesRequest = GetNodesRequest
 
 @typing_extensions.final
-class CompressorPressure(google.protobuf.message.Message):
+class PressureGenPressure(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
     PRESSURE_FIELD_NUMBER: builtins.int
@@ -210,4 +212,4 @@ class CompressorPressure(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing_extensions.Literal["pressure", b"pressure"]) -> None: ...
 
-global___CompressorPressure = CompressorPressure
+global___PressureGenPressure = PressureGenPressure
