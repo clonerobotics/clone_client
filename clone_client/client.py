@@ -21,6 +21,8 @@ from clone_client.discovery import Discovery
 from clone_client.exceptions import (
     ClientError,
     DesiredPressureNotAchievedError,
+    IncorrectMuscleIndexError,
+    IncorrectMuscleNameError,
     MissingConfigurationError,
 )
 from clone_client.state_store.config import STATE_STORE_CONFIG
@@ -112,14 +114,21 @@ class Client:
 
     def muscle_idx(self, name: str) -> int:
         """Get muscle index by name."""
-        return self._ordering[name]
+        try:
+            return self._ordering[name]
+        except KeyError as err:
+            raise IncorrectMuscleNameError(name) from err
 
     def muscle_name(self, idx: int) -> str:
         """Get muscle name by index."""
-        return self._ordering_rev[idx]
+        try:
+            return self._ordering_rev[idx]
+        except KeyError as err:
+            raise IncorrectMuscleIndexError(idx) from err
 
     def _update_mappings(self, info: HandInfo) -> None:
-        for index, (_valve_id_packed, muscle_name) in enumerate(info.muscles.items()):
+        for index, valve_id_packed in enumerate(sorted(info.muscles.keys())):
+            muscle_name = info.muscles[valve_id_packed]
             self._ordering[muscle_name] = index
             self._ordering_rev[index] = muscle_name
 
@@ -139,9 +148,12 @@ class Client:
         """Send instruction to the controller to set any muscle into certain position"""
         await self.controller_tunnel.set_muscles(muscles)
 
-    async def get_pressures(self) -> MusclePressuresDataType:
+    async def get_pressures(self) -> Optional[MusclePressuresDataType]:
         """Send request to get the latest muscle pressures."""
         pressures_record = await self.state_tunnel.get_pressures()
+        if pressures_record is None:
+            return None
+
         return pressures_record[1]
 
     async def loose_all(self) -> None:

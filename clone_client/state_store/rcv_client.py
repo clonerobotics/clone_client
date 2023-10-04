@@ -51,12 +51,16 @@ class StateStoreReceiverClient(GRPCAsyncClient):
             golem_err = translate_rpc_error("SubscribePressures", self.socket_address, err)
             raise golem_err from err
 
-    async def get_pressures(self) -> ValvePressuresRecord:
+    async def get_pressures(self) -> Optional[ValvePressuresRecord]:
         """Send request to get the latest muscle pressures."""
         try:
             response: PublishedPressures = await self.stub.GetPressures(Empty(), timeout=self.timeout)
             handle_response(response.response_data)
-            return _unpack_valve_pressure(response.pressures)
+            record_ts, record_pressures = _unpack_valve_pressure(response.pressures)
+
+            if record_ts == datetime.min and len(record_pressures) == 0:
+                # No data available, record is created using default proto3 constructors
+                return None
 
         except RpcError as err:
             golem_err = translate_rpc_error("GetPressures", self.socket_address, err)
