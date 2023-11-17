@@ -21,7 +21,7 @@ class _PressureGenVariant:
     ValueType = typing.NewType("ValueType", builtins.int)
     V: typing_extensions.TypeAlias = ValueType
 
-class _PressureGenVariantEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_PressureGenVariant.ValueType], builtins.type):
+class _PressureGenVariantEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_PressureGenVariant.ValueType], builtins.type):  # noqa: F821
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     AIR_COMPRESSOR: _PressureGenVariant.ValueType  # 0
     WATER_PUMP: _PressureGenVariant.ValueType  # 1
@@ -32,7 +32,6 @@ AIR_COMPRESSOR: PressureGenVariant.ValueType  # 0
 WATER_PUMP: PressureGenVariant.ValueType  # 1
 global___PressureGenVariant = PressureGenVariant
 
-@typing_extensions.final
 class ValveListResponse(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -53,7 +52,6 @@ class ValveListResponse(google.protobuf.message.Message):
 
 global___ValveListResponse = ValveListResponse
 
-@typing_extensions.final
 class PressureGenInfo(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -83,7 +81,6 @@ class PressureGenInfo(google.protobuf.message.Message):
 
 global___PressureGenInfo = PressureGenInfo
 
-@typing_extensions.final
 class PressureGenInfoResponse(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 

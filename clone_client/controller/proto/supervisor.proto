@@ -1,6 +1,6 @@
 syntax="proto3";
 
-package clone.controller;
+package clonepb.controller;
 
 import "google/protobuf/empty.proto";
 
@@ -8,19 +8,19 @@ import "clone_client/proto/data_types.proto";
 
 service SupervisorGRPC {
   rpc GetPressureGenInfo(google.protobuf.Empty) returns (PressureGenInfoResponse);
-  rpc StartPressureGen(google.protobuf.Empty) returns (clone.data_types.ServerResponse);
-  rpc StopPressureGen(google.protobuf.Empty) returns (clone.data_types.ServerResponse);
-  rpc SetPressureGenPressure(clone.data_types.PressureGenPressure) returns (clone.data_types.ServerResponse);
-  rpc SetMuscles(clone.data_types.MuscleMovement) returns (clone.data_types.ServerResponse);
-  rpc LooseMuscles(google.protobuf.Empty) returns (clone.data_types.ServerResponse);
-  rpc LockMuscles(google.protobuf.Empty) returns (clone.data_types.ServerResponse);
-  rpc SetPressures(clone.data_types.MusclePressureSetting) returns (clone.data_types.ServerResponse);
-  rpc GetValves(clone.data_types.GetNodesRequest) returns (ValveListResponse);
+  rpc StartPressureGen(google.protobuf.Empty) returns (clonepb.data_types.ServerResponse);
+  rpc StopPressureGen(google.protobuf.Empty) returns (clonepb.data_types.ServerResponse);
+  rpc SetPressureGenPressure(clonepb.data_types.PressureGenPressure) returns (clonepb.data_types.ServerResponse);
+  rpc SetMuscles(clonepb.data_types.MuscleMovement) returns (clonepb.data_types.ServerResponse);
+  rpc LooseMuscles(google.protobuf.Empty) returns (clonepb.data_types.ServerResponse);
+  rpc LockMuscles(google.protobuf.Empty) returns (clonepb.data_types.ServerResponse);
+  rpc SetPressures(clonepb.data_types.MusclePressureSetting) returns (clonepb.data_types.ServerResponse);
+  rpc GetValves(clonepb.data_types.GetNodesRequest) returns (ValveListResponse);
 }
 
 message ValveListResponse{
-  clone.data_types.MusclesValveInfo valve_list=1;
-  clone.data_types.ServerResponse response=2;
+  clonepb.data_types.MusclesValveInfo valve_list=1;
+  clonepb.data_types.ServerResponse response=2;
 }
 
 enum PressureGenVariant {
@@ -39,5 +39,5 @@ message PressureGenInfo {
 
 message PressureGenInfoResponse {
   PressureGenInfo info=1;
-  clone.data_types.ServerResponse response=2;
+  clonepb.data_types.ServerResponse response=2;
 }

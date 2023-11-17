@@ -3,31 +3,38 @@ syntax="proto3";
 import "google/protobuf/empty.proto";
 import "clone_client/proto/data_types.proto";
 
-package clone.state_store;
+package clonepb.state_store;
 
 service StateStorePublisher {
   rpc SubscribePressures (google.protobuf.Empty) returns (stream PublishedPressures);
   rpc GetPressures (google.protobuf.Empty) returns (PublishedPressures);
   rpc GetLastNPressures (NCount) returns (PublishedPressuresList);
   rpc GetHandInfo (google.protobuf.Empty) returns (HandInfoResponse);
+  rpc GetTracking (google.protobuf.Empty) returns (PublishedTrackingData);
 }
 
-service StateStore {
-  rpc UpdatePressures (clone.data_types.MusclePressuresState) returns (clone.data_types.ServerResponse);
+message TrackingDataMessage {
+  repeated float data = 1;
 }
 
 message NCount{
   int32 n_count=1;
 }
 
+message PublishedTrackingData {
+  optional TrackingDataMessage tracking=1;
+  clonepb.data_types.ServerResponse response_data=2;
+}
+
+
 message PublishedPressures {
-  optional clone.data_types.MusclePressuresState pressures=1;
-  clone.data_types.ServerResponse response_data=2;
+  optional clonepb.data_types.MusclePressuresState pressures=1;
+  clonepb.data_types.ServerResponse response_data=2;
 }
 
 message PublishedPressuresList {
-  repeated clone.data_types.MusclePressuresState pressure_list=1;
-  clone.data_types.ServerResponse response_data=2;
+  repeated clonepb.data_types.MusclePressuresState pressure_list=1;
+  clonepb.data_types.ServerResponse response_data=2;
 }
 
 message HandInfo {
@@ -36,5 +43,5 @@ message HandInfo {
 
 message HandInfoResponse {
   HandInfo info=1;
-  clone.data_types.ServerResponse response=2;
+  clonepb.data_types.ServerResponse response=2;
 }

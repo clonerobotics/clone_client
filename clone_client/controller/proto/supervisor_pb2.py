@@ -15,7 +15,7 @@ from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 from clone_client.proto import data_types_pb2 as clone__client_dot_proto_dot_data__types__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n.clone_client/controller/proto/supervisor.proto\x12\x10\x63lone.controller\x1a\x1bgoogle/protobuf/empty.proto\x1a#clone_client/proto/data_types.proto\"\x7f\n\x11ValveListResponse\x12\x36\n\nvalve_list\x18\x01 \x01(\x0b\x32\".clone.data_types.MusclesValveInfo\x12\x32\n\x08response\x18\x02 \x01(\x0b\x32 .clone.data_types.ServerResponse\"\xb0\x01\n\x0fPressureGenInfo\x12\x18\n\x10\x64\x65sired_pressure\x18\x01 \x01(\x02\x12\x10\n\x08pressure\x18\x02 \x01(\x02\x12\x12\n\nis_running\x18\x03 \x01(\x08\x12\x11\n\tis_active\x18\x04 \x01(\x08\x12\x13\n\x0btemperature\x18\x05 \x01(\x02\x12\x35\n\x07variant\x18\x06 \x01(\x0e\x32$.clone.controller.PressureGenVariant\"~\n\x17PressureGenInfoResponse\x12/\n\x04info\x18\x01 \x01(\x0b\x32!.clone.controller.PressureGenInfo\x12\x32\n\x08response\x18\x02 \x01(\x0b\x32 .clone.data_types.ServerResponse*8\n\x12PressureGenVariant\x12\x12\n\x0e\x41IR_COMPRESSOR\x10\x00\x12\x0e\n\nWATER_PUMP\x10\x01\x32\xfc\x05\n\x0eSupervisorGRPC\x12W\n\x12GetPressureGenInfo\x12\x16.google.protobuf.Empty\x1a).clone.controller.PressureGenInfoResponse\x12L\n\x10StartPressureGen\x12\x16.google.protobuf.Empty\x1a .clone.data_types.ServerResponse\x12K\n\x0fStopPressureGen\x12\x16.google.protobuf.Empty\x1a .clone.data_types.ServerResponse\x12\x61\n\x16SetPressureGenPressure\x12%.clone.data_types.PressureGenPressure\x1a .clone.data_types.ServerResponse\x12P\n\nSetMuscles\x12 .clone.data_types.MuscleMovement\x1a .clone.data_types.ServerResponse\x12H\n\x0cLooseMuscles\x12\x16.google.protobuf.Empty\x1a .clone.data_types.ServerResponse\x12G\n\x0bLockMuscles\x12\x16.google.protobuf.Empty\x1a .clone.data_types.ServerResponse\x12Y\n\x0cSetPressures\x12\'.clone.data_types.MusclePressureSetting\x1a .clone.data_types.ServerResponse\x12S\n\tGetValves\x12!.clone.data_types.GetNodesRequest\x1a#.clone.controller.ValveListResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n.clone_client/controller/proto/supervisor.proto\x12\x12\x63lonepb.controller\x1a\x1bgoogle/protobuf/empty.proto\x1a#clone_client/proto/data_types.proto\"\x83\x01\n\x11ValveListResponse\x12\x38\n\nvalve_list\x18\x01 \x01(\x0b\x32$.clonepb.data_types.MusclesValveInfo\x12\x34\n\x08response\x18\x02 \x01(\x0b\x32\".clonepb.data_types.ServerResponse\"\xb2\x01\n\x0fPressureGenInfo\x12\x18\n\x10\x64\x65sired_pressure\x18\x01 \x01(\x02\x12\x10\n\x08pressure\x18\x02 \x01(\x02\x12\x12\n\nis_running\x18\x03 \x01(\x08\x12\x11\n\tis_active\x18\x04 \x01(\x08\x12\x13\n\x0btemperature\x18\x05 \x01(\x02\x12\x37\n\x07variant\x18\x06 \x01(\x0e\x32&.clonepb.controller.PressureGenVariant\"\x82\x01\n\x17PressureGenInfoResponse\x12\x31\n\x04info\x18\x01 \x01(\x0b\x32#.clonepb.controller.PressureGenInfo\x12\x34\n\x08response\x18\x02 \x01(\x0b\x32\".clonepb.data_types.ServerResponse*8\n\x12PressureGenVariant\x12\x12\n\x0e\x41IR_COMPRESSOR\x10\x00\x12\x0e\n\nWATER_PUMP\x10\x01\x32\x96\x06\n\x0eSupervisorGRPC\x12Y\n\x12GetPressureGenInfo\x12\x16.google.protobuf.Empty\x1a+.clonepb.controller.PressureGenInfoResponse\x12N\n\x10StartPressureGen\x12\x16.google.protobuf.Empty\x1a\".clonepb.data_types.ServerResponse\x12M\n\x0fStopPressureGen\x12\x16.google.protobuf.Empty\x1a\".clonepb.data_types.ServerResponse\x12\x65\n\x16SetPressureGenPressure\x12\'.clonepb.data_types.PressureGenPressure\x1a\".clonepb.data_types.ServerResponse\x12T\n\nSetMuscles\x12\".clonepb.data_types.MuscleMovement\x1a\".clonepb.data_types.ServerResponse\x12J\n\x0cLooseMuscles\x12\x16.google.protobuf.Empty\x1a\".clonepb.data_types.ServerResponse\x12I\n\x0bLockMuscles\x12\x16.google.protobuf.Empty\x1a\".clonepb.data_types.ServerResponse\x12]\n\x0cSetPressures\x12).clonepb.data_types.MusclePressureSetting\x1a\".clonepb.data_types.ServerResponse\x12W\n\tGetValves\x12#.clonepb.data_types.GetNodesRequest\x1a%.clonepb.controller.ValveListResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -23,14 +23,14 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'clone_client.controller.pro
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
-  _globals['_PRESSUREGENVARIANT']._serialized_start=570
-  _globals['_PRESSUREGENVARIANT']._serialized_end=626
-  _globals['_VALVELISTRESPONSE']._serialized_start=134
-  _globals['_VALVELISTRESPONSE']._serialized_end=261
-  _globals['_PRESSUREGENINFO']._serialized_start=264
-  _globals['_PRESSUREGENINFO']._serialized_end=440
-  _globals['_PRESSUREGENINFORESPONSE']._serialized_start=442
-  _globals['_PRESSUREGENINFORESPONSE']._serialized_end=568
-  _globals['_SUPERVISORGRPC']._serialized_start=629
-  _globals['_SUPERVISORGRPC']._serialized_end=1393
+  _globals['_PRESSUREGENVARIANT']._serialized_start=584
+  _globals['_PRESSUREGENVARIANT']._serialized_end=640
+  _globals['_VALVELISTRESPONSE']._serialized_start=137
+  _globals['_VALVELISTRESPONSE']._serialized_end=268
+  _globals['_PRESSUREGENINFO']._serialized_start=271
+  _globals['_PRESSUREGENINFO']._serialized_end=449
+  _globals['_PRESSUREGENINFORESPONSE']._serialized_start=452
+  _globals['_PRESSUREGENINFORESPONSE']._serialized_end=582
+  _globals['_SUPERVISORGRPC']._serialized_start=643
+  _globals['_SUPERVISORGRPC']._serialized_end=1433
 # @@protoc_insertion_point(module_scope)

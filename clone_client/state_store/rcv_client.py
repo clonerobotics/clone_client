@@ -19,11 +19,13 @@ from clone_client.state_store.proto.state_store_pb2 import (
     HandInfoResponse,
     PublishedPressures,
     PublishedPressuresList,
+    PublishedTrackingData,
 )
 from clone_client.state_store.proto.state_store_pb2_grpc import StateStorePublisherStub
 from clone_client.types import MusclePressuresDataType
 
 ValvePressuresRecord = Tuple[datetime, MusclePressuresDataType]
+TrackingRecord = List[float]
 
 
 class StateStoreReceiverClient(GRPCAsyncClient):
@@ -62,6 +64,8 @@ class StateStoreReceiverClient(GRPCAsyncClient):
                 # No data available, record is created using default proto3 constructors
                 return None
 
+            return record_ts, record_pressures
+
         except RpcError as err:
             golem_err = translate_rpc_error("GetPressures", self.socket_address, err)
             raise golem_err from err
@@ -81,6 +85,23 @@ class StateStoreReceiverClient(GRPCAsyncClient):
 
         except RpcError as err:
             golem_err = translate_rpc_error("GetLastN_Pressures", self.socket_address, err)
+            raise golem_err from err
+
+    async def get_tracking(self) -> Optional[TrackingRecord]:
+        """Send request to get the latest tracking data."""
+        try:
+            response: PublishedTrackingData = await self.stub.GetTracking(Empty(), timeout=self.timeout)
+            handle_response(response.response_data)
+            tracking = response.tracking.data
+
+            if len(tracking) == 0:
+                # No data available, record is created using default proto3 constructors
+                return None
+
+            return list(tracking)
+
+        except RpcError as err:
+            golem_err = translate_rpc_error("GetTracking", self.socket_address, err)
             raise golem_err from err
 
     async def get_hand_info(self, reload: bool = False) -> HandInfo:

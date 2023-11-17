@@ -2,7 +2,6 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from clone_client.proto import data_types_pb2 as clone__client_dot_proto_dot_data__types__pb2
 from clone_client.state_store.proto import state_store_pb2 as clone__client_dot_state__store_dot_proto_dot_state__store__pb2
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
@@ -17,24 +16,29 @@ class StateStorePublisherStub(object):
             channel: A grpc.Channel.
         """
         self.SubscribePressures = channel.unary_stream(
-                '/clone.state_store.StateStorePublisher/SubscribePressures',
+                '/clonepb.state_store.StateStorePublisher/SubscribePressures',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=clone__client_dot_state__store_dot_proto_dot_state__store__pb2.PublishedPressures.FromString,
                 )
         self.GetPressures = channel.unary_unary(
-                '/clone.state_store.StateStorePublisher/GetPressures',
+                '/clonepb.state_store.StateStorePublisher/GetPressures',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=clone__client_dot_state__store_dot_proto_dot_state__store__pb2.PublishedPressures.FromString,
                 )
         self.GetLastNPressures = channel.unary_unary(
-                '/clone.state_store.StateStorePublisher/GetLastNPressures',
+                '/clonepb.state_store.StateStorePublisher/GetLastNPressures',
                 request_serializer=clone__client_dot_state__store_dot_proto_dot_state__store__pb2.NCount.SerializeToString,
                 response_deserializer=clone__client_dot_state__store_dot_proto_dot_state__store__pb2.PublishedPressuresList.FromString,
                 )
         self.GetHandInfo = channel.unary_unary(
-                '/clone.state_store.StateStorePublisher/GetHandInfo',
+                '/clonepb.state_store.StateStorePublisher/GetHandInfo',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=clone__client_dot_state__store_dot_proto_dot_state__store__pb2.HandInfoResponse.FromString,
+                )
+        self.GetTracking = channel.unary_unary(
+                '/clonepb.state_store.StateStorePublisher/GetTracking',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=clone__client_dot_state__store_dot_proto_dot_state__store__pb2.PublishedTrackingData.FromString,
                 )
 
 
@@ -65,6 +69,12 @@ class StateStorePublisherServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetTracking(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_StateStorePublisherServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -88,9 +98,14 @@ def add_StateStorePublisherServicer_to_server(servicer, server):
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                     response_serializer=clone__client_dot_state__store_dot_proto_dot_state__store__pb2.HandInfoResponse.SerializeToString,
             ),
+            'GetTracking': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetTracking,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=clone__client_dot_state__store_dot_proto_dot_state__store__pb2.PublishedTrackingData.SerializeToString,
+            ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'clone.state_store.StateStorePublisher', rpc_method_handlers)
+            'clonepb.state_store.StateStorePublisher', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -109,7 +124,7 @@ class StateStorePublisher(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/clone.state_store.StateStorePublisher/SubscribePressures',
+        return grpc.experimental.unary_stream(request, target, '/clonepb.state_store.StateStorePublisher/SubscribePressures',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             clone__client_dot_state__store_dot_proto_dot_state__store__pb2.PublishedPressures.FromString,
             options, channel_credentials,
@@ -126,7 +141,7 @@ class StateStorePublisher(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/clone.state_store.StateStorePublisher/GetPressures',
+        return grpc.experimental.unary_unary(request, target, '/clonepb.state_store.StateStorePublisher/GetPressures',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             clone__client_dot_state__store_dot_proto_dot_state__store__pb2.PublishedPressures.FromString,
             options, channel_credentials,
@@ -143,7 +158,7 @@ class StateStorePublisher(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/clone.state_store.StateStorePublisher/GetLastNPressures',
+        return grpc.experimental.unary_unary(request, target, '/clonepb.state_store.StateStorePublisher/GetLastNPressures',
             clone__client_dot_state__store_dot_proto_dot_state__store__pb2.NCount.SerializeToString,
             clone__client_dot_state__store_dot_proto_dot_state__store__pb2.PublishedPressuresList.FromString,
             options, channel_credentials,
@@ -160,58 +175,14 @@ class StateStorePublisher(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/clone.state_store.StateStorePublisher/GetHandInfo',
+        return grpc.experimental.unary_unary(request, target, '/clonepb.state_store.StateStorePublisher/GetHandInfo',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             clone__client_dot_state__store_dot_proto_dot_state__store__pb2.HandInfoResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
-
-class StateStoreStub(object):
-    """Missing associated documentation comment in .proto file."""
-
-    def __init__(self, channel):
-        """Constructor.
-
-        Args:
-            channel: A grpc.Channel.
-        """
-        self.UpdatePressures = channel.unary_unary(
-                '/clone.state_store.StateStore/UpdatePressures',
-                request_serializer=clone__client_dot_proto_dot_data__types__pb2.MusclePressuresState.SerializeToString,
-                response_deserializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
-                )
-
-
-class StateStoreServicer(object):
-    """Missing associated documentation comment in .proto file."""
-
-    def UpdatePressures(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-
-def add_StateStoreServicer_to_server(servicer, server):
-    rpc_method_handlers = {
-            'UpdatePressures': grpc.unary_unary_rpc_method_handler(
-                    servicer.UpdatePressures,
-                    request_deserializer=clone__client_dot_proto_dot_data__types__pb2.MusclePressuresState.FromString,
-                    response_serializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.SerializeToString,
-            ),
-    }
-    generic_handler = grpc.method_handlers_generic_handler(
-            'clone.state_store.StateStore', rpc_method_handlers)
-    server.add_generic_rpc_handlers((generic_handler,))
-
-
- # This class is part of an EXPERIMENTAL API.
-class StateStore(object):
-    """Missing associated documentation comment in .proto file."""
-
     @staticmethod
-    def UpdatePressures(request,
+    def GetTracking(request,
             target,
             options=(),
             channel_credentials=None,
@@ -221,8 +192,8 @@ class StateStore(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/clone.state_store.StateStore/UpdatePressures',
-            clone__client_dot_proto_dot_data__types__pb2.MusclePressuresState.SerializeToString,
-            clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
+        return grpc.experimental.unary_unary(request, target, '/clonepb.state_store.StateStorePublisher/GetTracking',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            clone__client_dot_state__store_dot_proto_dot_state__store__pb2.PublishedTrackingData.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

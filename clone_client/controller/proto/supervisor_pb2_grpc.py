@@ -17,47 +17,47 @@ class SupervisorGRPCStub(object):
             channel: A grpc.Channel.
         """
         self.GetPressureGenInfo = channel.unary_unary(
-                '/clone.controller.SupervisorGRPC/GetPressureGenInfo',
+                '/clonepb.controller.SupervisorGRPC/GetPressureGenInfo',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=clone__client_dot_controller_dot_proto_dot_supervisor__pb2.PressureGenInfoResponse.FromString,
                 )
         self.StartPressureGen = channel.unary_unary(
-                '/clone.controller.SupervisorGRPC/StartPressureGen',
+                '/clonepb.controller.SupervisorGRPC/StartPressureGen',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
                 )
         self.StopPressureGen = channel.unary_unary(
-                '/clone.controller.SupervisorGRPC/StopPressureGen',
+                '/clonepb.controller.SupervisorGRPC/StopPressureGen',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
                 )
         self.SetPressureGenPressure = channel.unary_unary(
-                '/clone.controller.SupervisorGRPC/SetPressureGenPressure',
+                '/clonepb.controller.SupervisorGRPC/SetPressureGenPressure',
                 request_serializer=clone__client_dot_proto_dot_data__types__pb2.PressureGenPressure.SerializeToString,
                 response_deserializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
                 )
         self.SetMuscles = channel.unary_unary(
-                '/clone.controller.SupervisorGRPC/SetMuscles',
+                '/clonepb.controller.SupervisorGRPC/SetMuscles',
                 request_serializer=clone__client_dot_proto_dot_data__types__pb2.MuscleMovement.SerializeToString,
                 response_deserializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
                 )
         self.LooseMuscles = channel.unary_unary(
-                '/clone.controller.SupervisorGRPC/LooseMuscles',
+                '/clonepb.controller.SupervisorGRPC/LooseMuscles',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
                 )
         self.LockMuscles = channel.unary_unary(
-                '/clone.controller.SupervisorGRPC/LockMuscles',
+                '/clonepb.controller.SupervisorGRPC/LockMuscles',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
                 )
         self.SetPressures = channel.unary_unary(
-                '/clone.controller.SupervisorGRPC/SetPressures',
+                '/clonepb.controller.SupervisorGRPC/SetPressures',
                 request_serializer=clone__client_dot_proto_dot_data__types__pb2.MusclePressureSetting.SerializeToString,
                 response_deserializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
                 )
         self.GetValves = channel.unary_unary(
-                '/clone.controller.SupervisorGRPC/GetValves',
+                '/clonepb.controller.SupervisorGRPC/GetValves',
                 request_serializer=clone__client_dot_proto_dot_data__types__pb2.GetNodesRequest.SerializeToString,
                 response_deserializer=clone__client_dot_controller_dot_proto_dot_supervisor__pb2.ValveListResponse.FromString,
                 )
@@ -170,7 +170,7 @@ def add_SupervisorGRPCServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'clone.controller.SupervisorGRPC', rpc_method_handlers)
+            'clonepb.controller.SupervisorGRPC', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -189,7 +189,7 @@ class SupervisorGRPC(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/clone.controller.SupervisorGRPC/GetPressureGenInfo',
+        return grpc.experimental.unary_unary(request, target, '/clonepb.controller.SupervisorGRPC/GetPressureGenInfo',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             clone__client_dot_controller_dot_proto_dot_supervisor__pb2.PressureGenInfoResponse.FromString,
             options, channel_credentials,
@@ -206,7 +206,7 @@ class SupervisorGRPC(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/clone.controller.SupervisorGRPC/StartPressureGen',
+        return grpc.experimental.unary_unary(request, target, '/clonepb.controller.SupervisorGRPC/StartPressureGen',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
             options, channel_credentials,
@@ -223,7 +223,7 @@ class SupervisorGRPC(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/clone.controller.SupervisorGRPC/StopPressureGen',
+        return grpc.experimental.unary_unary(request, target, '/clonepb.controller.SupervisorGRPC/StopPressureGen',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
             options, channel_credentials,
@@ -240,7 +240,7 @@ class SupervisorGRPC(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/clone.controller.SupervisorGRPC/SetPressureGenPressure',
+        return grpc.experimental.unary_unary(request, target, '/clonepb.controller.SupervisorGRPC/SetPressureGenPressure',
             clone__client_dot_proto_dot_data__types__pb2.PressureGenPressure.SerializeToString,
             clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
             options, channel_credentials,
@@ -257,7 +257,7 @@ class SupervisorGRPC(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/clone.controller.SupervisorGRPC/SetMuscles',
+        return grpc.experimental.unary_unary(request, target, '/clonepb.controller.SupervisorGRPC/SetMuscles',
             clone__client_dot_proto_dot_data__types__pb2.MuscleMovement.SerializeToString,
             clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
             options, channel_credentials,
@@ -274,7 +274,7 @@ class SupervisorGRPC(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/clone.controller.SupervisorGRPC/LooseMuscles',
+        return grpc.experimental.unary_unary(request, target, '/clonepb.controller.SupervisorGRPC/LooseMuscles',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
             options, channel_credentials,
@@ -291,7 +291,7 @@ class SupervisorGRPC(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/clone.controller.SupervisorGRPC/LockMuscles',
+        return grpc.experimental.unary_unary(request, target, '/clonepb.controller.SupervisorGRPC/LockMuscles',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
             options, channel_credentials,
@@ -308,7 +308,7 @@ class SupervisorGRPC(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/clone.controller.SupervisorGRPC/SetPressures',
+        return grpc.experimental.unary_unary(request, target, '/clonepb.controller.SupervisorGRPC/SetPressures',
             clone__client_dot_proto_dot_data__types__pb2.MusclePressureSetting.SerializeToString,
             clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
             options, channel_credentials,
@@ -325,7 +325,7 @@ class SupervisorGRPC(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/clone.controller.SupervisorGRPC/GetValves',
+        return grpc.experimental.unary_unary(request, target, '/clonepb.controller.SupervisorGRPC/GetValves',
             clone__client_dot_proto_dot_data__types__pb2.GetNodesRequest.SerializeToString,
             clone__client_dot_controller_dot_proto_dot_supervisor__pb2.ValveListResponse.FromString,
             options, channel_credentials,
