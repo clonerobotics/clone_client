@@ -34,7 +34,6 @@ from clone_client.state_store.proto.state_store_pb2 import HandInfo as GRPCHandI
 from clone_client.state_store.rcv_client import (
     configured_subscriber,
     StateStoreReceiverClient,
-    TrackingRecord,
 )
 from clone_client.types import (
     HandInfo,
@@ -156,10 +155,6 @@ class Client:
             return None
 
         return pressures_record[1]
-
-    async def get_tracking(self) -> Optional[TrackingRecord]:
-        """Send request to get the latest muscle pressures."""
-        return await self.state_tunnel.get_tracking()
 
     async def loose_all(self) -> None:
         """Send instruction to the controller to loose all muscles."""

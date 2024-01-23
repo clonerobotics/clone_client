@@ -1,6 +1,6 @@
 syntax="proto3";
 
-package clonepb.data_types;
+package clone.data_types;
 
 import "google/protobuf/timestamp.proto";
 

@@ -17,21 +17,6 @@ else:
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
-class TrackingDataMessage(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    DATA_FIELD_NUMBER: builtins.int
-    @property
-    def data(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.float]: ...
-    def __init__(
-        self,
-        *,
-        data: collections.abc.Iterable[builtins.float] | None = ...,
-    ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["data", b"data"]) -> None: ...
-
-global___TrackingDataMessage = TrackingDataMessage
-
 class NCount(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -45,27 +30,6 @@ class NCount(google.protobuf.message.Message):
     def ClearField(self, field_name: typing_extensions.Literal["n_count", b"n_count"]) -> None: ...
 
 global___NCount = NCount
-
-class PublishedTrackingData(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    TRACKING_FIELD_NUMBER: builtins.int
-    RESPONSE_DATA_FIELD_NUMBER: builtins.int
-    @property
-    def tracking(self) -> global___TrackingDataMessage: ...
-    @property
-    def response_data(self) -> clone_client.proto.data_types_pb2.ServerResponse: ...
-    def __init__(
-        self,
-        *,
-        tracking: global___TrackingDataMessage | None = ...,
-        response_data: clone_client.proto.data_types_pb2.ServerResponse | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["_tracking", b"_tracking", "response_data", b"response_data", "tracking", b"tracking"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["_tracking", b"_tracking", "response_data", b"response_data", "tracking", b"tracking"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["_tracking", b"_tracking"]) -> typing_extensions.Literal["tracking"] | None: ...
-
-global___PublishedTrackingData = PublishedTrackingData
 
 class PublishedPressures(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
