@@ -13,7 +13,7 @@ from zeroconf.asyncio import (
 
 from clone_client.config import CommunicationService, CONFIG
 from clone_client.exceptions import ClientError
-from clone_client.utils import ensure_local, retry
+from clone_client.utils import retry, strip_local
 
 LOGGER = logging.getLogger(__name__)
 
@@ -45,7 +45,7 @@ class Discovery(ServiceListener):
         verify: bool = True,
         timeout_s: float = 3,
     ) -> None:
-        self._server = ensure_local(server)
+        self._server = strip_local(server)
         self.service = service
         self._timeout_s = timeout_s
         self._address: Optional[Tuple[str, int]] = None
@@ -114,8 +114,18 @@ class Discovery(ServiceListener):
         if not info:
             return
 
-        if self._server != info.server:
-            return
+        info_server = strip_local(info.server)
+        if self._server != info_server:
+            # Check for suffixed version of the server
+            try:
+                raw, _suffix = info_server.rsplit("-", 1)
+            except ValueError:
+                return
+
+            if self._server != raw:
+                return
+
+            LOGGER.info("Found suffixed server %s. for %s.", info_server, self._server)
 
         if self.service.name not in name:
             return
