@@ -78,3 +78,11 @@ def retry(
         return wrapped  # type: ignore
 
     return decorator  # type: ignore
+
+
+def strip_local(value: str) -> str:
+    """Check if value ends with .local. and remove it if it does."""
+    if value.endswith(".local."):
+        return value.replace(".local.", "")
+
+    return value
