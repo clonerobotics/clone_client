@@ -7,10 +7,10 @@ from time import time
 from types import TracebackType
 from typing import Dict, Optional, Set, Type, TypeVar
 
-from clone_client.config import CommunicationService, CONFIG
+from clone_client.config import CONFIG, CommunicationService
 from clone_client.controller.client import (
-    configured_controller_client,
     ControllerClient,
+    configured_controller_client,
 )
 
 # pylint: disable=E0611
@@ -32,8 +32,8 @@ from clone_client.state_store.proto.state_store_pb2 import HandInfo as GRPCHandI
 
 # pylint: enable=E0611
 from clone_client.state_store.rcv_client import (
-    configured_subscriber,
     StateStoreReceiverClient,
+    configured_subscriber,
 )
 from clone_client.types import (
     HandInfo,
@@ -60,10 +60,12 @@ class Client:
     def __init__(
         self,
         server: str = gethostname(),
+        address: Optional[str] = None,
         controller_service: CommunicationService = CONFIG.communication.controller_service,
         state_service: Optional[CommunicationService] = STATE_STORE_CONFIG.publisher_web_service,
     ) -> None:
         self.server = server
+        self.address = address
         if state_service is None:
             raise MissingConfigurationError("state service")
         self.state_service: CommunicationService = state_service
@@ -76,12 +78,16 @@ class Client:
         self._ordering_rev: Dict[int, MuscleName] = {}
 
     async def __aenter__(self) -> Client:
-        controller_address, controller_port = await Discovery(
-            self.server,
-            self.controller_service,
-        ).discover()
+        if not self.address:
+            controller_address, controller_port = await Discovery(
+                self.server,
+                self.controller_service,
+            ).discover()
 
-        state_address, state_port = await Discovery(self.server, self.state_service).discover()
+            state_address, state_port = await Discovery(self.server, self.state_service).discover()
+        else:
+            controller_address, controller_port = self.address, self.controller_service.default_port
+            state_address, state_port = self.address, self.state_service.default_port
 
         self.controller_tunnel = configured_controller_client(f"{controller_address}:{controller_port}")
         self.state_tunnel = configured_subscriber(f"{state_address}:{state_port}")

@@ -25,6 +25,9 @@ async def api_run() -> None:
 
             # Get current pressures after actuation
             pressures = await client.get_pressures()
+            if pressures is None:
+                raise RuntimeError("got empty pressures")
+
             print(pressures)
 
             # Check specific muscle pressure

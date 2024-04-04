@@ -62,6 +62,8 @@ class StateStoreReceiverClient(GRPCAsyncClient):
                 # No data available, record is created using default proto3 constructors
                 return None
 
+            return record_ts, record_pressures
+
         except RpcError as err:
             golem_err = translate_rpc_error("GetPressures", self.socket_address, err)
             raise golem_err from err
