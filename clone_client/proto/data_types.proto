@@ -14,9 +14,16 @@ enum ErrorType{
   SERVICE_TIMEOUT = 6;
 }
 
-message MuscleMovement{
+message Movement {
+  oneof data {
+    float value = 1;
+    bool ignore = 2;
+  }
+}
+
+message MuscleMovement {
   reserved 1;
-  repeated float movements=2;
+  repeated Movement movements = 2;
 }
 
 message MusclePressureSetting{
@@ -51,6 +58,6 @@ message GetNodesRequest {
   bool rediscover = 1;
 }
 
-message PressureGenPressure{
+message WaterPumpPressure{
   float pressure=1;
 }

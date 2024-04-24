@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "clone-client"
-version = "0.0.11"
+version = "0.0.12"
 description = ""
 authors = ["Clone Inc."]
 readme = "README.md"
@@ -8,7 +8,7 @@ packages = [{include = "clone_client"}]
 
 [tool.poetry.dependencies]
 pydantic = {version = "1.10.9", extras = ["dotenv"]}
-python = "~3.9"
+python = "^3.9"
 zeroconf = "^0.38.6"
 grpcio = "^1.57.0"
 grpcio-tools = "^1.57.0"
@@ -26,6 +26,7 @@ mypy-protobuf = "^3.2.0"
 types-protobuf = "^3.19.22"
 pylint-pydantic = "^0.2.4"
 pylint-protobuf = "^0.20.2"
+pytest = "^8.1.1"
 
 [tool.taskipy.tasks]
 fmt = "isort ./clone_client && black ./clone_client"

@@ -23,7 +23,7 @@ class _ErrorType:
     ValueType = typing.NewType("ValueType", builtins.int)
     V: typing_extensions.TypeAlias = ValueType
 
-class _ErrorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_ErrorType.ValueType], builtins.type):  # noqa: F821
+class _ErrorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_ErrorType.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
     UNSUPPORTED_REQUEST: _ErrorType.ValueType  # 0
     INSTRUCTION: _ErrorType.ValueType  # 1
@@ -44,21 +44,43 @@ RPC_TIMEOUT: ErrorType.ValueType  # 5
 SERVICE_TIMEOUT: ErrorType.ValueType  # 6
 global___ErrorType = ErrorType
 
+@typing_extensions.final
+class Movement(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    VALUE_FIELD_NUMBER: builtins.int
+    IGNORE_FIELD_NUMBER: builtins.int
+    value: builtins.float
+    ignore: builtins.bool
+    def __init__(
+        self,
+        *,
+        value: builtins.float = ...,
+        ignore: builtins.bool = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["data", b"data", "ignore", b"ignore", "value", b"value"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["data", b"data", "ignore", b"ignore", "value", b"value"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["data", b"data"]) -> typing_extensions.Literal["value", "ignore"] | None: ...
+
+global___Movement = Movement
+
+@typing_extensions.final
 class MuscleMovement(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
     MOVEMENTS_FIELD_NUMBER: builtins.int
     @property
-    def movements(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.float]: ...
+    def movements(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Movement]: ...
     def __init__(
         self,
         *,
-        movements: collections.abc.Iterable[builtins.float] | None = ...,
+        movements: collections.abc.Iterable[global___Movement] | None = ...,
     ) -> None: ...
     def ClearField(self, field_name: typing_extensions.Literal["movements", b"movements"]) -> None: ...
 
 global___MuscleMovement = MuscleMovement
 
+@typing_extensions.final
 class MusclePressureSetting(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -74,6 +96,7 @@ class MusclePressureSetting(google.protobuf.message.Message):
 
 global___MusclePressureSetting = MusclePressureSetting
 
+@typing_extensions.final
 class MusclePressuresState(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -94,6 +117,7 @@ class MusclePressuresState(google.protobuf.message.Message):
 
 global___MusclePressuresState = MusclePressuresState
 
+@typing_extensions.final
 class ErrorInfo(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -111,6 +135,7 @@ class ErrorInfo(google.protobuf.message.Message):
 
 global___ErrorInfo = ErrorInfo
 
+@typing_extensions.final
 class ServerResponse(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -131,6 +156,7 @@ class ServerResponse(google.protobuf.message.Message):
 
 global___ServerResponse = ServerResponse
 
+@typing_extensions.final
 class NodeList(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -146,9 +172,11 @@ class NodeList(google.protobuf.message.Message):
 
 global___NodeList = NodeList
 
+@typing_extensions.final
 class MusclesValveInfo(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
     class ValuesEntry(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -176,6 +204,7 @@ class MusclesValveInfo(google.protobuf.message.Message):
 
 global___MusclesValveInfo = MusclesValveInfo
 
+@typing_extensions.final
 class GetNodesRequest(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -190,7 +219,8 @@ class GetNodesRequest(google.protobuf.message.Message):
 
 global___GetNodesRequest = GetNodesRequest
 
-class PressureGenPressure(google.protobuf.message.Message):
+@typing_extensions.final
+class WaterPumpPressure(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
     PRESSURE_FIELD_NUMBER: builtins.int
@@ -202,4 +232,4 @@ class PressureGenPressure(google.protobuf.message.Message):
     ) -> None: ...
     def ClearField(self, field_name: typing_extensions.Literal["pressure", b"pressure"]) -> None: ...
 
-global___PressureGenPressure = PressureGenPressure
+global___WaterPumpPressure = WaterPumpPressure

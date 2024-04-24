@@ -1,11 +1,14 @@
 Metadata-Version: 2.1
 Name: clone-client
-Version: 0.0.11
+Version: 0.0.12
 Summary: 
 Author: Clone Inc.
-Requires-Python: >=3.9,<3.10
+Requires-Python: >=3.9,<4.0
 Classifier: Programming Language :: Python :: 3
 Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
 Requires-Dist: grpcio (>=1.57.0,<2.0.0)
 Requires-Dist: grpcio-tools (>=1.57.0,<2.0.0)
 Requires-Dist: pydantic[dotenv] (==1.10.9)
@@ -55,15 +58,15 @@ If you want more information about what is happening during initialization proce
 
 ### Using controller
 
-The controller is a simple communication interface that allows you to send commands to the hand. It mostly controls muscles and pressuregen.
+The controller is a simple communication interface that allows you to send commands to the hand. It mostly controls muscles and water pump.
 
 ```python
 from clone_client.client import Client
 
 async def entrypoint():
     async with Client("hand_name") as client:
-        # Start the pressuregen and wait for it to reach desired pressure
-        client.start_pressuregen()
+        # Start the waterpump and wait for it to reach desired pressure
+        client.start_waterpump()
         client.wait_for_desired_pressure()
 
         # Send muscles instructions
@@ -85,28 +88,28 @@ It is encouraged to keep sending the same values in a constant loop and stop sen
 
 ### Reading feedback data
 
-Clone Hand is equipped with a set of sensors that allow you to read current pressure in each muscle. You can also check the current and desired (target) pressure of the pressuregen.
+Clone Hand is equipped with a set of sensors that allow you to read current pressure in each muscle. You can also check the current and desired (target) pressure of the water pump.
 
 ```python
 from clone_client.client import Client
 
 async def entrypoint():
     async with Client("hand_name") as client:
-        # Start the pressuregen and wait for it to reach desired pressure
-        client.start_pressuregen()
+        # Start the water pump and wait for it to reach desired pressure
+        client.start_waterpump()
         client.wait_for_desired_pressure()
 
-        # Get current information about pressuregen
-        pressuregen_info = client.get_pressuregen_info()
+        # Get current information about water pump
+        waterpump_info = client.get_waterpump_info()
 
-        # Whether or not pressuregen controller is running
-        print("Is running", pressuregen_info.is_running)
+        # Whether or not water pump controller is running
+        print("Is running", waterpump_info.is_running)
 
-        # Current pressure in the pressuregen
-        print("Current pressure", pressuregen_info.pressure)
+        # Current pressure in the water pump
+        print("Current pressure", waterpump_info.pressure)
 
-        # Desired pressure in the pressuregen
-        print("Desired pressure", pressuregen_info.desired_pressure)
+        # Desired pressure in the water pump
+        print("Desired pressure", waterpump_info.desired_pressure)
 
         # Get current pressure in the muscles
         pressures = client.get_pressures()
@@ -173,7 +176,7 @@ Returns the name (`str`) of the muscle with given index (`int`).
 
 > `wait_for_desired_pressure(self, timeout)`
 
-Block the execution until timeout (`float`) is reached or until current pressuregen pressure is equal or more than desired pressure.
+Block the execution until timeout (`float`) is reached or until current waterpump pressure is equal or more than desired pressure.
 
 Raises `clone_client.exceptions.DesiredPressureNotAchievedError` if timeout is reached.
 
@@ -193,25 +196,25 @@ Looses all muscles. Equivalent of sending all `-1` values to `set_muscles` funct
 
 Locks all muscles. Equivalent of sending all `0` values to `set_muscles` function.
 
-> `start_pressuregen(self)`
+> `start_waterpump(self)`
 
-Starts the pressuregen.
+Starts the waterpump.
 
-> `stop_pressuregen(self)`
+> `stop_waterpump(self)`
 
-Stops the pressuregen.
+Stops the waterpump.
 
-> `set_pressuregen_pressure(self)`
+> `set_waterpump_pressure(self)`
 
-Sets the desired pressure of the pressuregen. **Currently unimplemented.**
+Sets the desired pressure of the waterpump. **Currently unimplemented.**
 
 > `get_valve_nodes(self)`
 
 Returns a `set` of `clone_client.types.ValveAddress` with all valve nodes connected to the hand. For higher level programs a `muscle_names` property is recommended.
 
-> `get_pressuregen_info(self)`
+> `get_waterpump_info(self)`
 
-Returns a `clone_client.types.pressuregenInfo` with current pressuregen information.
+Returns a `clone_client.types.waterpumpInfo` with current waterpump information.
 
 > `get_hand_info(self)`
 

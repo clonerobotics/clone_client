@@ -17,6 +17,7 @@ else:
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
+@typing_extensions.final
 class NCount(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -31,6 +32,7 @@ class NCount(google.protobuf.message.Message):
 
 global___NCount = NCount
 
+@typing_extensions.final
 class PublishedPressures(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -52,6 +54,7 @@ class PublishedPressures(google.protobuf.message.Message):
 
 global___PublishedPressures = PublishedPressures
 
+@typing_extensions.final
 class PublishedPressuresList(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -72,9 +75,11 @@ class PublishedPressuresList(google.protobuf.message.Message):
 
 global___PublishedPressuresList = PublishedPressuresList
 
+@typing_extensions.final
 class HandInfo(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    @typing_extensions.final
     class MusclesEntry(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -102,6 +107,7 @@ class HandInfo(google.protobuf.message.Message):
 
 global___HandInfo = HandInfo
 
+@typing_extensions.final
 class HandInfoResponse(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 

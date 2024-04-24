@@ -1,0 +1,45 @@
+syntax="proto3";
+
+package clone.controller;
+
+import "google/protobuf/empty.proto";
+
+import "clone_client/proto/data_types.proto";
+
+service ControllerGRPC {
+  rpc GetWaterPumpInfo(google.protobuf.Empty) returns (WaterPumpInfoResponse);
+  rpc StartWaterPump(google.protobuf.Empty) returns (clone.data_types.ServerResponse);
+  rpc StopWaterPump(google.protobuf.Empty) returns (clone.data_types.ServerResponse);
+  rpc SetWaterPumpPressure(clone.data_types.WaterPumpPressure) returns (clone.data_types.ServerResponse);
+  rpc SetMuscles(clone.data_types.MuscleMovement) returns (clone.data_types.ServerResponse);
+  rpc LooseMuscles(google.protobuf.Empty) returns (clone.data_types.ServerResponse);
+  rpc LockMuscles(google.protobuf.Empty) returns (clone.data_types.ServerResponse);
+  rpc SetPressures(clone.data_types.MusclePressureSetting) returns (clone.data_types.ServerResponse);
+  rpc GetValves(clone.data_types.GetNodesRequest) returns (ValveListResponse);
+  rpc GetConfig(google.protobuf.Empty) returns (ControllerRuntimeConfig);
+}
+
+message ControllerRuntimeConfig {
+  uint32 max_impulse_duration_ms = 1;
+  bool use_pump = 2;
+  bool allow_missing_nodes = 3;
+}
+
+
+message ValveListResponse{
+  clone.data_types.MusclesValveInfo valve_list=1;
+  clone.data_types.ServerResponse response=2;
+}
+
+message WaterPumpInfo {
+  float desired_pressure=1;
+  float pressure=2;
+  bool is_running=3;
+  bool is_active=4;
+  float temperature=5;
+}
+
+message WaterPumpInfoResponse {
+  WaterPumpInfo info=1;
+  clone.data_types.ServerResponse response=2;
+}

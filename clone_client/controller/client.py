@@ -1,3 +1,4 @@
+import sys
 from typing import Set
 
 from google.protobuf.empty_pb2 import Empty  # pylint: disable=no-name-in-module
@@ -7,12 +8,13 @@ from grpc import RpcError
 from clone_client.controller.config import ControllerClientConfig
 
 # pylint: disable=E0611
-from clone_client.controller.proto.supervisor_pb2 import (
-    PressureGenInfo,
-    PressureGenInfoResponse,
+from clone_client.controller.proto.controller_pb2 import (
+    ControllerRuntimeConfig,
     ValveListResponse,
+    WaterPumpInfo,
+    WaterPumpInfoResponse,
 )
-from clone_client.controller.proto.supervisor_pb2_grpc import SupervisorGRPCStub
+from clone_client.controller.proto.controller_pb2_grpc import ControllerGRPCStub
 from clone_client.error_frames import handle_response, translate_rpc_error
 from clone_client.grpc_client import GRPCAsyncClient
 
@@ -21,8 +23,8 @@ from clone_client.proto.data_types_pb2 import (
     GetNodesRequest,
     MuscleMovement,
     MusclePressureSetting,
-    PressureGenPressure,
     ServerResponse,
+    WaterPumpPressure,
 )
 from clone_client.types import (
     MuscleMovementsDataType,
@@ -38,38 +40,45 @@ class ControllerClient(GRPCAsyncClient):
 
     def __init__(self, socket_address: str, config: ControllerClientConfig) -> None:
         super().__init__("ControllerClient", socket_address)
-        self.stub = SupervisorGRPCStub(self.channel)
+        self.stub = ControllerGRPCStub(self.channel)
         self.config = config
 
-    async def get_pressuregen_info(self) -> PressureGenInfo:
-        """Send request to get the pressuregen info."""
+    async def get_waterpump_info(self) -> WaterPumpInfo:
+        """Send request to get the waterpump info."""
         try:
-            response: PressureGenInfoResponse = await self.stub.GetPressureGenInfo(
+            response: WaterPumpInfoResponse = await self.stub.GetWaterPumpInfo(
                 Empty(), timeout=self.config.info_gathering_rpc_timeout
             )
             handle_response(response.response)
             return response.info
 
         except RpcError as err:
-            golem_err = translate_rpc_error("GetPressureGenInfo", self.socket_address, err)
+            golem_err = translate_rpc_error("GetWaterPumpInfo", self.socket_address, err)
             raise golem_err from err
 
-    async def set_pressuregen_pressure(self, pressure: float) -> None:
-        """Send request to set the pressuregen pressure."""
+    async def set_waterpump_pressure(self, pressure: float) -> None:
+        """Send request to set the waterpump pressure."""
         try:
-            await self.stub.SetPressureGenPressure(
-                PressureGenPressure(pressure=pressure),
+            await self.stub.SetWaterPumpPressure(
+                WaterPumpPressure(pressure=pressure),
                 timeout=self.config.critical_rpc_timeout,
             )
 
         except RpcError as err:
-            golem_err = translate_rpc_error("SetPressureGenPressure", self.socket_address, err)
+            golem_err = translate_rpc_error("SetWaterPumpPressure", self.socket_address, err)
             raise golem_err from err
 
     async def set_muscles(self, movements: MuscleMovementsDataType) -> None:
         """Send request to set the muscles."""
         try:
-            request = MuscleMovement(movements=movements)
+            # Map to protobuf schema
+            request = MuscleMovement()
+            for mv in movements:
+                if mv is None:
+                    request.movements.add().ignore = True
+                else:
+                    request.movements.add().value = mv
+
             response: ServerResponse = await self.stub.SetMuscles(
                 request, timeout=self.config.continuous_rpc_timeout
             )
@@ -92,20 +101,20 @@ class ControllerClient(GRPCAsyncClient):
             golem_err = translate_rpc_error("SetPressures", self.socket_address, err)
             raise golem_err from err
 
-    async def start_pressuregen(self) -> None:
-        """Send request to start the pressuregen."""
+    async def start_waterpump(self) -> None:
+        """Send request to start the waterpump."""
         try:
-            await self.stub.StartPressureGen(Empty(), timeout=self.config.critical_rpc_timeout)
+            await self.stub.StartWaterPump(Empty(), timeout=self.config.critical_rpc_timeout)
         except RpcError as err:
-            golem_err = translate_rpc_error("StartPressureGen", self.socket_address, err)
+            golem_err = translate_rpc_error("StartWaterPump", self.socket_address, err)
             raise golem_err from err
 
-    async def stop_pressuregen(self) -> None:
-        """Send request to stop the pressuregen."""
+    async def stop_waterpump(self) -> None:
+        """Send request to stop the waterpump."""
         try:
-            await self.stub.StopPressureGen(Empty(), timeout=self.config.critical_rpc_timeout)
+            await self.stub.StopWaterPump(Empty(), timeout=self.config.critical_rpc_timeout)
         except RpcError as err:
-            golem_err = translate_rpc_error("StopPressureGen", self.socket_address, err)
+            golem_err = translate_rpc_error("StopWaterPump", self.socket_address, err)
             raise golem_err from err
 
     async def loose_all(self) -> None:
@@ -138,6 +147,17 @@ class ControllerClient(GRPCAsyncClient):
 
         except RpcError as err:
             golem_err = translate_rpc_error("GetNodes", self.socket_address, err)
+            raise golem_err from err
+
+    async def get_config(self) -> ControllerRuntimeConfig:
+        """Get the configuration of the client."""
+        try:
+            response: ControllerRuntimeConfig = await self.stub.GetConfig(
+                Empty(), timeout=self.config.info_gathering_rpc_timeout
+            )
+            return response
+        except RpcError as err:
+            golem_err = translate_rpc_error("GetConfig", self.socket_address, err)
             raise golem_err from err
 
 

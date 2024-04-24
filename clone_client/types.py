@@ -2,14 +2,14 @@ from __future__ import annotations
 
 import dataclasses
 import struct
-from typing import cast, Mapping, Sequence
+from typing import cast, Mapping, Optional, Sequence
 
 Pressure = float
 NodeID = int
 MuscleName = str
 
 MusclePressuresDataType = Sequence[Pressure]  # For client side translations only
-MuscleMovementsDataType = Sequence[float]  # For client side translations only
+MuscleMovementsDataType = Sequence[Optional[float]]  # For client side translations only
 
 
 @dataclasses.dataclass(frozen=True)
@@ -49,12 +49,11 @@ class HandInfo:
 
 
 @dataclasses.dataclass
-class PressureGenInfo:
-    """Information about the pressuregen."""
+class WaterPumpInfo:
+    """Information about the waterpump."""
 
     desired_pressure: float
     pressure: float
     is_running: bool
     temperature: float
     is_active: bool
-    variant: str

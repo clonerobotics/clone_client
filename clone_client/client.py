@@ -7,16 +7,17 @@ from time import time
 from types import TracebackType
 from typing import Dict, Optional, Set, Type, TypeVar
 
-from clone_client.config import CONFIG, CommunicationService
+from clone_client.config import CommunicationService, CONFIG
 from clone_client.controller.client import (
-    ControllerClient,
     configured_controller_client,
+    ControllerClient,
+)
+from clone_client.controller.proto.controller_pb2 import (
+    WaterPumpInfo as GRPCWaterPumpInfo,
 )
 
 # pylint: disable=E0611
-from clone_client.controller.proto.supervisor_pb2 import (
-    PressureGenInfo as GRPCPressureGenInfo,
-)
+from clone_client.controller.proto.controller_pb2 import ControllerRuntimeConfig
 from clone_client.discovery import Discovery
 from clone_client.exceptions import (
     ClientError,
@@ -32,16 +33,16 @@ from clone_client.state_store.proto.state_store_pb2 import HandInfo as GRPCHandI
 
 # pylint: enable=E0611
 from clone_client.state_store.rcv_client import (
-    StateStoreReceiverClient,
     configured_subscriber,
+    StateStoreReceiverClient,
 )
 from clone_client.types import (
     HandInfo,
     MuscleMovementsDataType,
     MuscleName,
     MusclePressuresDataType,
-    PressureGenInfo,
     ValveAddress,
+    WaterPumpInfo,
 )
 from clone_client.utils import convert_grpc_instance_to_own_representation
 
@@ -55,6 +56,7 @@ MappingValue = TypeVar("MappingValue")
 
 
 class Client:
+    # pylint: disable=too-many-instance-attributes
     """Client for sending commands and requests to the controller and state."""
 
     def __init__(
@@ -139,14 +141,14 @@ class Client:
             self._ordering_rev[index] = muscle_name
 
     async def wait_for_desired_pressure(self, timeout_ms: int = 10000) -> None:
-        """Block the execution until current pressuregen pressure is equal or more than desired pressure."""
+        """Block the execution until current waterpump pressure is equal or more than desired pressure."""
         start = time()
         while True:
             await asyncio.sleep(0.01)
             if time() - start >= timeout_ms / 1000:
                 raise DesiredPressureNotAchievedError(timeout_ms)
 
-            info = await self.get_pressuregen_info()
+            info = await self.get_waterpump_info()
             if info.pressure >= info.desired_pressure:
                 break
 
@@ -170,26 +172,26 @@ class Client:
         """Send instruction to the controller to lock all muscles."""
         await self.controller_tunnel.lock_all()
 
-    async def start_pressuregen(self) -> None:
-        """Start pressuregen"""
-        await self.controller_tunnel.start_pressuregen()
+    async def start_waterpump(self) -> None:
+        """Start waterpump"""
+        await self.controller_tunnel.start_waterpump()
 
-    async def stop_pressuregen(self) -> None:
-        """Stop pressuregen"""
-        await self.controller_tunnel.stop_pressuregen()
+    async def stop_waterpump(self) -> None:
+        """Stop waterpump"""
+        await self.controller_tunnel.stop_waterpump()
 
-    async def set_pressuregen_pressure(self, pressure: float) -> None:
-        """Stop pressuregen and set new desired pressure"""
-        await self.controller_tunnel.set_pressuregen_pressure(pressure)
+    async def set_waterpump_pressure(self, pressure: float) -> None:
+        """Stop waterpump and set new desired pressure"""
+        await self.controller_tunnel.set_waterpump_pressure(pressure)
 
     async def get_valve_nodes(self, rediscover: bool = False) -> Set[ValveAddress]:
         """Send request to get discovered valve nodes."""
         return await self.controller_tunnel.get_nodes(rediscover)
 
-    async def get_pressuregen_info(self) -> PressureGenInfo:
-        """Send request to get current information about pressuregen metadata."""
-        pressuregen_info: GRPCPressureGenInfo = await self.controller_tunnel.get_pressuregen_info()
-        return convert_grpc_instance_to_own_representation(pressuregen_info, PressureGenInfo)
+    async def get_waterpump_info(self) -> WaterPumpInfo:
+        """Send request to get current information about waterpump metadata."""
+        waterpump_info: GRPCWaterPumpInfo = await self.controller_tunnel.get_waterpump_info()
+        return convert_grpc_instance_to_own_representation(waterpump_info, WaterPumpInfo)
 
     async def get_hand_info(self, reload: bool = False) -> HandInfo:
         """
@@ -203,3 +205,7 @@ class Client:
             self._update_mappings(data)
 
         return data
+
+    async def get_controller_config(self) -> ControllerRuntimeConfig:
+        """Send request to get current configuration of the controller."""
+        return await self.controller_tunnel.get_config()

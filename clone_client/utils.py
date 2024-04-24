@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import sys
 from typing import Awaitable, Callable, Dict, List, Optional, Protocol, Type, TypeVar
 from urllib.parse import urlparse
 
@@ -9,12 +10,38 @@ from typing_extensions import ParamSpec
 LOGGER = logging.getLogger(__name__)
 
 
-def url_rfc_to_grpc(address: str) -> str:
-    """Parses RFC1808 compliant URL (with leading slashes)
-    to format accepted by grpc"""
+def url_rfc_to_grpc_py39(address: str) -> str:
+    """
+    Parses RFC1808 compliant URL (with leading slashes)
+    to format accepted by grpc.
+    Works only with python 3.9. Use url_rfc_to_grpc for higher versions.
+    """
     parsed_url = urlparse(address)
     if parsed_url.scheme in ["", "ipv4", "ipv6", "dns"]:
         return f"{parsed_url.scheme}:{parsed_url.netloc}"
+
+    # Conversion not needed
+    return address
+
+
+def url_rfc_to_grpc(address: str) -> str:
+    """Parses RFC1808 compliant URL (with leading slashes)
+    to format accepted by grpc"""
+
+    # Currently we want to support 3.9 for a while but changes in urllib.parse
+    # breaks the implementation so usage with 3.11 is not possible without changes
+    # and project compatible with only 3.9 won't work with project marked as compatible with ^3.9
+    # hence this double implementation.
+    # Remove this function when we drop support for 3.9
+    if "3.9" in sys.version:
+        return url_rfc_to_grpc_py39(address)
+
+    parsed_url = urlparse(address)
+    if parsed_url.scheme in ["http", "https", "ipv4", "ipv6", "dns"]:
+        return parsed_url.netloc
+
+    if parsed_url.scheme == "":
+        return parsed_url.path
 
     # Conversion not needed
     return address
