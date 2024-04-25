@@ -14,8 +14,8 @@ We use GitHub tagging mechanism for each update of the package for convenience.
 
 Obviously you're gonna need the Clone Hand to use this package. Please contact us if you want to include our product in your research.
 
-The package requires Python 3.9.
-We are working to make it compatible with Python 3.10 and 3.11.
+The package requires Python >= 3.9, < 3.12.
+Support for python 3.9 might be dropped in the future. Sadly too many breaking changes between versions to keep always a working version for py3.9.
 
 ## Installation
 
@@ -49,25 +49,48 @@ from clone_client.client import Client
 async def entrypoint():
     async with Client("hand_name") as client:
         # Start the waterpump and wait for it to reach desired pressure
-        client.start_waterpump()
-        client.wait_for_desired_pressure()
+        await client.start_waterpump()
+        await client.wait_for_desired_pressure()
 
         # Send muscles instructions
         data = [-1 for _ in range(client.number_of_muscles)]
-        client.set_muscles(data)
+        await client.set_muscles(data)
 ```
 
-`set_muscles` function accepts a sequence of floats however current version only cares whether or not a value is less than 0, greater than 0 or equal 0, meaning you can limit the instruction set to 3 values: -1, 0 and 1.
+`set_muscles` function accepts a sequence of floats and each value represents a an impulse time value realtive to the maximum impulse duration defined for the hand. An impulse is defined as a known period of time for which one of the valves is open.
 
-This range might change in the future for more sophisticated and easier control.
+The value range is normalized to `[-1, 1]` where:
 
-Each value corresponds to different behaviour:
+- `Negative`: pressure in the muscle is decreasing as long as this value is being sent
+- `0`: pressure doesn't increase or decreaase, it keeps the pressure constant ("locks" the valve). Also resets the current impulse set for the muscle.
+- `Positive`: pressure in the muscle is increasing as long as this value is being sent
+- `None`: ignore instruction for this muscle in this tick. This is usefull if you want to send value for another muscle but you don't want to do anything with other.
 
-- `-1`: pressure in the muscle is decreasing as long as this value is being sent
-- `0`: pressure doesn't increase or decreaase, it keeps the pressure constant ("locks" the valve)
-- `1`: pressure in the muscle is increasing as long as this value is being sent
+For example, if the maximum impulse duration is 100ms, sending `0.5` to the muscle will keep increasing pressure for 50ms and sending `-0.5` will keep increasing the pressure for 50ms.
 
-It is encouraged to keep sending the same values in a constant loop and stop sending (or keep sending zeros) if the pressure readings are satisfactory. Due to safety reasons, if a hand controller doesn't receive any value for more than 10ms, it automatically locks the valve of the muscle (equivalent of sending `0`).
+Configured value of maximum duration can be retrieved using `get_controller_config` function:
+
+Impulse control usually would look like this:
+
+```python
+from clone_client.client import Client
+import random
+import asyncio
+
+async def entrypoint():
+    async with Client("hand_name") as client:
+        config = await client.get_controller_config()
+
+        # Limiting the impulses to 300ms max
+        limit_factor = 300 / config.max_impulse_duration_ms
+        data = [random.uniform(-1, 1) * limit_factor for _ in range(client.number_of_muscles)]
+
+        # A simplified version of controlling the hand
+        # For more sophisticated control, you can use some sort of task based control
+        # Where each task updates values for single muscle in it's own interval and sends it to the higher level control loop.
+        await client.set_muscles(data)
+        await asyncio.sleep(max(data) * config.max_impulse_duration_ms / 1000)
+```
 
 ### Reading feedback data
 
@@ -79,11 +102,11 @@ from clone_client.client import Client
 async def entrypoint():
     async with Client("hand_name") as client:
         # Start the water pump and wait for it to reach desired pressure
-        client.start_waterpump()
-        client.wait_for_desired_pressure()
+        await client.start_waterpump()
+        await client.wait_for_desired_pressure()
 
         # Get current information about water pump
-        waterpump_info = client.get_waterpump_info()
+        waterpump_info = await client.get_waterpump_info()
 
         # Whether or not water pump controller is running
         print("Is running", waterpump_info.is_running)
@@ -95,7 +118,7 @@ async def entrypoint():
         print("Desired pressure", waterpump_info.desired_pressure)
 
         # Get current pressure in the muscles
-        pressures = client.get_pressures()
+        pressures = await client.get_pressures()
 ```
 
 Example code can be found in the [examples](./clone_client/examples) directory.
@@ -133,11 +156,12 @@ Below, you can find the API reference for the package, along with a broad explan
 
 [clone_client.client.Client](./clone_client/client.py)
 
-> `__init__(self, server, controller_service, state_service)`
+> `__init__(self, server, address, controller_service, state_service)`
 
 All arguments are optional however to make client connect to the remote hand you need to provide `server` argument which is the unique name of the hand provided to you.
 
-**server** `str` - unique name of the hand.
+**server** `str` - unique name of the hand. Default to current host.
+**address** `str` - address IP of the hand. If provided, a discovery process based on server name will be skipped and client wll try to connect using provided address immediately.
 **controller_service** `clone_client.config.CommunicationService` - configuration of controller service. Should be left as default in most cases.
 **state_service** `clone_client.config.CommunicationService` - configuration of the state service. Should be left as default in most cases.
 
@@ -181,15 +205,15 @@ Locks all muscles. Equivalent of sending all `0` values to `set_muscles` functio
 
 > `start_waterpump(self)`
 
-Starts the waterpump.
+Starts the pump.
 
 > `stop_waterpump(self)`
 
-Stops the waterpump.
+Stops the pump.
 
 > `set_waterpump_pressure(self)`
 
-Sets the desired pressure of the waterpump. **Currently unimplemented.**
+Sets the desired pressure of the pump.
 
 > `get_valve_nodes(self)`
 
@@ -197,11 +221,16 @@ Returns a `set` of `clone_client.types.ValveAddress` with all valve nodes connec
 
 > `get_waterpump_info(self)`
 
-Returns a `clone_client.types.waterpumpInfo` with current waterpump information.
+Returns a `clone_client.types.WaterPumpInfo` with current pump information.
 
 > `get_hand_info(self)`
 
 Returns a `clone_client.types.HandInfo` with current hand information.
+
+> `get_controller_config(self)`
+
+Returns a `ControllerRuntimeConfig` with current runtime controller configuration. Apart from the `max_impulse_duration_ms` property, it also contains `use_pump` which indicated whether or not a water pump is connected t othe system or the if the system relies on the external pressure source and
+`allow_missing_nodes` which indicates whether or not the controller should allow missing nodes in the configuration if the hand is not fully connected (mostly used for debugging).
 
 ### error_frames
 
