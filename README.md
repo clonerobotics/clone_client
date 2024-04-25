@@ -57,7 +57,7 @@ async def entrypoint():
         await client.set_muscles(data)
 ```
 
-`set_muscles` function accepts a sequence of floats and each value represents a an impulse time value realtive to the maximum impulse duration defined for the hand. An impulse is defined as a known period of time for which one of the valves is open.
+`set_muscles` function accepts a sequence of floats and each value represents an impulse time value relative to the maximum impulse duration defined for the hand. An impulse is defined as a known period of time for which one of the muscle valves is open.
 
 The value range is normalized to `[-1, 1]` where:
 
@@ -66,7 +66,7 @@ The value range is normalized to `[-1, 1]` where:
 - `Positive`: pressure in the muscle is increasing as long as this value is being sent
 - `None`: ignore instruction for this muscle in this tick. This is usefull if you want to send value for another muscle but you don't want to do anything with other.
 
-For example, if the maximum impulse duration is 100ms, sending `0.5` to the muscle will keep increasing pressure for 50ms and sending `-0.5` will keep increasing the pressure for 50ms.
+For example, if the maximum impulse duration is 100ms, sending `0.5` to the muscle will keep increasing pressure for 50ms and sending `-0.5` will keep decreasing the pressure for 50ms.
 
 Configured value of maximum duration can be retrieved using `get_controller_config` function:
 
