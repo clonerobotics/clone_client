@@ -1,4 +1,3 @@
-import sys
 from typing import Set
 
 from google.protobuf.empty_pb2 import Empty  # pylint: disable=no-name-in-module
@@ -23,12 +22,15 @@ from clone_client.proto.data_types_pb2 import (
     GetNodesRequest,
     MuscleMovement,
     MusclePressureSetting,
+    MusclePulse,
+    PulseType,
     ServerResponse,
     WaterPumpPressure,
 )
 from clone_client.types import (
     MuscleMovementsDataType,
     MusclePressuresDataType,
+    MusclePulsesDataType,
     ValveAddress,
 )
 
@@ -73,11 +75,11 @@ class ControllerClient(GRPCAsyncClient):
         try:
             # Map to protobuf schema
             request = MuscleMovement()
-            for mv in movements:
-                if mv is None:
+            for move in movements:
+                if move is None:
                     request.movements.add().ignore = True
                 else:
-                    request.movements.add().value = mv
+                    request.movements.add().value = move
 
             response: ServerResponse = await self.stub.SetMuscles(
                 request, timeout=self.config.continuous_rpc_timeout
@@ -86,6 +88,29 @@ class ControllerClient(GRPCAsyncClient):
 
         except RpcError as err:
             golem_err = translate_rpc_error("SetMuscles", self.socket_address, err)
+            raise golem_err from err
+
+    async def set_pulses(self, pulses: MusclePulsesDataType) -> None:
+        """Send request to set the muscles."""
+        try:
+            # Map to protobuf schema
+            request = MusclePulse()
+            for pulse in pulses:
+                if pulse is None:
+                    request.pulses.add().ignore = True
+                else:
+                    entry = request.pulses.add()
+                    entry.value.ctrl_type = PulseType.IN if pulse[0] == 0 else PulseType.OUT
+                    entry.value.pulse_len_ms = pulse[1]
+                    entry.value.delay_len_ms = pulse[2]
+                    entry.value.duration_ms = pulse[3]
+            response: ServerResponse = await self.stub.SetPulses(
+                request, timeout=self.config.continuous_rpc_timeout
+            )
+            handle_response(response)
+
+        except RpcError as err:
+            golem_err = translate_rpc_error("SetPulses", self.socket_address, err)
             raise golem_err from err
 
     async def set_pressures(self, pressures: MusclePressuresDataType) -> None:

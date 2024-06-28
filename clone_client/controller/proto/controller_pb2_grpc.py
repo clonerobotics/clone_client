@@ -41,6 +41,11 @@ class ControllerGRPCStub(object):
                 request_serializer=clone__client_dot_proto_dot_data__types__pb2.MuscleMovement.SerializeToString,
                 response_deserializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
                 )
+        self.SetPulses = channel.unary_unary(
+                '/clone.controller.ControllerGRPC/SetPulses',
+                request_serializer=clone__client_dot_proto_dot_data__types__pb2.MusclePulse.SerializeToString,
+                response_deserializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
+                )
         self.LooseMuscles = channel.unary_unary(
                 '/clone.controller.ControllerGRPC/LooseMuscles',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
@@ -56,15 +61,15 @@ class ControllerGRPCStub(object):
                 request_serializer=clone__client_dot_proto_dot_data__types__pb2.MusclePressureSetting.SerializeToString,
                 response_deserializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
                 )
-        self.GetConfig = channel.unary_unary(
-                '/clone.controller.ControllerGRPC/GetConfig',
-                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-                response_deserializer=clone__client_dot_controller_dot_proto_dot_controller__pb2.ControllerRuntimeConfig.FromString,
-                )
         self.GetValves = channel.unary_unary(
                 '/clone.controller.ControllerGRPC/GetValves',
                 request_serializer=clone__client_dot_proto_dot_data__types__pb2.GetNodesRequest.SerializeToString,
                 response_deserializer=clone__client_dot_controller_dot_proto_dot_controller__pb2.ValveListResponse.FromString,
+                )
+        self.GetConfig = channel.unary_unary(
+                '/clone.controller.ControllerGRPC/GetConfig',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=clone__client_dot_controller_dot_proto_dot_controller__pb2.ControllerRuntimeConfig.FromString,
                 )
 
 
@@ -101,6 +106,12 @@ class ControllerGRPCServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def SetPulses(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def LooseMuscles(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -119,13 +130,13 @@ class ControllerGRPCServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetConfig(self, request, context):
+    def GetValves(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetValves(self, request, context):
+    def GetConfig(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -159,6 +170,11 @@ def add_ControllerGRPCServicer_to_server(servicer, server):
                     request_deserializer=clone__client_dot_proto_dot_data__types__pb2.MuscleMovement.FromString,
                     response_serializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.SerializeToString,
             ),
+            'SetPulses': grpc.unary_unary_rpc_method_handler(
+                    servicer.SetPulses,
+                    request_deserializer=clone__client_dot_proto_dot_data__types__pb2.MusclePulse.FromString,
+                    response_serializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.SerializeToString,
+            ),
             'LooseMuscles': grpc.unary_unary_rpc_method_handler(
                     servicer.LooseMuscles,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
@@ -174,15 +190,15 @@ def add_ControllerGRPCServicer_to_server(servicer, server):
                     request_deserializer=clone__client_dot_proto_dot_data__types__pb2.MusclePressureSetting.FromString,
                     response_serializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.SerializeToString,
             ),
-            'GetConfig': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetConfig,
-                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-                    response_serializer=clone__client_dot_controller_dot_proto_dot_controller__pb2.ControllerRuntimeConfig.SerializeToString,
-            ),
             'GetValves': grpc.unary_unary_rpc_method_handler(
                     servicer.GetValves,
                     request_deserializer=clone__client_dot_proto_dot_data__types__pb2.GetNodesRequest.FromString,
                     response_serializer=clone__client_dot_controller_dot_proto_dot_controller__pb2.ValveListResponse.SerializeToString,
+            ),
+            'GetConfig': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetConfig,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=clone__client_dot_controller_dot_proto_dot_controller__pb2.ControllerRuntimeConfig.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -280,6 +296,23 @@ class ControllerGRPC(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
+    def SetPulses(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/clone.controller.ControllerGRPC/SetPulses',
+            clone__client_dot_proto_dot_data__types__pb2.MusclePulse.SerializeToString,
+            clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
     def LooseMuscles(request,
             target,
             options=(),
@@ -331,23 +364,6 @@ class ControllerGRPC(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def GetConfig(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/clone.controller.ControllerGRPC/GetConfig',
-            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-            clone__client_dot_controller_dot_proto_dot_controller__pb2.ControllerRuntimeConfig.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
     def GetValves(request,
             target,
             options=(),
@@ -361,5 +377,22 @@ class ControllerGRPC(object):
         return grpc.experimental.unary_unary(request, target, '/clone.controller.ControllerGRPC/GetValves',
             clone__client_dot_proto_dot_data__types__pb2.GetNodesRequest.SerializeToString,
             clone__client_dot_controller_dot_proto_dot_controller__pb2.ValveListResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GetConfig(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/clone.controller.ControllerGRPC/GetConfig',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            clone__client_dot_controller_dot_proto_dot_controller__pb2.ControllerRuntimeConfig.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

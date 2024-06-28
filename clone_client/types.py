@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 import struct
-from typing import cast, Mapping, Optional, Sequence
+from typing import cast, Mapping, Optional, Sequence, Tuple
 
 Pressure = float
 NodeID = int
@@ -10,6 +10,7 @@ MuscleName = str
 
 MusclePressuresDataType = Sequence[Pressure]  # For client side translations only
 MuscleMovementsDataType = Sequence[Optional[float]]  # For client side translations only
+MusclePulsesDataType = Sequence[Optional[Tuple[float, float, float]]]
 
 
 @dataclasses.dataclass(frozen=True)

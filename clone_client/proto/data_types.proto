@@ -14,6 +14,29 @@ enum ErrorType{
   SERVICE_TIMEOUT = 6;
 }
 
+enum PulseType {
+  IN = 0;
+  OUT = 1;
+}
+
+message PulseValue {
+  PulseType ctrl_type = 1;
+  float pulse_len_ms = 2;
+  float delay_len_ms = 3;
+  float duration_ms = 4;
+}
+
+message Pulse {
+  oneof data {
+    PulseValue value = 1;
+    bool ignore = 2;
+  }
+}
+
+message MusclePulse {
+  repeated Pulse pulses = 2;
+}
+
 message Movement {
   oneof data {
     float value = 1;

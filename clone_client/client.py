@@ -8,6 +8,8 @@ from types import TracebackType
 from typing import Dict, Optional, Set, Type, TypeVar
 
 from clone_client.config import CommunicationService, CONFIG
+
+# pylint: disable=E0611
 from clone_client.controller.client import (
     configured_controller_client,
     ControllerClient,
@@ -15,8 +17,6 @@ from clone_client.controller.client import (
 from clone_client.controller.proto.controller_pb2 import (
     WaterPumpInfo as GRPCWaterPumpInfo,
 )
-
-# pylint: disable=E0611
 from clone_client.controller.proto.controller_pb2 import ControllerRuntimeConfig
 from clone_client.discovery import Discovery
 from clone_client.exceptions import (
@@ -27,8 +27,6 @@ from clone_client.exceptions import (
     MissingConfigurationError,
 )
 from clone_client.state_store.config import STATE_STORE_CONFIG
-
-# pylint: disable=E0611
 from clone_client.state_store.proto.state_store_pb2 import HandInfo as GRPCHandInfo
 
 # pylint: enable=E0611
@@ -41,10 +39,20 @@ from clone_client.types import (
     MuscleMovementsDataType,
     MuscleName,
     MusclePressuresDataType,
+    MusclePulsesDataType,
     ValveAddress,
     WaterPumpInfo,
 )
 from clone_client.utils import convert_grpc_instance_to_own_representation
+
+# pylint: disable=E0611
+
+
+# pylint: enable=E0611
+
+
+# pylint: enable=E0611
+
 
 # pylint: enable=E0611
 
@@ -155,6 +163,14 @@ class Client:
     async def set_muscles(self, muscles: MuscleMovementsDataType) -> None:
         """Send instruction to the controller to set any muscle into certain position"""
         await self.controller_tunnel.set_muscles(muscles)
+
+    async def set_pulses(self, pulses: MusclePulsesDataType) -> None:
+        """Send instruction to the controller to set any muscle into certain position"""
+        await self.controller_tunnel.set_pulses(pulses)
+
+    async def set_pressures(self, pressures: MusclePressuresDataType) -> None:
+        """Send instruction to the controller to set any muscle into certain pressure."""
+        await self.controller_tunnel.set_pressures(pressures)
 
     async def get_pressures(self) -> Optional[MusclePressuresDataType]:
         """Send request to get the latest muscle pressures."""

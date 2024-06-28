@@ -12,6 +12,7 @@ service ControllerGRPC {
   rpc StopWaterPump(google.protobuf.Empty) returns (clone.data_types.ServerResponse);
   rpc SetWaterPumpPressure(clone.data_types.WaterPumpPressure) returns (clone.data_types.ServerResponse);
   rpc SetMuscles(clone.data_types.MuscleMovement) returns (clone.data_types.ServerResponse);
+  rpc SetPulses(clone.data_types.MusclePulse) returns (clone.data_types.ServerResponse);
   rpc LooseMuscles(google.protobuf.Empty) returns (clone.data_types.ServerResponse);
   rpc LockMuscles(google.protobuf.Empty) returns (clone.data_types.ServerResponse);
   rpc SetPressures(clone.data_types.MusclePressureSetting) returns (clone.data_types.ServerResponse);

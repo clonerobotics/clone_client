@@ -44,6 +44,82 @@ RPC_TIMEOUT: ErrorType.ValueType  # 5
 SERVICE_TIMEOUT: ErrorType.ValueType  # 6
 global___ErrorType = ErrorType
 
+class _PulseType:
+    ValueType = typing.NewType("ValueType", builtins.int)
+    V: typing_extensions.TypeAlias = ValueType
+
+class _PulseTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_PulseType.ValueType], builtins.type):
+    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    IN: _PulseType.ValueType  # 0
+    OUT: _PulseType.ValueType  # 1
+
+class PulseType(_PulseType, metaclass=_PulseTypeEnumTypeWrapper): ...
+
+IN: PulseType.ValueType  # 0
+OUT: PulseType.ValueType  # 1
+global___PulseType = PulseType
+
+@typing_extensions.final
+class PulseValue(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    CTRL_TYPE_FIELD_NUMBER: builtins.int
+    PULSE_LEN_MS_FIELD_NUMBER: builtins.int
+    DELAY_LEN_MS_FIELD_NUMBER: builtins.int
+    DURATION_MS_FIELD_NUMBER: builtins.int
+    ctrl_type: global___PulseType.ValueType
+    pulse_len_ms: builtins.float
+    delay_len_ms: builtins.float
+    duration_ms: builtins.float
+    def __init__(
+        self,
+        *,
+        ctrl_type: global___PulseType.ValueType = ...,
+        pulse_len_ms: builtins.float = ...,
+        delay_len_ms: builtins.float = ...,
+        duration_ms: builtins.float = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["ctrl_type", b"ctrl_type", "delay_len_ms", b"delay_len_ms", "duration_ms", b"duration_ms", "pulse_len_ms", b"pulse_len_ms"]) -> None: ...
+
+global___PulseValue = PulseValue
+
+@typing_extensions.final
+class Pulse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    VALUE_FIELD_NUMBER: builtins.int
+    IGNORE_FIELD_NUMBER: builtins.int
+    @property
+    def value(self) -> global___PulseValue: ...
+    ignore: builtins.bool
+    def __init__(
+        self,
+        *,
+        value: global___PulseValue | None = ...,
+        ignore: builtins.bool = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["data", b"data", "ignore", b"ignore", "value", b"value"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["data", b"data", "ignore", b"ignore", "value", b"value"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["data", b"data"]) -> typing_extensions.Literal["value", "ignore"] | None: ...
+
+global___Pulse = Pulse
+
+@typing_extensions.final
+class MusclePulse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    PULSES_FIELD_NUMBER: builtins.int
+    @property
+    def pulses(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Pulse]: ...
+    def __init__(
+        self,
+        *,
+        pulses: collections.abc.Iterable[global___Pulse] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["pulses", b"pulses"]) -> None: ...
+
+global___MusclePulse = MusclePulse
+
 @typing_extensions.final
 class Movement(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor

@@ -29,15 +29,25 @@ async def api_run() -> None:
             actions[0] = None
 
             # Send actions to the controller
-            await client.set_muscles(actions)
-            await asyncio.sleep(config.max_impulse_duration_ms / 1000)
+            # await client.set_muscles(actions)
+
+            while 1:
+                pulses = [None] * client.number_of_muscles
+                pulses[0] = (
+                    random.choice([0, 1]),
+                    random.randint(5, 300),
+                    random.randint(5, 300),
+                    random.randint(1000, 3000),
+                )
+                await client.set_pulses(pulses)
+                await asyncio.sleep(random.randint(1000, 3000) / 1000)
+
+            # await asyncio.sleep(config.max_impulse_duration_ms / 1000)
 
             # Get current pressures after actuation
             pressures = await client.get_pressures()
             if pressures is None:
                 raise RuntimeError("got empty pressures")
-
-            print(pressures)
 
             if len(pressures) == client.number_of_muscles:
                 # Check specific muscle pressure

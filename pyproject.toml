@@ -1,10 +1,16 @@
 [tool.poetry]
 name = "clone-client"
-version = "0.0.14"
+version = "0.0.15"
 description = ""
 authors = ["Clone Inc."]
 readme = "README.md"
 packages = [{include = "clone_client"}]
+include = [
+    "clone_client/controller/proto/*",
+    "clone_client/state_store/proto/*",
+    "clone_client/proto/*",
+]
+
 
 [tool.poetry.dependencies]
 pydantic = {version = "1.10.9", extras = ["dotenv"]}
