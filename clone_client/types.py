@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 import struct
-from typing import cast, Mapping, Optional, Sequence, Tuple
+from typing import cast, Mapping, Optional, Sequence, Tuple, TypedDict
 
 Pressure = float
 NodeID = int
@@ -43,10 +43,22 @@ UnpackedValveAddressToMuscleName = Mapping[int, MuscleName]
 
 
 @dataclasses.dataclass
+class PressureSensorCalibrarion:
+    min: int
+    max: int
+
+
+@dataclasses.dataclass
+class CalibrationData:
+    pressure_sensors: Sequence[PressureSensorCalibrarion]
+
+
+@dataclasses.dataclass
 class HandInfo:
     """Information about the hand."""
 
     muscles: UnpackedValveAddressToMuscleName
+    calibration_data: CalibrationData
 
 
 @dataclasses.dataclass

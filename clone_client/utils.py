@@ -1,4 +1,5 @@
 import asyncio
+from dataclasses import dataclass
 import logging
 import sys
 from typing import Awaitable, Callable, Dict, List, Optional, Protocol, Type, TypeVar
@@ -62,7 +63,10 @@ def convert_grpc_instance_to_own_representation(data_to_convert: Message, target
     info = {}
 
     for attr in target_class.__dataclass_fields__.keys():
-        info[attr] = getattr(data_to_convert, attr)
+        if isinstance(attr, type(dataclass)):
+            info[attr] = convert_grpc_instance_to_own_representation(attr, type(getattr(target_class, attr)))
+        else:
+            info[attr] = getattr(data_to_convert, attr)
 
     return target_class(**info)
 

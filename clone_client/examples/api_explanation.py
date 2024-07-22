@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import os
 import random
 from socket import gethostname
@@ -10,9 +11,12 @@ HOSTNAME = os.environ.get("HOSTNAME", gethostname())
 
 
 async def api_run() -> None:
+    logging.basicConfig(level=logging.INFO)
     async with Client(HOSTNAME) as client:
         # Get the controller configuration
         config = await client.get_controller_config()
+        hand_info = await client.get_hand_info()
+        print(hand_info)
         if config.use_pump:
             # Start the water pump and wait for the desired pressure to be reached
             # before doing anything else.

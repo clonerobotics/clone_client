@@ -92,7 +92,9 @@ class StateStoreReceiverClient(GRPCAsyncClient):
                 response: HandInfoResponse = await self.stub.GetHandInfo(
                     Empty(), timeout=StateStoreClientConfig().info_gathering_rpc_timeout
                 )
-                return HandInfo(muscles=response.info.muscles)
+                return HandInfo(
+                    muscles=response.info.muscles, calibration_data=response.info.calibration_data
+                )
 
             return self._hand_info
 

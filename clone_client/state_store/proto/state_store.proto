@@ -30,8 +30,18 @@ message PublishedPressuresList {
   clone.data_types.ServerResponse response_data=2;
 }
 
+message PressureSensorCalibration {
+  uint32 min = 1;
+  uint32 max = 2;
+}
+
+message CalibrationData {
+  repeated PressureSensorCalibration pressure_sensors=1;
+}
+
 message HandInfo {
   map<int32, string> muscles=2;
+  CalibrationData calibration_data=3;
 }
 
 message HandInfoResponse {

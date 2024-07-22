@@ -76,6 +76,40 @@ class PublishedPressuresList(google.protobuf.message.Message):
 global___PublishedPressuresList = PublishedPressuresList
 
 @typing_extensions.final
+class PressureSensorCalibration(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    MIN_FIELD_NUMBER: builtins.int
+    MAX_FIELD_NUMBER: builtins.int
+    min: builtins.int
+    max: builtins.int
+    def __init__(
+        self,
+        *,
+        min: builtins.int = ...,
+        max: builtins.int = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["max", b"max", "min", b"min"]) -> None: ...
+
+global___PressureSensorCalibration = PressureSensorCalibration
+
+@typing_extensions.final
+class CalibrationData(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    PRESSURE_SENSORS_FIELD_NUMBER: builtins.int
+    @property
+    def pressure_sensors(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___PressureSensorCalibration]: ...
+    def __init__(
+        self,
+        *,
+        pressure_sensors: collections.abc.Iterable[global___PressureSensorCalibration] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["pressure_sensors", b"pressure_sensors"]) -> None: ...
+
+global___CalibrationData = CalibrationData
+
+@typing_extensions.final
 class HandInfo(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -96,14 +130,19 @@ class HandInfo(google.protobuf.message.Message):
         def ClearField(self, field_name: typing_extensions.Literal["key", b"key", "value", b"value"]) -> None: ...
 
     MUSCLES_FIELD_NUMBER: builtins.int
+    CALIBRATION_DATA_FIELD_NUMBER: builtins.int
     @property
     def muscles(self) -> google.protobuf.internal.containers.ScalarMap[builtins.int, builtins.str]: ...
+    @property
+    def calibration_data(self) -> global___CalibrationData: ...
     def __init__(
         self,
         *,
         muscles: collections.abc.Mapping[builtins.int, builtins.str] | None = ...,
+        calibration_data: global___CalibrationData | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["muscles", b"muscles"]) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["calibration_data", b"calibration_data"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["calibration_data", b"calibration_data", "muscles", b"muscles"]) -> None: ...
 
 global___HandInfo = HandInfo
 

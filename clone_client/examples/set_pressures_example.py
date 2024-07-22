@@ -1,10 +1,12 @@
 import asyncio
-import socket
 import os
+import socket
+
 import psutil
+
 from clone_client.client import Client
 
-HOSTNAME = socket.gethostname()
+HOSTNAME = os.environ.get("GOLEM_SERVER_HOSTNAME", socket.gethostname())
 
 
 def set_rt(prio: int, sched: int) -> None:
@@ -24,13 +26,14 @@ async def main():
     set_rt(99, os.SCHED_FIFO)
     async with Client(HOSTNAME) as client:
         await client.set_pressures([0] * client.number_of_muscles)
-        await client.loose_all()
-        await asyncio.sleep(3)
+        await asyncio.sleep(1)
+
         for sample in range(1000):
             pressures = [sample / 1300] * client.number_of_muscles
             await client.set_pressures(pressures)
-            print(pressures[0])
-
+            print("Sent: ", pressures)
+            rcv_pressures = await client.get_pressures()
+            print("Rcv : ", rcv_pressures)
             await asyncio.sleep(1 / 100)
 
 
