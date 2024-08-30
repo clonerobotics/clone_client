@@ -6,6 +6,7 @@ from socket import gethostname
 from typing import List, Optional
 
 from clone_client.client import Client
+from clone_client.controller.proto.controller_pb2 import Pulse, PulseType, PulseValue
 
 HOSTNAME = os.environ.get("HOSTNAME", gethostname())
 
@@ -15,7 +16,7 @@ async def api_run() -> None:
     async with Client(HOSTNAME) as client:
         # Get the controller configuration
         config = await client.get_controller_config()
-        hand_info = await client.get_hand_info()
+        hand_info = await client.get_system_info()
         print(hand_info)
         if config.use_pump:
             # Start the water pump and wait for the desired pressure to be reached
@@ -35,30 +36,41 @@ async def api_run() -> None:
             # Send actions to the controller
             # await client.set_muscles(actions)
 
-            while 1:
-                pulses = [None] * client.number_of_muscles
-                pulses[0] = (
-                    random.choice([0, 1]),
-                    random.randint(5, 300),
-                    random.randint(5, 300),
-                    random.randint(1000, 3000),
+            pulses = [Pulse(value=None)] * client.number_of_muscles
+            pulses[0] = Pulse(
+                value=PulseValue(
+                    ctrl_type=random.choice([PulseType.IN, PulseType.OUT]),
+                    pulse_len_ms=random.randint(5, 300),
+                    delay_len_ms=random.randint(5, 300),
+                    duration_ms=random.randint(1000, 3000),
                 )
-                await client.set_pulses(pulses)
-                await asyncio.sleep(random.randint(1000, 3000) / 1000)
+            )
+            await client.set_pulses(pulses)
 
             # await asyncio.sleep(config.max_impulse_duration_ms / 1000)
 
             # Get current pressures after actuation
-            pressures = await client.get_pressures()
-            if pressures is None:
-                raise RuntimeError("got empty pressures")
-
-            if len(pressures) == client.number_of_muscles:
+            print("Single request telemetry")
+            telemetry = await client.get_telemetry()
+            print("Pressures", telemetry.pressures)
+            print("IMU", telemetry.imu)
+            if len(telemetry.pressures) == client.number_of_muscles:
                 # Check specific muscle pressure
                 muscle_name = client.muscle_name(0)
                 index_extensor_index = client.muscle_idx(muscle_name)
-                index_extensor_pressure = pressures[index_extensor_index]
+                index_extensor_pressure = telemetry.pressures[index_extensor_index]
                 print(f"{muscle_name} pressure: {index_extensor_pressure}")
+
+            # Subscribe to telemetry updates
+            count = 0
+            async for telemetry in client.subscribe_telemetry():
+                print("Telemetry", telemetry.pressures, telemetry.imu)
+
+                count += 1
+                if count > 150:
+                    break
+
+            await asyncio.sleep(1)
 
         # Loose all the muscles
         await client.loose_all()

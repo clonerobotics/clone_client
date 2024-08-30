@@ -111,7 +111,7 @@ class Discovery(ServiceListener):
         info = AsyncServiceInfo(type_, name)
         await info.async_request(zconf, self._timeout_s)
 
-        if not info:
+        if not info or not info.server:
             return
 
         info_server = strip_local(info.server)

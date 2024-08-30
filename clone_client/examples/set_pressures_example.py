@@ -6,7 +6,7 @@ import psutil
 
 from clone_client.client import Client
 
-HOSTNAME = os.environ.get("GOLEM_SERVER_HOSTNAME", socket.gethostname())
+HOSTNAME = os.environ.get("CLONE_HOSTNAME", socket.gethostname())
 
 
 def set_rt(prio: int, sched: int) -> None:
@@ -22,7 +22,7 @@ def set_rt(prio: int, sched: int) -> None:
         print("Process real-time priority set to: %u" % prio)
 
 
-async def main():
+async def main() -> None:
     set_rt(99, os.SCHED_FIFO)
     async with Client(HOSTNAME) as client:
         await client.set_pressures([0] * client.number_of_muscles)
@@ -32,7 +32,7 @@ async def main():
             pressures = [sample / 1300] * client.number_of_muscles
             await client.set_pressures(pressures)
             print("Sent: ", pressures)
-            rcv_pressures = await client.get_pressures()
+            rcv_pressures = await client.get_telemetry()
             print("Rcv : ", rcv_pressures)
             await asyncio.sleep(1 / 100)
 

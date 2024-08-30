@@ -5,29 +5,37 @@ import "clone_client/proto/data_types.proto";
 
 package clone.state_store;
 
-service StateStorePublisher {
-  rpc SubscribePressures (google.protobuf.Empty) returns (stream PublishedPressures);
-  rpc GetPressures (google.protobuf.Empty) returns (PublishedPressures);
-  rpc GetLastNPressures (NCount) returns (PublishedPressuresList);
-  rpc GetHandInfo (google.protobuf.Empty) returns (HandInfoResponse);
+service StateStoreReceiverGRPC {
+  rpc SubscribeTelemetry (google.protobuf.Empty) returns (stream TelemetryDataResponse);
+  rpc GetTelemetry (google.protobuf.Empty) returns (TelemetryDataResponse);
+  rpc GetSystemInfo (google.protobuf.Empty) returns (SystemInfoResponse);
 }
 
-service StateStore {
-  rpc UpdatePressures (clone.data_types.MusclePressuresState) returns (clone.data_types.ServerResponse);
+message IMUData {
+  uint32 node_id=1;
+  float w=2;
+  float x=3;
+  float y=4;
+  float z=5;
+  float ax=6;
+  float ay=7;
+  float az=8;
 }
 
-message NCount{
-  int32 n_count=1;
+message TelemetryData {
+  repeated float pressures=1;
+  repeated IMUData imu=2;
 }
 
-message PublishedPressures {
-  optional clone.data_types.MusclePressuresState pressures=1;
+message TelemetryDataResponse {
+  TelemetryData data = 1;
   clone.data_types.ServerResponse response_data=2;
 }
 
-message PublishedPressuresList {
-  repeated clone.data_types.MusclePressuresState pressure_list=1;
-  clone.data_types.ServerResponse response_data=2;
+enum TelemetryConfig {
+  PRESSURE = 0;
+  IMU = 1;
+  ALL = 2;
 }
 
 message PressureSensorCalibration {
@@ -39,12 +47,20 @@ message CalibrationData {
   repeated PressureSensorCalibration pressure_sensors=1;
 }
 
-message HandInfo {
-  map<int32, string> muscles=2;
-  CalibrationData calibration_data=3;
+message ImuMappingModel {
+  uint32 node_id=1;
+  string name=2;
+  uint32 parent=3;
 }
 
-message HandInfoResponse {
-  HandInfo info=1;
+message SystemInfo {
+  map<int32, string> muscles=2;
+  repeated ImuMappingModel imus=3;
+  CalibrationData calibration_data=4;
+  TelemetryConfig telemetry_config=5;
+}
+
+message SystemInfoResponse {
+  SystemInfo info=1;
   clone.data_types.ServerResponse response=2;
 }

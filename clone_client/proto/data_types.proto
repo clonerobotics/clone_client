@@ -2,8 +2,6 @@ syntax="proto3";
 
 package clone.data_types;
 
-import "google/protobuf/timestamp.proto";
-
 enum ErrorType{
   UNSUPPORTED_REQUEST = 0;
   INSTRUCTION = 1;
@@ -11,52 +9,10 @@ enum ErrorType{
   ACQUISITION = 3;
   UNKNOWN = 4;
   RPC_TIMEOUT = 5;
-  SERVICE_TIMEOUT = 6;
-}
-
-enum PulseType {
-  IN = 0;
-  OUT = 1;
-}
-
-message PulseValue {
-  PulseType ctrl_type = 1;
-  float pulse_len_ms = 2;
-  float delay_len_ms = 3;
-  float duration_ms = 4;
-}
-
-message Pulse {
-  oneof data {
-    PulseValue value = 1;
-    bool ignore = 2;
-  }
-}
-
-message MusclePulse {
-  repeated Pulse pulses = 2;
-}
-
-message Movement {
-  oneof data {
-    float value = 1;
-    bool ignore = 2;
-  }
-}
-
-message MuscleMovement {
-  reserved 1;
-  repeated Movement movements = 2;
-}
-
-message MusclePressureSetting{
-  reserved 1;
-  repeated float pressures=2;
-}
-
-message MusclePressuresState {
-  google.protobuf.Timestamp timestamp=1;
-  repeated float pressures=2;
+  SERVICE_TIMEOUT=6;
+  MISSING_HARDWARE=7;
+  DISABLED_FUNCTIONALITY=8;
+  MISMATCH=9;
 }
 
 message ErrorInfo{
@@ -67,20 +23,4 @@ message ErrorInfo{
 message ServerResponse{
   bool success=1;
   optional ErrorInfo error=2;
-}
-
-message NodeList {
-  repeated uint32 values = 1;
-}
-
-message MusclesValveInfo {
-  map<uint32, string> values = 1;
-}
-
-message GetNodesRequest {
-  bool rediscover = 1;
-}
-
-message WaterPumpPressure{
-  float pressure=1;
 }

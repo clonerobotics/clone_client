@@ -7,17 +7,61 @@ import "google/protobuf/empty.proto";
 import "clone_client/proto/data_types.proto";
 
 service ControllerGRPC {
+  rpc SetImpulses(SetImpulsesMessage) returns (clone.data_types.ServerResponse);
+  rpc SetPulses(SetPulsesMessage) returns (clone.data_types.ServerResponse);
+  rpc SetPressures(SetPressuresMessage) returns (clone.data_types.ServerResponse);
+  rpc LooseMuscles(google.protobuf.Empty) returns (clone.data_types.ServerResponse);
+  rpc LockMuscles(google.protobuf.Empty) returns (clone.data_types.ServerResponse);
+
+  rpc StreamSetPressures(stream SetPressuresMessage) returns (clone.data_types.ServerResponse);
+
   rpc GetWaterPumpInfo(google.protobuf.Empty) returns (WaterPumpInfoResponse);
   rpc StartWaterPump(google.protobuf.Empty) returns (clone.data_types.ServerResponse);
   rpc StopWaterPump(google.protobuf.Empty) returns (clone.data_types.ServerResponse);
-  rpc SetWaterPumpPressure(clone.data_types.WaterPumpPressure) returns (clone.data_types.ServerResponse);
-  rpc SetMuscles(clone.data_types.MuscleMovement) returns (clone.data_types.ServerResponse);
-  rpc SetPulses(clone.data_types.MusclePulse) returns (clone.data_types.ServerResponse);
-  rpc LooseMuscles(google.protobuf.Empty) returns (clone.data_types.ServerResponse);
-  rpc LockMuscles(google.protobuf.Empty) returns (clone.data_types.ServerResponse);
-  rpc SetPressures(clone.data_types.MusclePressureSetting) returns (clone.data_types.ServerResponse);
-  rpc GetValves(clone.data_types.GetNodesRequest) returns (ValveListResponse);
+  rpc SetWaterPumpPressure(WaterPumpPressure) returns (clone.data_types.ServerResponse);
+  
   rpc GetConfig(google.protobuf.Empty) returns (ControllerRuntimeConfig);
+}
+
+// Controling muslces by directly setting an absolute value of a pressure
+message SetPressuresMessage{
+  repeated float pressures=1;
+}
+
+// Controlling musles by setting a timed impulse to open / close the valve
+message Impulse {
+  oneof data {
+    float value = 1;
+    bool ignore = 2;
+  }
+}
+
+message SetImpulsesMessage {
+  repeated Impulse impulses = 1;
+}
+
+// Controlling muscles by sending a pulse to open / close the valve using timed oscilations.
+enum PulseType {
+  IN = 0;
+  OUT = 1;
+}
+
+message PulseValue {
+  PulseType ctrl_type = 1;
+  float pulse_len_ms = 2;
+  float delay_len_ms = 3;
+  float duration_ms = 4;
+}
+
+message Pulse {
+  oneof data {
+    PulseValue value = 1;
+    bool ignore = 2;
+  }
+}
+
+message SetPulsesMessage {
+  repeated Pulse pulses = 2;
 }
 
 message ControllerRuntimeConfig {
@@ -27,9 +71,9 @@ message ControllerRuntimeConfig {
 }
 
 
-message ValveListResponse{
-  clone.data_types.MusclesValveInfo valve_list=1;
-  clone.data_types.ServerResponse response=2;
+// Water pump control
+message WaterPumpPressure{
+  float pressure=1;
 }
 
 message WaterPumpInfo {

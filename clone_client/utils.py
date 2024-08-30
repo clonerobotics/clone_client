@@ -1,14 +1,54 @@
 import asyncio
-from dataclasses import dataclass
+from contextlib import asynccontextmanager
+from functools import wraps
 import logging
 import sys
-from typing import Awaitable, Callable, Dict, List, Optional, Protocol, Type, TypeVar
+from time import perf_counter
+from typing import (
+    Any,
+    AsyncGenerator,
+    Awaitable,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Protocol,
+    Type,
+    TypeVar,
+)
 from urllib.parse import urlparse
 
-from google.protobuf.message import Message
-from typing_extensions import ParamSpec
+from grpc import RpcError
+from typing_extensions import Concatenate, ParamSpec
+
+from clone_client.error_frames import translate_rpc_error
 
 LOGGER = logging.getLogger(__name__)
+
+PGrpc = ParamSpec("PGrpc")
+RGrpc = TypeVar("RGrpc")
+TGrpc = TypeVar("TGrpc")  # pylint: disable=invalid-name
+
+
+def grpc_translated() -> (
+    Callable[[Callable[Concatenate[TGrpc, PGrpc], RGrpc]], Callable[Concatenate[TGrpc, PGrpc], RGrpc]]
+):
+    """Decorator function to call async function with translated error from grpc."""
+
+    def decorator(
+        func: Callable[Concatenate[Any, PGrpc], RGrpc]
+    ) -> Callable[Concatenate[TGrpc, PGrpc], RGrpc]:
+        @wraps(func)
+        async def wrapper(*args: PGrpc.args, **kwargs: PGrpc.kwargs) -> RGrpc:
+            try:
+                return await func(*args, **kwargs)
+            except RpcError as err:
+                golem_err = translate_rpc_error(func.__name__, args[0].socket_address, err)  # type: ignore
+                raise golem_err from err
+
+        return wrapper
+
+    return decorator
 
 
 def url_rfc_to_grpc_py39(address: str) -> str:
@@ -58,19 +98,6 @@ class IsDataclass(Protocol):
 T = TypeVar("T", bound=IsDataclass)
 
 
-def convert_grpc_instance_to_own_representation(data_to_convert: Message, target_class: Type[T]) -> T:
-    """Converts a grpc instance to a dataclass instance."""
-    info = {}
-
-    for attr in target_class.__dataclass_fields__.keys():
-        if isinstance(attr, type(dataclass)):
-            info[attr] = convert_grpc_instance_to_own_representation(attr, type(getattr(target_class, attr)))
-        else:
-            info[attr] = getattr(data_to_convert, attr)
-
-    return target_class(**info)
-
-
 def ensure_local(value: str) -> str:
     """Check if value ends with .local. and add it if not."""
     if value.endswith(".local."):
@@ -79,18 +106,20 @@ def ensure_local(value: str) -> str:
     return f"{value}.local."
 
 
-P = ParamSpec("P")
-R = TypeVar("R")
+PRetry = ParamSpec("PRetry")
+RRetry = TypeVar("RRetry")
 CatchType = Optional[List[Type[BaseException]]]
 
 
 def retry(
     max_retries: int, catch: CatchType = None
-) -> Callable[[Callable[P, Awaitable[R]]], Callable[P, Awaitable[R]]]:
+) -> Callable[[Callable[PRetry, Awaitable[RRetry]]], Callable[PRetry, Awaitable[RRetry]]]:
     """Decorator for retrying an async function call."""
 
-    def decorator(func: Callable[P, Awaitable[R]]) -> Callable[P, Callable[P, Awaitable[R]]]:
-        async def wrapped(*args: P.args, **kwargs: P.kwargs) -> R:  # type: ignore
+    def decorator(
+        func: Callable[PRetry, Awaitable[RRetry]]
+    ) -> Callable[PRetry, Callable[PRetry, Awaitable[RRetry]]]:
+        async def wrapped(*args: PRetry.args, **kwargs: PRetry.kwargs) -> RRetry:
             for curr_retry in range(max_retries + 1):
                 try:
                     return await func(*args, **kwargs)
@@ -106,9 +135,11 @@ def retry(
                     else:
                         raise
 
-        return wrapped  # type: ignore
+            return await func(*args, **kwargs)
 
-    return decorator  # type: ignore
+        return wrapped
+
+    return decorator
 
 
 def strip_local(value: str) -> str:
@@ -117,3 +148,25 @@ def strip_local(value: str) -> str:
         return value.replace(".local.", "")
 
     return value
+
+
+@asynccontextmanager
+async def async_busy_ticker(
+    dur: float, precision: float = 5, min_tick: float = 0.0005
+) -> AsyncGenerator[None, None]:
+    """
+    Perform na tick every dur seconds and busy sleep until next tick for precise timing.
+
+    WARNING: This might be resource intensive, use with caution.
+    """
+    next_tick = perf_counter() + dur
+
+    yield
+
+    elapsed = perf_counter() - next_tick
+    # Sleep a fraction to save some resources
+    await asyncio.sleep(max(0, (dur - elapsed) / precision))
+
+    # Busy sleep until next tick for precise timing
+    while perf_counter() < next_tick:
+        await asyncio.sleep(min_tick)

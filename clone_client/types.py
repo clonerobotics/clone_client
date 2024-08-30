@@ -2,15 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 import struct
-from typing import cast, Mapping, Optional, Sequence, Tuple, TypedDict
-
-Pressure = float
-NodeID = int
-MuscleName = str
-
-MusclePressuresDataType = Sequence[Pressure]  # For client side translations only
-MuscleMovementsDataType = Sequence[Optional[float]]  # For client side translations only
-MusclePulsesDataType = Sequence[Optional[Tuple[float, float, float]]]
+from typing import cast, Mapping
 
 
 @dataclasses.dataclass(frozen=True)
@@ -23,7 +15,7 @@ class ValveAddress:
     def __repr__(self) -> str:
         return f"ValveAddress({self.node_id=:02X}, {self.valve_id=})"
 
-    node_id: NodeID
+    node_id: int
     valve_id: int
 
     def pack(self) -> int:
@@ -39,34 +31,4 @@ class ValveAddress:
         return ValveAddress(node_id, valve_id)
 
 
-UnpackedValveAddressToMuscleName = Mapping[int, MuscleName]
-
-
-@dataclasses.dataclass
-class PressureSensorCalibrarion:
-    min: int
-    max: int
-
-
-@dataclasses.dataclass
-class CalibrationData:
-    pressure_sensors: Sequence[PressureSensorCalibrarion]
-
-
-@dataclasses.dataclass
-class HandInfo:
-    """Information about the hand."""
-
-    muscles: UnpackedValveAddressToMuscleName
-    calibration_data: CalibrationData
-
-
-@dataclasses.dataclass
-class WaterPumpInfo:
-    """Information about the waterpump."""
-
-    desired_pressure: float
-    pressure: float
-    is_running: bool
-    temperature: float
-    is_active: bool
+UnpackedValveAddressToMuscleName = Mapping[int, str]

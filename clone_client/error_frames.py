@@ -5,12 +5,7 @@ from grpc import Call, RpcError, StatusCode
 
 from clone_client.exceptions import ClientError
 
-# pylint: disable=E0611
-from clone_client.proto.data_types_pb2 import ErrorInfo
-from clone_client.proto.data_types_pb2 import ErrorType as RequestErrorCodes
-from clone_client.proto.data_types_pb2 import ServerResponse
-
-# pylint: enable=E0611
+from clone_client.proto.data_types_pb2 import ErrorInfo, ErrorType, ServerResponse
 
 
 class ServerRequestError(ClientError):
@@ -61,15 +56,17 @@ class ServiceTimeoutError(ServerRequestError):
         super().__init__(message)
 
 
+# pylint: disable=no-member
 ERROR_CODE_TRANSLATION: Dict[int, Type[ServerRequestError]] = {
-    RequestErrorCodes.ACQUISITION: DataAcquisitionError,
-    RequestErrorCodes.UNSUPPORTED_REQUEST: UnsupportedRequestError,
-    RequestErrorCodes.INSTRUCTION: ServerInstructionError,
-    RequestErrorCodes.INVALID_SERVER_STATE: ServerInvalidStateError,
-    RequestErrorCodes.SERVICE_TIMEOUT: ServiceTimeoutError,
-    RequestErrorCodes.RPC_TIMEOUT: RpcTimeoutError,
-    RequestErrorCodes.UNKNOWN: UnknownRpcError,
+    ErrorType.ACQUISITION: DataAcquisitionError,
+    ErrorType.UNSUPPORTED_REQUEST: UnsupportedRequestError,
+    ErrorType.INSTRUCTION: ServerInstructionError,
+    ErrorType.INVALID_SERVER_STATE: ServerInvalidStateError,
+    ErrorType.SERVICE_TIMEOUT: ServiceTimeoutError,
+    ErrorType.RPC_TIMEOUT: RpcTimeoutError,
+    ErrorType.UNKNOWN: UnknownRpcError,
 }
+# pylint: enable=no-member
 
 
 LOGGER = logging.getLogger(__name__)
@@ -114,7 +111,7 @@ def handle_response(response: ServerResponse) -> None:
         if response.HasField("error"):
             LOGGER.exception(
                 "Received non-critical exception from server: [Code: %s] %s",
-                RequestErrorCodes.Name(response.error.error),
+                ErrorType.Name(response.error.error),  # pylint: disable=no-member
                 response.error.info,
             )
         return

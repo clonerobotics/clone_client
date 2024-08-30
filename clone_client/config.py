@@ -1,6 +1,7 @@
 from typing import Optional
 
-from pydantic import BaseModel, BaseSettings, Field
+from pydantic import BaseModel, Field
+from pydantic_settings import BaseSettings
 
 
 class ClientConfig(BaseModel):
@@ -37,6 +38,10 @@ class CommunicationConfig(BaseModel):
 
     controller_service: CommunicationService = CommunicationService(
         name="golem_controller", default_port=4689
+    )
+    rcv_web_service: CommunicationService = Field(
+        CommunicationService(name="golem_state", default_port=4690),
+        title="State store publisher Avahi service",
     )
 
 

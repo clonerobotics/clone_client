@@ -10,14 +10,6 @@ class DesiredPressureNotAchievedError(ClientError):
         super().__init__(message)
 
 
-class MissingConfigurationError(ClientError):
-    """Indicates that the configuration for a given element is missing."""
-
-    def __init__(self, element: str) -> None:
-        message = f"Missing configuration for {element}"
-        super().__init__(message)
-
-
 class IncorrectMuscleNameError(ClientError):
     """Indicates that the muscle name is incorrect."""
 

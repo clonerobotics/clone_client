@@ -1,18 +1,18 @@
 Metadata-Version: 2.1
 Name: clone-client
-Version: 0.0.16
+Version: 0.0.17
 Summary: 
 Author: Clone Inc.
-Requires-Python: >=3.9,<4.0
+Requires-Python: >=3.10,<4.0
 Classifier: Programming Language :: Python :: 3
-Classifier: Programming Language :: Python :: 3.9
 Classifier: Programming Language :: Python :: 3.10
 Classifier: Programming Language :: Python :: 3.11
 Classifier: Programming Language :: Python :: 3.12
-Requires-Dist: grpcio (>=1.57.0,<2.0.0)
-Requires-Dist: grpcio-tools (>=1.57.0,<2.0.0)
-Requires-Dist: pydantic[dotenv] (==1.10.9)
-Requires-Dist: zeroconf (>=0.38.6,<0.39.0)
+Requires-Dist: grpcio (>=1.65.5,<2.0.0)
+Requires-Dist: grpcio-tools (>=1.65.5,<2.0.0)
+Requires-Dist: pydantic-settings (>=2.4.0,<3.0.0)
+Requires-Dist: pydantic[dotenv] (==2.8.2)
+Requires-Dist: zeroconf (>=0.132.2,<0.133.0)
 Description-Content-Type: text/markdown
 
 # Clone API client for the Hand
