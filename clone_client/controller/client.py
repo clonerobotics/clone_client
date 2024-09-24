@@ -18,6 +18,7 @@ from clone_client.error_frames import handle_response
 from clone_client.grpc_client import GRPCAsyncClient
 from clone_client.proto.data_types_pb2 import ServerResponse
 from clone_client.utils import grpc_translated
+from clone_client.valve_driver.proto.valve_driver_pb2 import GetNodesMessage, NodeList
 
 
 class ControllerClient(GRPCAsyncClient):
@@ -119,4 +120,22 @@ class ControllerClient(GRPCAsyncClient):
         response: ControllerRuntimeConfig = await self.stub.GetConfig(
             Empty(), timeout=self.config.info_gathering_rpc_timeout
         )
+        return response
+
+    @grpc_translated()
+    async def get_all_nodes(self, rediscover: bool) -> NodeList:
+        """Get ids of nodes present on both telemetry and control lines"""
+        response: NodeList = await self.stub.GetAllNodes(GetNodesMessage(rediscover=rediscover))
+        return response
+
+    @grpc_translated()
+    async def get_controlline_nodes(self, rediscover: bool) -> NodeList:
+        """Get ids of nodes present on control line"""
+        response: NodeList = await self.stub.GetControllineNodes(GetNodesMessage(rediscover=rediscover))
+        return response
+
+    @grpc_translated()
+    async def get_telemetryline_nodes(self, rediscover: bool) -> NodeList:
+        """Get ids of nodes present on telemetry line"""
+        response: NodeList = await self.stub.GetTelemetrylineNodes(GetNodesMessage(rediscover=rediscover))
         return response

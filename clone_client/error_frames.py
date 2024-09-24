@@ -4,7 +4,6 @@ from typing import cast, Dict, Type
 from grpc import Call, RpcError, StatusCode
 
 from clone_client.exceptions import ClientError
-
 from clone_client.proto.data_types_pb2 import ErrorInfo, ErrorType, ServerResponse
 
 

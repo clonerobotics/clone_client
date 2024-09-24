@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n#clone_client/proto/data_types.proto\x12\x10\x63lone.data_types\"E\n\tErrorInfo\x12*\n\x05\x65rror\x18\x01 \x01(\x0e\x32\x1b.clone.data_types.ErrorType\x12\x0c\n\x04info\x18\x02 \x01(\t\"\\\n\x0eServerResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12/\n\x05\x65rror\x18\x02 \x01(\x0b\x32\x1b.clone.data_types.ErrorInfoH\x00\x88\x01\x01\x42\x08\n\x06_error*\xc5\x01\n\tErrorType\x12\x17\n\x13UNSUPPORTED_REQUEST\x10\x00\x12\x0f\n\x0bINSTRUCTION\x10\x01\x12\x18\n\x14INVALID_SERVER_STATE\x10\x02\x12\x0f\n\x0b\x41\x43QUISITION\x10\x03\x12\x0b\n\x07UNKNOWN\x10\x04\x12\x0f\n\x0bRPC_TIMEOUT\x10\x05\x12\x13\n\x0fSERVICE_TIMEOUT\x10\x06\x12\x14\n\x10MISSING_HARDWARE\x10\x07\x12\x1a\n\x16\x44ISABLED_FUNCTIONALITY\x10\x08\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n#clone_client/proto/data_types.proto\x12\x10\x63lone.data_types\"E\n\tErrorInfo\x12*\n\x05\x65rror\x18\x01 \x01(\x0e\x32\x1b.clone.data_types.ErrorType\x12\x0c\n\x04info\x18\x02 \x01(\t\"\\\n\x0eServerResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12/\n\x05\x65rror\x18\x02 \x01(\x0b\x32\x1b.clone.data_types.ErrorInfoH\x00\x88\x01\x01\x42\x08\n\x06_error*\xd3\x01\n\tErrorType\x12\x17\n\x13UNSUPPORTED_REQUEST\x10\x00\x12\x0f\n\x0bINSTRUCTION\x10\x01\x12\x18\n\x14INVALID_SERVER_STATE\x10\x02\x12\x0f\n\x0b\x41\x43QUISITION\x10\x03\x12\x0b\n\x07UNKNOWN\x10\x04\x12\x0f\n\x0bRPC_TIMEOUT\x10\x05\x12\x13\n\x0fSERVICE_TIMEOUT\x10\x06\x12\x14\n\x10MISSING_HARDWARE\x10\x07\x12\x1a\n\x16\x44ISABLED_FUNCTIONALITY\x10\x08\x12\x0c\n\x08MISMATCH\x10\tb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -22,7 +22,7 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'clone_client.proto.data_typ
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_ERRORTYPE']._serialized_start=223
-  _globals['_ERRORTYPE']._serialized_end=420
+  _globals['_ERRORTYPE']._serialized_end=434
   _globals['_ERRORINFO']._serialized_start=57
   _globals['_ERRORINFO']._serialized_end=126
   _globals['_SERVERRESPONSE']._serialized_start=128

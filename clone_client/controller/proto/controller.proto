@@ -5,6 +5,7 @@ package clone.controller;
 import "google/protobuf/empty.proto";
 
 import "clone_client/proto/data_types.proto";
+import "clone_client/valve_driver/proto/valve_driver.proto";
 
 service ControllerGRPC {
   rpc SetImpulses(SetImpulsesMessage) returns (clone.data_types.ServerResponse);
@@ -21,6 +22,10 @@ service ControllerGRPC {
   rpc SetWaterPumpPressure(WaterPumpPressure) returns (clone.data_types.ServerResponse);
   
   rpc GetConfig(google.protobuf.Empty) returns (ControllerRuntimeConfig);
+
+  rpc GetAllNodes(clone.valve_driver.GetNodesMessage) returns (clone.valve_driver.NodeList);
+  rpc GetControllineNodes(clone.valve_driver.GetNodesMessage) returns (clone.valve_driver.NodeList);
+  rpc GetTelemetrylineNodes(clone.valve_driver.GetNodesMessage) returns (clone.valve_driver.NodeList);
 }
 
 // Controling muslces by directly setting an absolute value of a pressure

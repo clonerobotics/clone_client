@@ -39,8 +39,8 @@ enum TelemetryConfig {
 }
 
 message PressureSensorCalibration {
-  uint32 min = 1;
-  uint32 max = 2;
+  int32 min = 1;
+  int32 max = 2;
 }
 
 message CalibrationData {

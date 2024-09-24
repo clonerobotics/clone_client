@@ -32,6 +32,7 @@ class _ErrorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._Enum
     SERVICE_TIMEOUT: _ErrorType.ValueType  # 6
     MISSING_HARDWARE: _ErrorType.ValueType  # 7
     DISABLED_FUNCTIONALITY: _ErrorType.ValueType  # 8
+    MISMATCH: _ErrorType.ValueType  # 9
 
 class ErrorType(_ErrorType, metaclass=_ErrorTypeEnumTypeWrapper): ...
 
@@ -44,6 +45,7 @@ RPC_TIMEOUT: ErrorType.ValueType  # 5
 SERVICE_TIMEOUT: ErrorType.ValueType  # 6
 MISSING_HARDWARE: ErrorType.ValueType  # 7
 DISABLED_FUNCTIONALITY: ErrorType.ValueType  # 8
+MISMATCH: ErrorType.ValueType  # 9
 global___ErrorType = ErrorType
 
 @typing.final

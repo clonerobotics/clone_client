@@ -16,18 +16,18 @@ from typing import AsyncIterator
 from clone_client.client import Client
 from clone_client.controller.proto.controller_pb2 import ControllerRuntimeConfig
 
-NO_READINGS = 5
+NO_READINGS = 50
 HOSTNAME = os.getenv("CLONE_HOSTNAME", socket.gethostname())
 
 
-def denormalize_value(normalized_value: float, original_min: int = 460, original_max: int = 1600) -> int:
+def denormalize_value(normalized_value: float, original_min: int = 0, original_max: int = 8500) -> int:
     """
     Denormalizes a value that was normalized between 0 and 1 back to its original range,
     allowing for values slightly below 0 and above 1 due to sensor inaccuracies.
 
     :param normalized_value: The normalized value (can be slightly < 0 or > 1)
-    :param original_min: The minimum value of the original range (default is 460)
-    :param original_max: The maximum value of the original range (default is 1600)
+    :param original_min: The minimum value of the original range (default is 0)
+    :param original_max: The maximum value of the original range (default is 8500)
     :return: The denormalized value
     """
     # Calculate the original range
@@ -52,9 +52,9 @@ async def activate_muscle(
     """
 
     impulses: list[float | None] = [None] * client.number_of_muscles
-    impulses[index] = 2000 / controller_config.max_impulse_duration_ms * activation
+    impulses[index] = 3000 / controller_config.max_impulse_duration_ms * activation
     await client.set_impulses(impulses)
-    await asyncio.sleep(2.5)
+    await asyncio.sleep(3.5)
 
     for _ in range(NO_READINGS):
         await asyncio.sleep(0.05)
@@ -79,16 +79,21 @@ async def calibrate() -> None:
             mname = client.muscle_name(i)
             calib_min = hand_info.calibration_data.pressure_sensors[i].min
             calib_max = hand_info.calibration_data.pressure_sensors[i].max
-            aiter_max = activate_muscle(
-                client, i, controller_config, calib_min=calib_min, calib_max=calib_max, activation=1
-            )
+            try:
+                aiter_max = activate_muscle(
+                    client, i, controller_config, calib_min=calib_min, calib_max=calib_max, activation=1
+                )
 
-            aiter_min = activate_muscle(
-                client, i, controller_config, calib_min=calib_min, calib_max=calib_max, activation=-1
-            )
+                aiter_min = activate_muscle(
+                    client, i, controller_config, calib_min=calib_min, calib_max=calib_max, activation=-1
+                )
 
-            mmax = max([x async for x in aiter_max])
-            mmin = min([x async for x in aiter_min])
+                mmax = max([x async for x in aiter_max])
+                mmin = min([x async for x in aiter_min])
+            except Exception as e:
+                print(e)
+                mmin = calib_min
+                mmax = calib_max
 
             logging.info(
                 "Muscle %s: min=%d, max=%d. (Calibration drift: min=%d, max=%d)",

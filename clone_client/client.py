@@ -198,6 +198,18 @@ class Client:
 
         return info
 
+    async def get_all_nodes(self, rediscover: bool = False) -> list[int]:
+        """Returns list of node_ids present on both control and telemetry lines"""
+        return list((await self.controller_tunnel.get_all_nodes(rediscover)).values)
+
+    async def get_controlline_nodes(self, rediscover: bool = False) -> list[int]:
+        """Returns list of node_ids present on control line"""
+        return list((await self.controller_tunnel.get_controlline_nodes(rediscover)).values)
+
+    async def get_telemetryline_nodes(self, rediscover: bool = False) -> list[int]:
+        """Returns list of node_ids present on telemetry line"""
+        return list((await self.controller_tunnel.get_telemetryline_nodes(rediscover)).values)
+
     async def get_controller_config(self) -> ControllerRuntimeConfig:
         """Send request to get current configuration of the controller."""
         return await self.controller_tunnel.get_config()
