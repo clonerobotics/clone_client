@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import logging
 from socket import gethostname
 from time import time
@@ -26,11 +25,13 @@ from clone_client.exceptions import (
 from clone_client.state_store.client import StateStoreReceiverClient
 from clone_client.state_store.config import StateStoreClientConfig
 from clone_client.state_store.proto.state_store_pb2 import SystemInfo, TelemetryData
+from clone_client.utils import async_busy_ticker
 
 LOGGER = logging.getLogger(__name__)
 
 
 class Client:
+    # pylint: disable=too-many-public-methods
     """Client for sending commands and requests to the controller and state."""
 
     def __init__(
@@ -125,49 +126,49 @@ class Client:
         """Block the execution until current waterpump pressure is equal or more than desired pressure."""
         start = time()
         while True:
-            await asyncio.sleep(0.01)
-            if time() - start >= timeout_ms / 1000:
-                raise DesiredPressureNotAchievedError(timeout_ms)
+            async with async_busy_ticker(1 / 10):
+                if time() - start >= timeout_ms / 1000:
+                    raise DesiredPressureNotAchievedError(timeout_ms)
 
-            info = await self.get_waterpump_info()
-            if info.pressure >= info.desired_pressure:
-                break
+                info = await self.get_waterpump_info()
+                if info.pressure >= info.desired_pressure:
+                    break
 
     async def set_impulses(self, impulses: Sequence[Optional[float]]) -> None:
-        """Send instruction to the controller to set any muscle into certain position"""
+        """Set muscles into certain position for a certain time."""
         await self.controller_tunnel.set_impulses(impulses)
 
     @deprecated('Use "set_impulses" instead.')
-    async def set_muscls(self, muscles: Sequence[Optional[float]]) -> None:
-        """Send instruction to the controller to set any muscle into certain position"""
+    async def set_muscles(self, muscles: Sequence[Optional[float]]) -> None:
+        """Set muscles into certain position for a certain time."""
         await self.set_impulses(muscles)
 
     async def set_pulses(self, pulses: Sequence[Pulse]) -> None:
-        """Send instruction to the controller to set any muscle into certain position"""
+        """Start pulses (timed oscilations) on muscles."""
         await self.controller_tunnel.set_pulses(pulses)
 
     async def set_pressures(self, pressures: Sequence[float]) -> None:
-        """Send instruction to the controller to set any muscle into certain pressure."""
+        """Set muscles into certain pressure."""
         await self.controller_tunnel.set_pressures(pressures)
 
     def stream_set_pressures(self, stream: AsyncIterable[Sequence[float]]) -> Coroutine[Any, Any, None]:
-        """Send instruction to the controller to set any muscle into certain pressure."""
+        """Start a stream with muscle pressure updates to the controller."""
         return self.controller_tunnel.stream_set_pressures(stream)
 
     def subscribe_telemetry(self) -> AsyncIterable[TelemetryData]:
-        """Send request to subscribe to muscle pressures updates."""
+        """Subscribe to muscle pressures updates."""
         return self.state_tunnel.subscribe_telemetry()
 
     async def get_telemetry(self) -> TelemetryData:
-        """Send request to get the latest muscle pressures."""
+        """Get current telemetry data."""
         return await self.state_tunnel.get_telemetry()
 
     async def loose_all(self) -> None:
-        """Send instruction to the controller to loose all muscles."""
+        """Loose all muscles (deflate)."""
         await self.controller_tunnel.loose_all()
 
     async def lock_all(self) -> None:
-        """Send instruction to the controller to lock all muscles."""
+        """Lock all muscles (stop any update to the muscles)."""
         await self.controller_tunnel.lock_all()
 
     async def start_waterpump(self) -> None:
@@ -183,12 +184,12 @@ class Client:
         await self.controller_tunnel.set_waterpump_pressure(pressure)
 
     async def get_waterpump_info(self) -> GRPCWaterPumpInfo:
-        """Send request to get current information about waterpump metadata."""
+        """Get current information about waterpump metadata."""
         return await self.controller_tunnel.get_waterpump_info()
 
     async def get_system_info(self, reload: bool = False) -> SystemInfo:
         """
-        Send request to get current information about hand metadata.
+        Get current information about hand metadata.
 
         `reload` - if True, force to reload hand info from the controller.
         """
@@ -211,5 +212,5 @@ class Client:
         return list((await self.controller_tunnel.get_telemetryline_nodes(rediscover)).values)
 
     async def get_controller_config(self) -> ControllerRuntimeConfig:
-        """Send request to get current configuration of the controller."""
+        """Get current configuration of the controller."""
         return await self.controller_tunnel.get_config()

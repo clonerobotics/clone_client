@@ -5,12 +5,11 @@ import warnings
 
 from clone_client.controller.proto import controller_pb2 as clone__client_dot_controller_dot_proto_dot_controller__pb2
 from clone_client.proto import data_types_pb2 as clone__client_dot_proto_dot_data__types__pb2
+from clone_client.valve_driver.proto import valve_driver_pb2 as clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
-GRPC_GENERATED_VERSION = '1.65.5'
+GRPC_GENERATED_VERSION = '1.66.1'
 GRPC_VERSION = grpc.__version__
-EXPECTED_ERROR_RELEASE = '1.66.0'
-SCHEDULED_RELEASE_DATE = 'August 6, 2024'
 _version_not_supported = False
 
 try:
@@ -20,15 +19,12 @@ except ImportError:
     _version_not_supported = True
 
 if _version_not_supported:
-    warnings.warn(
+    raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
         + f' but the generated code in clone_client/controller/proto/controller_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
-        + f' This warning will become an error in {EXPECTED_ERROR_RELEASE},'
-        + f' scheduled for release on {SCHEDULED_RELEASE_DATE}.',
-        RuntimeWarning
     )
 
 
@@ -95,6 +91,21 @@ class ControllerGRPCStub(object):
                 '/clone.controller.ControllerGRPC/GetConfig',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=clone__client_dot_controller_dot_proto_dot_controller__pb2.ControllerRuntimeConfig.FromString,
+                _registered_method=True)
+        self.GetAllNodes = channel.unary_unary(
+                '/clone.controller.ControllerGRPC/GetAllNodes',
+                request_serializer=clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.GetNodesMessage.SerializeToString,
+                response_deserializer=clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.NodeList.FromString,
+                _registered_method=True)
+        self.GetControllineNodes = channel.unary_unary(
+                '/clone.controller.ControllerGRPC/GetControllineNodes',
+                request_serializer=clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.GetNodesMessage.SerializeToString,
+                response_deserializer=clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.NodeList.FromString,
+                _registered_method=True)
+        self.GetTelemetrylineNodes = channel.unary_unary(
+                '/clone.controller.ControllerGRPC/GetTelemetrylineNodes',
+                request_serializer=clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.GetNodesMessage.SerializeToString,
+                response_deserializer=clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.NodeList.FromString,
                 _registered_method=True)
 
 
@@ -167,6 +178,24 @@ class ControllerGRPCServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetAllNodes(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetControllineNodes(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetTelemetrylineNodes(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_ControllerGRPCServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -224,6 +253,21 @@ def add_ControllerGRPCServicer_to_server(servicer, server):
                     servicer.GetConfig,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                     response_serializer=clone__client_dot_controller_dot_proto_dot_controller__pb2.ControllerRuntimeConfig.SerializeToString,
+            ),
+            'GetAllNodes': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetAllNodes,
+                    request_deserializer=clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.GetNodesMessage.FromString,
+                    response_serializer=clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.NodeList.SerializeToString,
+            ),
+            'GetControllineNodes': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetControllineNodes,
+                    request_deserializer=clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.GetNodesMessage.FromString,
+                    response_serializer=clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.NodeList.SerializeToString,
+            ),
+            'GetTelemetrylineNodes': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetTelemetrylineNodes,
+                    request_deserializer=clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.GetNodesMessage.FromString,
+                    response_serializer=clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.NodeList.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -523,6 +567,87 @@ class ControllerGRPC(object):
             '/clone.controller.ControllerGRPC/GetConfig',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             clone__client_dot_controller_dot_proto_dot_controller__pb2.ControllerRuntimeConfig.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetAllNodes(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/clone.controller.ControllerGRPC/GetAllNodes',
+            clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.GetNodesMessage.SerializeToString,
+            clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.NodeList.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetControllineNodes(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/clone.controller.ControllerGRPC/GetControllineNodes',
+            clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.GetNodesMessage.SerializeToString,
+            clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.NodeList.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetTelemetrylineNodes(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/clone.controller.ControllerGRPC/GetTelemetrylineNodes',
+            clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.GetNodesMessage.SerializeToString,
+            clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.NodeList.FromString,
             options,
             channel_credentials,
             insecure,

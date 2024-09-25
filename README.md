@@ -1,8 +1,8 @@
-# Clone API client for the Hand
+# Clone API client for the Clone Robot
 
-[Website](http://clonerobotics.com) | [Code examples](/clone_client/examples)
+[Website](http://clonerobotics.com) | [Code examples](/clone_client/examples/)
 
-The Clone client package offers high-level API to directly control the Clone Hand. Current repository version contains already built version of the package, development is done outside GitHub and for that reasons we do not accept pull requests, however we are open for any suggestions and bug reports using the issue tracking system.
+The Clone client package offers high-level API to directly control the Clone Robot. Current repository version contains already built version of the package, development is done outside GitHub and for that reasons we do not accept pull requests, however we are open for any suggestions and bug reports using the issue tracking system.
 
 **`⚠ Package In Development`**
 
@@ -10,12 +10,13 @@ This repository is in pre-beta, prone to drastic changes in the future, so pleas
 
 We use GitHub tagging mechanism for each update of the package for convenience.
 
+> **Note**: This API client uses **asyncio** to run the client asynchronously, which means any integration with this package requires to be compatible with this paradigm. If you are looking for a simplified, synchronous version of the API client, please see this wrapper: https://github.com/clonerobotics/clone_client_sync
+
 ## Requirements
 
-Obviously you're gonna need the Clone Hand to use this package. Please contact us if you want to include our product in your research.
+Obviously you're gonna need the Clone Robot to use this package. Please contact us if you want to include our product in your research.
 
-The package requires Python >= 3.9, < 3.12.
-Support for python 3.9 might be dropped in the future. Sadly too many breaking changes between versions to keep always a working version for py3.9.
+The package requires Python >= `3.10`, < `4.0`.
 
 ## Installation
 
@@ -27,13 +28,23 @@ Unfortunately, we do not provide PyPI releases just yet, but you can use this re
 
 ### Getting started
 
-To start using this package with a version of the hardware, you're gonna need a unique name provided along with the Clone Hand..
+To start using this package with a version of the hardware, you're gonna need a unique name provided along with the Clone Robot..
 
 ```python
 from clone_client.client import Client
 
 async def entrypoint():
-    async with Client("hand_name") as client:
+    async with Client("robot") as client:
+        ...
+```
+
+you can also use address in the network directly:
+
+```python
+from clone_client.client import Client
+
+async def entrypoint():
+    async with Client(address="192.168.1.10") as client:
         ...
 ```
 
@@ -41,66 +52,94 @@ If you want more information about what is happening during initialization proce
 
 ### Using controller
 
-The controller is a simple communication interface that allows you to send commands to the hand. It mostly controls muscles and water pump.
+The controller is a simple communication interface that allows you to send commands to the robot. It mostly controls muscles and water pump (pressure source).
+
+> **Note:** For some versions of the robot the water pump might not be available due to external pressure source. In those cases the pump API would raise an exception.
 
 ```python
 from clone_client.client import Client
 
 async def entrypoint():
-    async with Client("hand_name") as client:
+    async with Client("robot") as client:
         # Start the waterpump and wait for it to reach desired pressure
         await client.start_waterpump()
         await client.wait_for_desired_pressure()
 
-        # Send muscles instructions
-        data = [-1 for _ in range(client.number_of_muscles)]
-        await client.set_muscles(data)
+        # Send pressures instructions for each muscle
+        data = [0 for _ in range(client.number_of_muscles)]
+        await client.set_pressures(data)
 ```
 
-`set_muscles` function accepts a sequence of floats and each value represents an impulse time value relative to the maximum impulse duration defined for the hand. An impulse is defined as a known period of time for which one of the muscle valves is open.
+`set_pressures` function accepts a sequence of floats and each value represents a normalized pressure instruction for a single muscle.
 
-The value range is normalized to `[-1, 1]` where:
+The value range is normalized to `[0, 1]`. To get information about what is the maxiumum pressure achievable for each muscle, you can use a following script:
 
-- `Negative`: pressure in the muscle is decreasing as long as this value is being sent
-- `0`: pressure doesn't increase or decreaase, it keeps the pressure constant ("locks" the valve). Also resets the current impulse set for the muscle.
-- `Positive`: pressure in the muscle is increasing as long as this value is being sent
-- `None`: ignore instruction for this muscle in this tick. This is usefull if you want to send value for another muscle but you don't want to do anything with other.
+```python
+async def entrypoint():
+    async with Client("robot") as client:
+        sinfo = await client.get_system_info()
 
-For example, if the maximum impulse duration is 100ms, sending `0.5` to the muscle will keep increasing pressure for 50ms and sending `-0.5` will keep decreasing the pressure for 50ms.
+        # e.g. checking the calibration range for the first muscle
+        # Values are presented in milibars, negative values are
+        # a normal feedback from the pressure sensor due to noise
+        m_min = sinfo.calibration.pressure_sensors[0].min
+        m_max = sinfo.calibration.pressure_sensors[0].max
 
-Configured value of maximum duration can be retrieved using `get_controller_config` function:
+        print(f"Muscle 0: min={m_min}, max={m_max}")
+```
 
-Impulse control usually would look like this:
+Setting the pressure is also achievable using stream. This offer the same functionality but in a bit more robust and more performant way due to limited numbers of request / response cycles.
+
+```python
+
+async def entrypoint():
+    async with Client("robot") as client:
+        async def generator():
+            pressures = [0] * client.number_of_muscles
+            while 1:
+                yield pressures
+
+       await client.stream_set_pressures(generator())
+```
+
+See the [stream example](./clone_client/examples/using_data_streams.py) for more information about how to use the stream.
+
+> **Note**: We do not limit the control frequency internally, however there are hardware limitations that might prevent you from setting the pressure too fast.
+
+Recommended control frequency for our development products can be calculated as:
+
+- **hard** cap: `10000 / (no_muscles * 1.5)` (166Hz for Clone Hand)
+- **soft** cap: `10000 / (no_muscles * 1.25)` (200Hz for Clone Hand)
+
+We are aware of these limitations and are working on hardware changes to allow for much higher control frequency.
+
+We offer a utility context manager that ensures very precise ticks, see:
+[clone_client.utils](./clone_client/utils.py):
 
 ```python
 from clone_client.client import Client
-import random
-import asyncio
+from clone_client.utils import async_busy_ticker
 
 async def entrypoint():
-    async with Client("hand_name") as client:
-        config = await client.get_controller_config()
-
-        # Limiting the impulses to 300ms max
-        limit_factor = 300 / config.max_impulse_duration_ms
-        data = [random.uniform(-1, 1) * limit_factor for _ in range(client.number_of_muscles)]
-
-        # A simplified version of controlling the hand
-        # For more sophisticated control, you can use some sort of task based control
-        # Where each task updates values for single muscle in it's own interval and sends it to the higher level control loop.
-        await client.set_muscles(data)
-        await asyncio.sleep(max(data) * config.max_impulse_duration_ms / 1000)
+    async with Client("robot") as client:
+        while True:
+            async with async_busy_ticker(1 / 100):
+                await client.set_pressures([0.2] * client.number_of_muscles)
 ```
+
+> **Warning**: We do not limit the number of concurrent muscle actuations. Setting pressures must be use with caution to ensure the safety of the hardware (to avoid too much tension / strains on the bone / joint). For initial experiments limit the number of actuated muscles or operate on lower values (such as 0.2 - 0.3).
+
+On top of pressure controller the client implements a various way to control muscles such as timed impulses and oscilations. See the [implementations](./clone_client/client.py) for more information.
 
 ### Reading feedback data
 
-Clone Hand is equipped with a set of sensors that allow you to read current pressure in each muscle. You can also check the current and desired (target) pressure of the water pump.
+Clone Robot is equipped with a set of sensors that allow you to read current pressure in each muscle and the IMU data (beta). You can also check the current and desired (target) pressure of the water pump.
 
 ```python
 from clone_client.client import Client
 
 async def entrypoint():
-    async with Client("hand_name") as client:
+    async with Client("robot") as client:
         # Start the water pump and wait for it to reach desired pressure
         await client.start_waterpump()
         await client.wait_for_desired_pressure()
@@ -117,15 +156,31 @@ async def entrypoint():
         # Desired pressure in the water pump
         print("Desired pressure", waterpump_info.desired_pressure)
 
-        # Get current pressure in the muscles
-        pressures = await client.get_pressures()
+        # Get current telemetry in the muscles
+        telemetry = await client.get_telemetry()
+        print("Pressurs ", telemetry.pressures)
+        print("IMU ", telemetry.imu)
+```
+
+Mind that IMU data is still in beta and might not be available for all versions of the hardware.
+
+Receiving feedback data is also available using subscription. This offer the same functionality but it's hooked directly into the internal feedback loop offering always up-to-date data.
+
+```python
+from clone_client.client import Client
+
+async def entrypoint():
+    async with Client("robot") as client:
+        async for telemetry in client.subscribe_telemetry():
+            print("Pressures ", telemetry.pressures)
+            print("IMU ", telemetry.imu)
 ```
 
 Example code can be found in the [examples](./clone_client/examples) directory.
 
 ### Data ordering
 
-Both `set_muscles` and `get_pressures` functions are based on the data in the same order as the muscles are connected to the controller. It is important to preserve the ordering of sent data to avoid any problems with the hardware or/and your own software.
+Both `set_pressures` (or `stream_set_pressures`) and `get_pressures` (or `subscribe_telemetry`) functions are based on the data in the same order as the muscles are connected to the controller. It is important to preserve the ordering of sent data to avoid any problems with the hardware or/and your own software.
 
 To get the current order of the muscles, you can can use `muscle_order` property of the client.
 
@@ -135,7 +190,7 @@ We also provide utils to get the name of the specific muscle based on its index 
 from clone_client.client import Client
 
 async def entrypoint():
-    async with Client("hand_name") as client:
+    async with Client("robot") as client:
         # Get the muscle order
         muscle_order = client.muscle_order
 
@@ -150,87 +205,11 @@ It is recommended to save the muscle order in your application and in case of an
 
 ## API Reference
 
-Below, you can find the API reference for the package, along with a broad explanation of its main functions, classes, or modules.
+### client
 
-### Client
+Please check the [source code](./clone_client/client.py) and [examples](./clone_client/examples/) for more information about the API. We try to provide detailed docstrings and typings for each function and class with comments in more complex parts of the code.
 
-[clone_client.client.Client](./clone_client/client.py)
-
-> `__init__(self, server, address, controller_service, state_service)`
-
-All arguments are optional however to make client connect to the remote hand you need to provide `server` argument which is the unique name of the hand provided to you.
-
-**server** `str` - unique name of the hand. Default to current host.
-**address** `str` - address IP of the hand. If provided, a discovery process based on server name will be skipped and client wll try to connect using provided address immediately.
-**controller_service** `clone_client.config.CommunicationService` - configuration of controller service. Should be left as default in most cases.
-**state_service** `clone_client.config.CommunicationService` - configuration of the state service. Should be left as default in most cases.
-
-> _`property`_ `muscle_order(self)`
-
-Returns a `dict` with indexes as keys and their corresponding muscle names as values.
-
-> _`property`_ `number_of_muscles(self)`
-
-Returns the number (`int`) of muscles connected to the hand.
-
-> `muscle_idx(self, name)`
-
-Returns the index (`int`) of the muscle with given name (`str`).
-
-> `muscle_name(self, idx)`
-
-Returns the name (`str`) of the muscle with given index (`int`).
-
-> `wait_for_desired_pressure(self, timeout)`
-
-Block the execution until timeout (`float`) is reached or until current waterpump pressure is equal or more than desired pressure.
-
-Raises `clone_client.exceptions.DesiredPressureNotAchievedError` if timeout is reached.
-
-> `set_muscles(self, muscles)`
-
-Sends muscle values in a form of a sequence of floats.
-
-> `get_pressures(self)`
-
-Returns a sequence of floats with current pressure in each muscle.
-
-> `loose_all(self)`
-
-Looses all muscles. Equivalent of sending all `-1` values to `set_muscles` function.
-
-> `lock_all(self)`
-
-Locks all muscles. Equivalent of sending all `0` values to `set_muscles` function.
-
-> `start_waterpump(self)`
-
-Starts the pump.
-
-> `stop_waterpump(self)`
-
-Stops the pump.
-
-> `set_waterpump_pressure(self)`
-
-Sets the desired pressure of the pump.
-
-> `get_valve_nodes(self)`
-
-Returns a `set` of `clone_client.types.ValveAddress` with all valve nodes connected to the hand. For higher level programs a `muscle_names` property is recommended.
-
-> `get_waterpump_info(self)`
-
-Returns a `clone_client.types.WaterPumpInfo` with current pump information.
-
-> `get_hand_info(self)`
-
-Returns a `clone_client.types.HandInfo` with current hand information.
-
-> `get_controller_config(self)`
-
-Returns a `ControllerRuntimeConfig` with current runtime controller configuration. Apart from the `max_impulse_duration_ms` property, it also contains `use_pump` which indicated whether or not a water pump is connected t othe system or the if the system relies on the external pressure source and
-`allow_missing_nodes` which indicates whether or not the controller should allow missing nodes in the configuration if the hand is not fully connected (mostly used for debugging).
+For all-in-one explanation please see [this file](./clone_client/examples/api_explanation.py)
 
 ### error_frames
 

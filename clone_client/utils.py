@@ -155,9 +155,11 @@ async def async_busy_ticker(
     dur: float, precision: float = 5, min_tick: float = 0.0005
 ) -> AsyncGenerator[None, None]:
     """
-    Perform na tick every dur seconds and busy sleep until next tick for precise timing.
+    Perform a tick every dur seconds and busy sleep until next tick for precise timing.
 
     WARNING: This might be resource intensive, use with caution.
+    By tweaking precision and min_tick you can adjust the resource usage to precision ratio.
+    Less precision means less resources used but less accurate timing.
     """
     next_tick = perf_counter() + dur
 
