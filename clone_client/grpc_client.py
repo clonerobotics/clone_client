@@ -43,7 +43,8 @@ class GRPCAsyncClient:
         """Setup channel arguments."""
         return {
             "target": url_rfc_to_grpc(self._socket_address),
-            "options": [("grpc.keepalive_timeout_ms", 500)],
+            # add default_authority not to be rejected because of "malformed authority"
+            "options": [("grpc.keepalive_timeout_ms", 500), ("grpc.default_authority", "localhost")],
         }
 
     @retry(max_retries=CONFIG.max_retries, catch=[asyncio.TimeoutError])

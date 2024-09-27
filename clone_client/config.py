@@ -29,6 +29,7 @@ class CommunicationService(BaseModel):
 
     name: str
     default_port: int = 1234
+    default_unix_sock_name: str = ""
 
 
 class CommunicationConfig(BaseModel):
@@ -37,10 +38,12 @@ class CommunicationConfig(BaseModel):
     # pylint: disable=too-few-public-methods
 
     controller_service: CommunicationService = CommunicationService(
-        name="golem_controller", default_port=4689
+        name="golem_controller", default_port=4689, default_unix_sock_name="controller.socket"
     )
     rcv_web_service: CommunicationService = Field(
-        CommunicationService(name="golem_state", default_port=4690),
+        CommunicationService(
+            name="golem_state", default_port=4690, default_unix_sock_name="state_store_rcv.socket"
+        ),
         title="State store publisher Avahi service",
     )
 

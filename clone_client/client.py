@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+from enum import auto, Flag
+import ipaddress as ip
 import logging
+from pathlib import Path
 from socket import gethostname
 from time import time
 from types import TracebackType
@@ -8,7 +11,7 @@ from typing import Any, AsyncIterable, Coroutine, Dict, Optional, Sequence, Type
 
 from typing_extensions import deprecated
 
-from clone_client.config import CONFIG
+from clone_client.config import CommunicationService, CONFIG
 from clone_client.controller.client import ControllerClient
 from clone_client.controller.config import ControllerClientConfig
 from clone_client.controller.proto.controller_pb2 import (
@@ -34,53 +37,73 @@ class Client:
     # pylint: disable=too-many-public-methods
     """Client for sending commands and requests to the controller and state."""
 
+    class TunnelsUsed(Flag):
+        """Flag for selecting channels which are going to be used"""
+
+        CONTROLLER = auto()
+        STATE = auto()
+
     def __init__(
         self,
         server: str = gethostname(),
         address: Optional[str] = None,
+        tunnels_used: TunnelsUsed = ~TunnelsUsed(0),
     ) -> None:
         self.server = server
         self.address = address
+        self.tunnels_used = tunnels_used
 
-        self.controller_tunnel: ControllerClient
-        self.state_tunnel: StateStoreReceiverClient
+        if Client.TunnelsUsed.CONTROLLER in tunnels_used:
+            self.controller_tunnel: ControllerClient
+        if Client.TunnelsUsed.STATE in tunnels_used:
+            self.state_tunnel: StateStoreReceiverClient
 
         self._ordering: Dict[str, int] = {}
         self._ordering_rev: Dict[int, str] = {}
 
-    async def _get_controller(self) -> ControllerClient:
+    async def _create_socket_str(self, service: CommunicationService) -> str:
         if not self.address:
-            controller_address, controller_port = await Discovery(
-                self.server,
-                CONFIG.communication.controller_service,
-            ).discover()
+            service_address, service_port = await Discovery(self.server, service).discover()
+            socket_str = f"{service_address}:{service_port}"
         else:
-            controller_address, controller_port = (
-                self.address,
-                CONFIG.communication.controller_service.default_port,
-            )
+            try:
+                ip.ip_address(self.address)  # test whether valid ip
+                service_address, service_port = (
+                    self.address,
+                    service.default_port,
+                )
+                socket_str = f"{service_address}:{service_port}"
+            except ValueError as e:
+                LOGGER.debug("Passed address is not a net address, trying to use unix-socket")
+                socket_path = Path(self.address) / Path(service.default_unix_sock_name)
+                if not socket_path.is_socket():
+                    raise ValueError(f"Selected path ({socket_path}) does not point to a unix-socket") from e
+                socket_str = f"unix://{socket_path}"
+        LOGGER.debug(socket_str)
+        return socket_str
 
-        return ControllerClient(f"{controller_address}:{controller_port}", ControllerClientConfig())
+    async def _get_controller(self) -> ControllerClient:
+        socket_str = await self._create_socket_str(CONFIG.communication.controller_service)
+        return ControllerClient(socket_str, ControllerClientConfig())
 
     async def _get_state(self) -> StateStoreReceiverClient:
-        if not self.address:
-            state_address, state_port = await Discovery(
-                self.server, CONFIG.communication.rcv_web_service
-            ).discover()
-        else:
-            state_address, state_port = self.address, CONFIG.communication.rcv_web_service.default_port
-
-        return StateStoreReceiverClient(f"{state_address}:{state_port}", StateStoreClientConfig())
+        socket_str = await self._create_socket_str(CONFIG.communication.rcv_web_service)
+        return StateStoreReceiverClient(socket_str, StateStoreClientConfig())
 
     async def __aenter__(self) -> Client:
-        self.controller_tunnel = await self._get_controller()
-        self.state_tunnel = await self._get_state()
+        if Client.TunnelsUsed.CONTROLLER in self.tunnels_used:
+            self.controller_tunnel = await self._get_controller()
+        if Client.TunnelsUsed.STATE in self.tunnels_used:
+            self.state_tunnel = await self._get_state()
 
-        await self.controller_tunnel.channel_ready()
-        await self.state_tunnel.channel_ready()
+        if Client.TunnelsUsed.CONTROLLER in self.tunnels_used:
+            await self.controller_tunnel.channel_ready()
+        if Client.TunnelsUsed.STATE in self.tunnels_used:
+            await self.state_tunnel.channel_ready()
 
-        info = await self.get_system_info(reload=True)
-        self._update_mappings(info)
+        if Client.TunnelsUsed.STATE in self.tunnels_used:
+            info = await self.get_system_info(reload=True)
+            self._update_mappings(info)
 
         LOGGER.info("Client initialized and ready to use.")
 
@@ -89,8 +112,10 @@ class Client:
     async def __aexit__(
         self, exc_type: Type[ClientError], value: ClientError, traceback: TracebackType
     ) -> None:
-        await self.controller_tunnel.channel.__aexit__(exc_type, value, traceback)
-        await self.state_tunnel.channel.__aexit__(exc_type, value, traceback)
+        if Client.TunnelsUsed.CONTROLLER in self.tunnels_used:
+            await self.controller_tunnel.channel.__aexit__(exc_type, value, traceback)
+        if Client.TunnelsUsed.STATE in self.tunnels_used:
+            await self.state_tunnel.channel.__aexit__(exc_type, value, traceback)
 
     @property
     def muscle_order(self) -> Dict[int, str]:
