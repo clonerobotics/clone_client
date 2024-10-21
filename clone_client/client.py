@@ -7,7 +7,16 @@ from pathlib import Path
 from socket import gethostname
 from time import time
 from types import TracebackType
-from typing import Any, AsyncIterable, Coroutine, Dict, Optional, Sequence, Type
+from typing import (
+    Annotated,
+    Any,
+    AsyncIterable,
+    Coroutine,
+    Dict,
+    Optional,
+    Sequence,
+    Type,
+)
 
 from typing_extensions import deprecated
 
@@ -27,7 +36,11 @@ from clone_client.exceptions import (
 )
 from clone_client.state_store.client import StateStoreReceiverClient
 from clone_client.state_store.config import StateStoreClientConfig
-from clone_client.state_store.proto.state_store_pb2 import SystemInfo, TelemetryData
+from clone_client.state_store.proto.state_store_pb2 import (
+    ImuMappingModel,
+    SystemInfo,
+    TelemetryData,
+)
 from clone_client.utils import async_busy_ticker
 
 LOGGER = logging.getLogger(__name__)
@@ -60,6 +73,12 @@ class Client:
 
         self._ordering: Dict[str, int] = {}
         self._ordering_rev: Dict[int, str] = {}
+
+        self._imu_mapping_id: Dict[Annotated[int, "node_id"], ImuMappingModel] = {}
+        self._imu_idx_to_imudata: Dict[Annotated[int, "idx"], ImuMappingModel] = {}
+        # both dicts below return idx basing on sorting by node id
+        self._imu_ordering_by_name: Dict[Annotated[str, "name"], Annotated[int, "idx"]] = {}
+        self._imu_ordering_by_id: Dict[Annotated[int, "node_id"], Annotated[int, "idx"]] = {}
 
     async def _create_socket_str(self, service: CommunicationService) -> str:
         if not self.address:
@@ -141,11 +160,47 @@ class Client:
         except KeyError as err:
             raise IncorrectMuscleIndexError(idx) from err
 
+    @property
+    def number_of_imus(self) -> int:
+        """Get number of IMUs"""
+        return len(self._imu_mapping_id)
+
+    def imu_index_by_name(self, name: str) -> int:
+        """Get IMU index by name."""
+        return self._imu_ordering_by_name[name]
+
+    def imu_index_by_id(self, node_id: int) -> int:
+        """Get IMU index by id."""
+        return self._imu_ordering_by_id[node_id]
+
+    def imu_name(self, idx: int) -> str:
+        """Get IMU name by index."""
+        return self._imu_idx_to_imudata[idx].name
+
+    def imu_id(self, idx: int) -> int:
+        """Get IMU id by index."""
+        return self._imu_idx_to_imudata[idx].node_id
+
+    def imu_order(self) -> Dict[int, ImuMappingModel]:
+        """Get IMU order."""
+        return self._imu_idx_to_imudata
+
+    def imu_info(self, node_id: int) -> ImuMappingModel:
+        """Get IMU info for id."""
+        return self._imu_mapping_id[node_id]
+
     def _update_mappings(self, info: SystemInfo) -> None:
         for index, valve_id_packed in enumerate(sorted(info.muscles.keys())):
             muscle_name = info.muscles[valve_id_packed]
             self._ordering[muscle_name] = index
             self._ordering_rev[index] = muscle_name
+        self._imu_mapping_id = {imu.node_id: imu for imu in info.imus}
+        for index, imu_id in enumerate(sorted(self._imu_mapping_id.keys())):
+            imu_name = self._imu_mapping_id[imu_id].name
+            imu = self._imu_mapping_id[imu_id]
+            self._imu_ordering_by_name[imu_name] = index
+            self._imu_ordering_by_id[imu_id] = index
+            self._imu_idx_to_imudata[index] = imu
 
     async def wait_for_desired_pressure(self, timeout_ms: int = 10000) -> None:
         """Block the execution until current waterpump pressure is equal or more than desired pressure."""
@@ -223,6 +278,11 @@ class Client:
             self._update_mappings(info)
 
         return info
+
+    async def ping(self) -> None:
+        """Check if server is responding"""
+        await self.state_tunnel.ping()
+        await self.controller_tunnel.ping()
 
     async def get_all_nodes(self, rediscover: bool = False) -> list[int]:
         """Returns list of node_ids present on both control and telemetry lines"""

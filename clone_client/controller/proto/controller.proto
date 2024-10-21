@@ -26,6 +26,8 @@ service ControllerGRPC {
   rpc GetAllNodes(clone.valve_driver.GetNodesMessage) returns (clone.valve_driver.NodeList);
   rpc GetControllineNodes(clone.valve_driver.GetNodesMessage) returns (clone.valve_driver.NodeList);
   rpc GetTelemetrylineNodes(clone.valve_driver.GetNodesMessage) returns (clone.valve_driver.NodeList);
+
+  rpc Ping (google.protobuf.Empty) returns (google.protobuf.Empty);
 }
 
 // Controling muslces by directly setting an absolute value of a pressure

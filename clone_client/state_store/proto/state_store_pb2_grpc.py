@@ -50,6 +50,11 @@ class StateStoreReceiverGRPCStub(object):
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=clone__client_dot_state__store_dot_proto_dot_state__store__pb2.SystemInfoResponse.FromString,
                 _registered_method=True)
+        self.Ping = channel.unary_unary(
+                '/clone.state_store.StateStoreReceiverGRPC/Ping',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                _registered_method=True)
 
 
 class StateStoreReceiverGRPCServicer(object):
@@ -73,6 +78,12 @@ class StateStoreReceiverGRPCServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def Ping(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_StateStoreReceiverGRPCServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -90,6 +101,11 @@ def add_StateStoreReceiverGRPCServicer_to_server(servicer, server):
                     servicer.GetSystemInfo,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                     response_serializer=clone__client_dot_state__store_dot_proto_dot_state__store__pb2.SystemInfoResponse.SerializeToString,
+            ),
+            'Ping': grpc.unary_unary_rpc_method_handler(
+                    servicer.Ping,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -173,6 +189,33 @@ class StateStoreReceiverGRPC(object):
             '/clone.state_store.StateStoreReceiverGRPC/GetSystemInfo',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             clone__client_dot_state__store_dot_proto_dot_state__store__pb2.SystemInfoResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def Ping(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/clone.state_store.StateStoreReceiverGRPC/Ping',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
             insecure,

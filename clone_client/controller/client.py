@@ -139,3 +139,8 @@ class ControllerClient(GRPCAsyncClient):
         """Get ids of nodes present on telemetry line"""
         response: NodeList = await self.stub.GetTelemetrylineNodes(GetNodesMessage(rediscover=rediscover))
         return response
+
+    @grpc_translated()
+    async def ping(self) -> None:
+        """Check if server is responding."""
+        await self.stub.Ping(Empty(), timeout=self.config.info_gathering_rpc_timeout)

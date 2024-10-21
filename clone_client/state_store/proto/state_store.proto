@@ -9,6 +9,7 @@ service StateStoreReceiverGRPC {
   rpc SubscribeTelemetry (google.protobuf.Empty) returns (stream TelemetryDataResponse);
   rpc GetTelemetry (google.protobuf.Empty) returns (TelemetryDataResponse);
   rpc GetSystemInfo (google.protobuf.Empty) returns (SystemInfoResponse);
+  rpc Ping (google.protobuf.Empty) returns (google.protobuf.Empty);
 }
 
 message IMUData {

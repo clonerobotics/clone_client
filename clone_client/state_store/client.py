@@ -55,3 +55,8 @@ class StateStoreReceiverClient(GRPCAsyncClient):
             self._system_info = response.info
 
         return self._system_info
+
+    @grpc_translated()
+    async def ping(self) -> None:
+        """Check if server is responding."""
+        await self.stub.Ping(Empty(), timeout=self._config.info_gathering_rpc_timeout)
