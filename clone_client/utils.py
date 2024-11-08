@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from functools import wraps
 import logging
 import sys
-from time import perf_counter
+from time import get_clock_info, perf_counter, perf_counter_ns
 from typing import (
     Any,
     AsyncGenerator,
@@ -17,6 +17,7 @@ from typing import (
     TypeVar,
 )
 from urllib.parse import urlparse
+import warnings
 
 from grpc import RpcError
 from typing_extensions import Concatenate, ParamSpec
@@ -150,6 +151,42 @@ def strip_local(value: str) -> str:
     return value
 
 
+async def async_precise_interval(interval: float, precision: float = 0.2) -> AsyncGenerator[None, None]:
+    """
+    Interval ticks for precise timeings.
+
+    Parameters:
+    - interval: Duration between each tick in seconds.
+    - precision: The precision of the tick, higher precision means more resources used.
+                 Smaller intervals require more precision.
+    """
+    if precision < 0 or precision > 1:
+        raise ValueError("Precision must be between 0 and 1")
+
+    if interval <= 0:
+        raise ValueError("Interval must be greater than 0")
+
+    interval_ns = int(interval * 1e9)
+    resolution = get_clock_info("perf_counter").resolution
+    min_tick = resolution
+    fraction = max(resolution, (1 - precision)) * 1e-9
+
+    next_tick = perf_counter_ns() + interval_ns
+    try:
+        while True:
+            remaining = next_tick - perf_counter_ns()
+
+            await asyncio.sleep(remaining * fraction)
+            while perf_counter_ns() < next_tick:
+                await asyncio.sleep(min_tick)
+
+            yield
+
+            next_tick += interval_ns
+    except GeneratorExit:
+        pass
+
+
 @asynccontextmanager
 async def async_busy_ticker(
     dur: float, precision: float = 5, min_tick: float = 0.0005
@@ -161,6 +198,7 @@ async def async_busy_ticker(
     By tweaking precision and min_tick you can adjust the resource usage to precision ratio.
     Less precision means less resources used but less accurate timing.
     """
+    warnings.warn("This function is deprecated, use async_precise_interval instead", DeprecationWarning)
     next_tick = perf_counter() + dur
 
     yield

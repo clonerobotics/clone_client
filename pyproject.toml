@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "clone-client"
-version = "0.0.22"
+version = "0.0.23"
 description = ""
 authors = ["Clone Inc."]
 readme = "README.md"

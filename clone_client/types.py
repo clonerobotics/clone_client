@@ -30,5 +30,16 @@ class ValveAddress:
 
         return ValveAddress(node_id, valve_id)
 
+    @classmethod
+    def from_str(cls, string: str) -> ValveAddress:
+        """Function creates a ValveAddress from a string in format
+        '0x[hex control board address]:[dec valve in the control board]'.
+        E.g. '0x21:37' -> 0x2100 + 37 = 8485"""
+        node_id_s, valve_id_s = string.split(":")
+        node_id, valve_id = int(node_id_s, 0), int(valve_id_s, 0)
+        assert 0 <= node_id < 256
+        assert 0 <= valve_id < 256
+        return ValveAddress(node_id, valve_id)
+
 
 UnpackedValveAddressToMuscleName = Mapping[int, str]

@@ -203,6 +203,43 @@ async def entrypoint():
 
 It is recommended to save the muscle order in your application and in case of any changes in the hardware you can verify whether or not the order is still the same to avoid potential problems in e.g. training a custom NN model.
 
+#### Remapping
+
+To facilitate reshuffling of both received and sent sequences of data, what can be useful in cases when same muscles are connected to control boards with different IDs or simply in different order, a `Remapper` class was added that can be found in [remapper.py](./clone_client/remapper.py) file.
+
+```python
+async with Client("robot") as client:
+    # Refresh system info, obtaining current mapping used by the golem
+    await client.get_system_info()
+
+    # Get ordering used by the golem
+    remote_ordering = Remapper.swap_ordering(client.muscle_order)
+
+    # Some operations changing the ordering, possibly saving it or reading a cached one
+    # E.g. swapping two muscles:
+    local_ordering = remote_ordering.copy()
+    local_ordering["muscle0"], local_ordering["muscle1"] = (
+        local_ordering["muscle1"], 
+        local_ordering["muscle0"],
+    )
+
+    # Create an instance of the Remapper
+    remapper = Remapper(remote_ordering, local_ordering)
+
+    # Subscribe for telemetry
+    async for tele in client.subscribe_telemetry():
+
+        # Convert a remote vector of pressures to local ordering
+        pressures_local_ord = remapper.remote_to_local(tele.pressures)
+
+        # Send a vector of pressures with local ordering to remote
+        pressures_remote_ord = remapper.local_to_remote(pressures_local_ord)
+        client.set_pressures(pressures_remote)
+```
+
+Full example of the Remapper's usage you can find in [this file](./clone_client/examples/remapper_example.py).
+Note, that both local and remote orderings must contains same muscles' names and have same length.
+
 ## API Reference
 
 ### client

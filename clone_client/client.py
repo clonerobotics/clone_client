@@ -47,7 +47,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 class Client:
-    # pylint: disable=too-many-public-methods
+    # pylint: disable=too-many-public-methods, too-many-instance-attributes
     """Client for sending commands and requests to the controller and state."""
 
     class TunnelsUsed(Flag):
