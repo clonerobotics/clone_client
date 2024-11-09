@@ -171,9 +171,9 @@ async def async_precise_interval(interval: float, precision: float = 0.2) -> Asy
     min_tick = resolution
     fraction = max(resolution, (1 - precision)) * 1e-9
 
-    next_tick = perf_counter_ns() + interval_ns
     try:
         while True:
+            next_tick = perf_counter_ns() + interval_ns
             remaining = next_tick - perf_counter_ns()
 
             await asyncio.sleep(remaining * fraction)
@@ -181,8 +181,6 @@ async def async_precise_interval(interval: float, precision: float = 0.2) -> Asy
                 await asyncio.sleep(min_tick)
 
             yield
-
-            next_tick += interval_ns
     except GeneratorExit:
         pass
 
