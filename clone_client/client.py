@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from enum import auto, Flag
 import ipaddress as ip
 import logging
@@ -188,6 +189,13 @@ class Client:
     def imu_info(self, node_id: int) -> ImuMappingModel:
         """Get IMU info for id."""
         return self._imu_mapping_id[node_id]
+
+    @property
+    def imu_mapping(self) -> dict[Annotated[int, "node_id"], ImuMappingModel]:
+        """Property giving access to an IMU mapping currently used by the client.
+        Should not be mutated.
+        """
+        return self._imu_mapping_id
 
     def _update_mappings(self, info: SystemInfo) -> None:
         for index, valve_id_packed in enumerate(sorted(info.muscles.keys())):

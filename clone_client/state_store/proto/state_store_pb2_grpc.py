@@ -61,7 +61,8 @@ class StateStoreReceiverGRPCServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def SubscribeTelemetry(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """TODO: maybe add possibility to get raw telemetry?
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')

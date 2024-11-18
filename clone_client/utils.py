@@ -209,3 +209,11 @@ async def async_busy_ticker(
     # Busy sleep until next tick for precise timing
     while perf_counter() < next_tick:
         await asyncio.sleep(min_tick)
+
+
+class IterableAsyncQueue(asyncio.Queue):
+    def __aiter__(self):
+        return self
+
+    def __anext__(self):
+        return self.get()

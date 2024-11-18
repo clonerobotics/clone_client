@@ -6,6 +6,7 @@ import "clone_client/proto/data_types.proto";
 package clone.state_store;
 
 service StateStoreReceiverGRPC {
+  // TODO: maybe add possibility to get raw telemetry?
   rpc SubscribeTelemetry (google.protobuf.Empty) returns (stream TelemetryDataResponse);
   rpc GetTelemetry (google.protobuf.Empty) returns (TelemetryDataResponse);
   rpc GetSystemInfo (google.protobuf.Empty) returns (SystemInfoResponse);
