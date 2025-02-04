@@ -26,7 +26,7 @@ async def main() -> None:
         for freq_add in range(0, 200, 10):
             freq = start_freq + freq_add
             expected_time = int(((1 / freq) * (SAMPLES // 100)) / 1e-9)
-            tick = async_precise_interval(1 / freq)
+            tick = async_precise_interval(1 / freq, 0.9)
             print(f"Running at {freq} Hz")
 
             async def control_generator() -> AsyncIterable[Sequence[float]]:

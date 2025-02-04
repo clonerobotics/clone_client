@@ -37,6 +37,42 @@ IMU: TelemetryConfig.ValueType  # 1
 ALL: TelemetryConfig.ValueType  # 2
 global___TelemetryConfig = TelemetryConfig
 
+class _JointType:
+    ValueType = typing.NewType("ValueType", builtins.int)
+    V: typing_extensions.TypeAlias = ValueType
+
+class _JointTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_JointType.ValueType], builtins.type):
+    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    DOF1: _JointType.ValueType  # 0
+    DOF3: _JointType.ValueType  # 1
+
+class JointType(_JointType, metaclass=_JointTypeEnumTypeWrapper): ...
+
+DOF1: JointType.ValueType  # 0
+DOF3: JointType.ValueType  # 1
+global___JointType = JointType
+
+@typing.final
+class PoseVectorResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    QPOS_FIELD_NUMBER: builtins.int
+    RESPONSE_DATA_FIELD_NUMBER: builtins.int
+    @property
+    def qpos(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.float]: ...
+    @property
+    def response_data(self) -> clone_client.proto.data_types_pb2.ServerResponse: ...
+    def __init__(
+        self,
+        *,
+        qpos: collections.abc.Iterable[builtins.float] | None = ...,
+        response_data: clone_client.proto.data_types_pb2.ServerResponse | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["response_data", b"response_data"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["qpos", b"qpos", "response_data", b"response_data"]) -> None: ...
+
+global___PoseVectorResponse = PoseVectorResponse
+
 @typing.final
 class IMUData(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
@@ -170,6 +206,75 @@ class ImuMappingModel(google.protobuf.message.Message):
 global___ImuMappingModel = ImuMappingModel
 
 @typing.final
+class Quaternion(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    W_FIELD_NUMBER: builtins.int
+    X_FIELD_NUMBER: builtins.int
+    Y_FIELD_NUMBER: builtins.int
+    Z_FIELD_NUMBER: builtins.int
+    w: builtins.float
+    x: builtins.float
+    y: builtins.float
+    z: builtins.float
+    def __init__(
+        self,
+        *,
+        w: builtins.float = ...,
+        x: builtins.float = ...,
+        y: builtins.float = ...,
+        z: builtins.float = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["w", b"w", "x", b"x", "y", b"y", "z", b"z"]) -> None: ...
+
+global___Quaternion = Quaternion
+
+@typing.final
+class Joint(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    NAME_FIELD_NUMBER: builtins.int
+    BONE_CHILD_FIELD_NUMBER: builtins.int
+    BONE_PARENT_FIELD_NUMBER: builtins.int
+    JTYPE_FIELD_NUMBER: builtins.int
+    IMU_ID_CHILD_FIELD_NUMBER: builtins.int
+    IMU_ID_PARENT_FIELD_NUMBER: builtins.int
+    R_IMU2JNT_CHILD_FIELD_NUMBER: builtins.int
+    R_IMU2JNT_PARENT_FIELD_NUMBER: builtins.int
+    QPOS_NR_FIELD_NUMBER: builtins.int
+    JNT_NR_FIELD_NUMBER: builtins.int
+    name: builtins.str
+    bone_child: builtins.str
+    bone_parent: builtins.str
+    jtype: global___JointType.ValueType
+    imu_id_child: builtins.int
+    imu_id_parent: builtins.int
+    qpos_nr: builtins.int
+    jnt_nr: builtins.int
+    @property
+    def r_imu2jnt_child(self) -> global___Quaternion: ...
+    @property
+    def r_imu2jnt_parent(self) -> global___Quaternion: ...
+    def __init__(
+        self,
+        *,
+        name: builtins.str = ...,
+        bone_child: builtins.str = ...,
+        bone_parent: builtins.str = ...,
+        jtype: global___JointType.ValueType = ...,
+        imu_id_child: builtins.int = ...,
+        imu_id_parent: builtins.int = ...,
+        r_imu2jnt_child: global___Quaternion | None = ...,
+        r_imu2jnt_parent: global___Quaternion | None = ...,
+        qpos_nr: builtins.int = ...,
+        jnt_nr: builtins.int = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["r_imu2jnt_child", b"r_imu2jnt_child", "r_imu2jnt_parent", b"r_imu2jnt_parent"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["bone_child", b"bone_child", "bone_parent", b"bone_parent", "imu_id_child", b"imu_id_child", "imu_id_parent", b"imu_id_parent", "jnt_nr", b"jnt_nr", "jtype", b"jtype", "name", b"name", "qpos_nr", b"qpos_nr", "r_imu2jnt_child", b"r_imu2jnt_child", "r_imu2jnt_parent", b"r_imu2jnt_parent"]) -> None: ...
+
+global___Joint = Joint
+
+@typing.final
 class SystemInfo(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -193,6 +298,7 @@ class SystemInfo(google.protobuf.message.Message):
     IMUS_FIELD_NUMBER: builtins.int
     CALIBRATION_DATA_FIELD_NUMBER: builtins.int
     TELEMETRY_CONFIG_FIELD_NUMBER: builtins.int
+    JOINTS_FIELD_NUMBER: builtins.int
     telemetry_config: global___TelemetryConfig.ValueType
     @property
     def muscles(self) -> google.protobuf.internal.containers.ScalarMap[builtins.int, builtins.str]: ...
@@ -200,6 +306,8 @@ class SystemInfo(google.protobuf.message.Message):
     def imus(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ImuMappingModel]: ...
     @property
     def calibration_data(self) -> global___CalibrationData: ...
+    @property
+    def joints(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Joint]: ...
     def __init__(
         self,
         *,
@@ -207,9 +315,10 @@ class SystemInfo(google.protobuf.message.Message):
         imus: collections.abc.Iterable[global___ImuMappingModel] | None = ...,
         calibration_data: global___CalibrationData | None = ...,
         telemetry_config: global___TelemetryConfig.ValueType = ...,
+        joints: collections.abc.Iterable[global___Joint] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["calibration_data", b"calibration_data"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["calibration_data", b"calibration_data", "imus", b"imus", "muscles", b"muscles", "telemetry_config", b"telemetry_config"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["calibration_data", b"calibration_data", "imus", b"imus", "joints", b"joints", "muscles", b"muscles", "telemetry_config", b"telemetry_config"]) -> None: ...
 
 global___SystemInfo = SystemInfo
 

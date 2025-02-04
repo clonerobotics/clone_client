@@ -8,7 +8,7 @@ from clone_client.proto import data_types_pb2 as clone__client_dot_proto_dot_dat
 from clone_client.valve_driver.proto import valve_driver_pb2 as clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
-GRPC_GENERATED_VERSION = '1.66.1'
+GRPC_GENERATED_VERSION = '1.69.0'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 

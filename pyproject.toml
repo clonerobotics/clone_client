@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "clone-client"
-version = "0.0.26"
+version = "0.0.27"
 description = ""
 authors = ["Clone Inc."]
 readme = "README.md"
@@ -19,9 +19,7 @@ zeroconf = "^0.132.2"
 grpcio = "^1.65.5"
 grpcio-tools = "^1.65.5"
 pydantic-settings = "^2.4.0"
-# grpcio-tools generates 5.27 files but version of a runtime is 5.28, what issues warnings.
-# Therefore protobuf version is explicitly stiff-set on 5.28 currently. To be removed in the future.
-protobuf = "5.27.2"
+protobuf = "^5.27.2"
 
 [tool.poetry.group.dev.dependencies]
 bandit = "^1.7.9"
@@ -38,17 +36,12 @@ pylint-pydantic = "^0.3.2"
 pylint-protobuf = "^0.22.0"
 pytest = "^8.3.2"
 types-psutil = "^6.0.0.20240621"
+debugpy = "^1.8.11"
 
-[tool.poetry.group.imu]
-optional = true
-
-[tool.poetry.group.imu.dependencies]
-scipy = "^1.14.1"
-dearpygui = "^1.11.1"
-matplotlib = "^3.9.2"
-numpy = "^1"
-roboticstoolbox-python = "^1.1.1"
-
+[[tool.poetry.source]]
+name = "clone-pypi"
+url = "https://forgejo.cloneai.tech/api/packages/clone/pypi/simple"
+priority = "supplemental"
 
 [tool.taskipy.tasks]
 fmt = "isort ./clone_client && black ./clone_client"

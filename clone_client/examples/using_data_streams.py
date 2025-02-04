@@ -6,14 +6,14 @@ from typing import AsyncIterable, Sequence
 from grpc import RpcError
 
 from clone_client.client import Client
-from clone_client.utils import async_busy_ticker
+from clone_client.utils import async_precise_interval
 
 GOLEM_HOSTNAME = os.getenv("GOLEM_HOSTNAME", socket.gethostname())
 GOLEM_ADDRESS = os.getenv("GOLEM_ADDRESS", None)
-INDEX = 31
-FREQ = 50
+INDEX = 5
+FREQ = 100
 DEFAULT = -1.0
-SAMPLES = 100
+SAMPLES = FREQ // 2
 ITERATIONS = 20
 
 
@@ -25,18 +25,19 @@ async def main() -> None:
         # within existing solution like creating separated threads / tasks for streaming and buffering etc.
 
         async def control_generator() -> AsyncIterable[Sequence[float]]:
+            tick = async_precise_interval(1 / FREQ, 0.9)
             for sample in range(ITERATIONS):
+                pressures = [DEFAULT] * client.number_of_muscles
                 for sample in range(SAMPLES):
-                    pressures = [DEFAULT] * client.number_of_muscles
+                    await anext(tick)
                     pressures[INDEX] = sample / SAMPLES
-                    async with async_busy_ticker(1 / FREQ):
-                        yield pressures
+                    yield pressures
 
+                pressures = [DEFAULT] * client.number_of_muscles
                 for sample in range(SAMPLES):
-                    pressures = [DEFAULT] * client.number_of_muscles
+                    await anext(tick)
                     pressures[INDEX] = 1 - (sample / SAMPLES)
-                    async with async_busy_ticker(1 / FREQ):
-                        yield pressures
+                    yield pressures
 
         try:
             print(f"Starting control stream for {client.muscle_name(INDEX)}")

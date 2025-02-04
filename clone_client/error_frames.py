@@ -55,6 +55,10 @@ class ServiceTimeoutError(ServerRequestError):
         super().__init__(message)
 
 
+class DisabledFunctionalityError(ServerRequestError):
+    """Server seems to have the selected functionality disabled"""
+
+
 # pylint: disable=no-member
 ERROR_CODE_TRANSLATION: Dict[int, Type[ServerRequestError]] = {
     ErrorType.ACQUISITION: DataAcquisitionError,
@@ -64,6 +68,7 @@ ERROR_CODE_TRANSLATION: Dict[int, Type[ServerRequestError]] = {
     ErrorType.SERVICE_TIMEOUT: ServiceTimeoutError,
     ErrorType.RPC_TIMEOUT: RpcTimeoutError,
     ErrorType.UNKNOWN: UnknownRpcError,
+    ErrorType.DISABLED_FUNCTIONALITY: DisabledFunctionalityError,
 }
 # pylint: enable=no-member
 

@@ -9,7 +9,7 @@ from clone_client.client import Client
 from clone_client.remapper import Remapper
 
 
-async def run_with_living_client():
+async def run_with_living_client() -> None:
     """Connect with a client, obtain remote ordering and create a Remapper
     Then map and remap a test vector.
     Subsequently, after 3 seconds start receiving telemetry from the client

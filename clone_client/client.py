@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 from enum import auto, Flag
 import ipaddress as ip
 import logging
@@ -39,6 +38,7 @@ from clone_client.state_store.client import StateStoreReceiverClient
 from clone_client.state_store.config import StateStoreClientConfig
 from clone_client.state_store.proto.state_store_pb2 import (
     ImuMappingModel,
+    JointType,
     SystemInfo,
     TelemetryData,
 )
@@ -80,6 +80,9 @@ class Client:
         # both dicts below return idx basing on sorting by node id
         self._imu_ordering_by_name: Dict[Annotated[str, "name"], Annotated[int, "idx"]] = {}
         self._imu_ordering_by_id: Dict[Annotated[int, "node_id"], Annotated[int, "idx"]] = {}
+
+        self._qpos_to_joint_name: Dict[Annotated[int, "qpos_nr"], Annotated[str, "Joint name"]] = {}
+        self._joint_name_to_qpos: Dict[Annotated[str, "Joint name"], Annotated[int, "qpos_nr"]] = {}
 
     async def _create_socket_str(self, service: CommunicationService) -> str:
         if not self.address:
@@ -197,6 +200,19 @@ class Client:
         """
         return self._imu_mapping_id
 
+    @property
+    def qpos_to_jnt_mapping(self) -> dict[Annotated[int, "qpos_nr"], Annotated[str, "Joint name"]]:
+        """Get mapping from position in qpos vector to joint name.
+        Note: 3-axes joints are prepended by an "{x, y, z}_" suffix
+        for subsequent axes, e.g. 5 -> x_humerus.r, 6 -> y_humerus.r, 7 -> z_humerus.r
+        """
+        return self._qpos_to_joint_name
+
+    @property
+    def jnt_to_qpos_mapping(self) -> dict[Annotated[str, "Joint name"], Annotated[int, "qpos_nr"]]:
+        """Get mapping from a joint name to its qpos. It is reverse of qpos_to_jnt_mapping"""
+        return self._joint_name_to_qpos
+
     def _update_mappings(self, info: SystemInfo) -> None:
         for index, valve_id_packed in enumerate(sorted(info.muscles.keys())):
             muscle_name = info.muscles[valve_id_packed]
@@ -209,6 +225,17 @@ class Client:
             self._imu_ordering_by_name[imu_name] = index
             self._imu_ordering_by_id[imu_id] = index
             self._imu_idx_to_imudata[index] = imu
+        for joint in info.joints:
+            name = joint.name
+            jtype = joint.jtype
+            qpos = joint.qpos_nr
+            if jtype == JointType.DOF1:
+                self._qpos_to_joint_name[qpos] = name
+            elif jtype == JointType.DOF3:
+                self._qpos_to_joint_name[qpos] = f"x_{name}"
+                self._qpos_to_joint_name[qpos + 1] = f"y_{name}"
+                self._qpos_to_joint_name[qpos + 2] = f"z_{name}"
+        self._joint_name_to_qpos = {name: qpos for qpos, name in self._qpos_to_joint_name.items()}
 
     async def wait_for_desired_pressure(self, timeout_ms: int = 10000) -> None:
         """Block the execution until current waterpump pressure is equal or more than desired pressure."""
@@ -307,3 +334,7 @@ class Client:
     async def get_controller_config(self) -> ControllerRuntimeConfig:
         """Get current configuration of the controller."""
         return await self.controller_tunnel.get_config()
+
+    def subscribe_pose_vector(self) -> AsyncIterable[Sequence[float]]:
+        """Subscribe to muscle pressures updates."""
+        return self.state_tunnel.subscribe_pose_vector()
