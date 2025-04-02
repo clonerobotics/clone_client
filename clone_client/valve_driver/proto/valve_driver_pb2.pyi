@@ -7,8 +7,15 @@ import builtins
 import collections.abc
 import google.protobuf.descriptor
 import google.protobuf.internal.containers
+import google.protobuf.internal.enum_type_wrapper
 import google.protobuf.message
+import sys
 import typing
+
+if sys.version_info >= (3, 10):
+    import typing as typing_extensions
+else:
+    import typing_extensions
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
@@ -210,6 +217,132 @@ class SendManyPressureMessage(google.protobuf.message.Message):
     def ClearField(self, field_name: typing.Literal["data", b"data"]) -> None: ...
 
 global___SendManyPressureMessage = SendManyPressureMessage
+
+@typing.final
+class PinchValveControl(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    class _PositionsType:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _PositionsTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[PinchValveControl._PositionsType.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        POSITION_UNKNOWN: PinchValveControl._PositionsType.ValueType  # 0
+        """Cam position unknown"""
+        BOTH_CLOSED: PinchValveControl._PositionsType.ValueType  # 1
+        """Both inlet and outlet are closed"""
+        BOTH_OPENED: PinchValveControl._PositionsType.ValueType  # 2
+        """Both inlet and outlet are opened, AKA flush"""
+        INLET_FULLY_OPENED: PinchValveControl._PositionsType.ValueType  # 3
+        """Inlet valve fully opened"""
+        INLET_PARTIALLY_OPENED: PinchValveControl._PositionsType.ValueType  # 4
+        """Inlet valve opened, but only partially"""
+        OUTLET_FULLY_OPENED: PinchValveControl._PositionsType.ValueType  # 5
+        """Outlet valve fully opened"""
+        OUTLET_PARTIALLY_OPENED: PinchValveControl._PositionsType.ValueType  # 6
+        """Outlet valve opened, but only partially"""
+
+    class PositionsType(_PositionsType, metaclass=_PositionsTypeEnumTypeWrapper): ...
+    POSITION_UNKNOWN: PinchValveControl.PositionsType.ValueType  # 0
+    """Cam position unknown"""
+    BOTH_CLOSED: PinchValveControl.PositionsType.ValueType  # 1
+    """Both inlet and outlet are closed"""
+    BOTH_OPENED: PinchValveControl.PositionsType.ValueType  # 2
+    """Both inlet and outlet are opened, AKA flush"""
+    INLET_FULLY_OPENED: PinchValveControl.PositionsType.ValueType  # 3
+    """Inlet valve fully opened"""
+    INLET_PARTIALLY_OPENED: PinchValveControl.PositionsType.ValueType  # 4
+    """Inlet valve opened, but only partially"""
+    OUTLET_FULLY_OPENED: PinchValveControl.PositionsType.ValueType  # 5
+    """Outlet valve fully opened"""
+    OUTLET_PARTIALLY_OPENED: PinchValveControl.PositionsType.ValueType  # 6
+    """Outlet valve opened, but only partially"""
+
+    class _ControlMode:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _ControlModeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[PinchValveControl._ControlMode.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        RESERVED: PinchValveControl._ControlMode.ValueType  # 0
+        ANGLE: PinchValveControl._ControlMode.ValueType  # 1
+        PRESSURE: PinchValveControl._ControlMode.ValueType  # 2
+        POSITIONS: PinchValveControl._ControlMode.ValueType  # 3
+
+    class ControlMode(_ControlMode, metaclass=_ControlModeEnumTypeWrapper): ...
+    RESERVED: PinchValveControl.ControlMode.ValueType  # 0
+    ANGLE: PinchValveControl.ControlMode.ValueType  # 1
+    PRESSURE: PinchValveControl.ControlMode.ValueType  # 2
+    POSITIONS: PinchValveControl.ControlMode.ValueType  # 3
+
+    MODE_FIELD_NUMBER: builtins.int
+    VALUE_FIELD_NUMBER: builtins.int
+    mode: global___PinchValveControl.ControlMode.ValueType
+    value: builtins.int
+    def __init__(
+        self,
+        *,
+        mode: global___PinchValveControl.ControlMode.ValueType = ...,
+        value: builtins.int = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["mode", b"mode", "value", b"value"]) -> None: ...
+
+global___PinchValveControl = PinchValveControl
+
+@typing.final
+class SendPinchValveControlMessage(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    NODE_ID_FIELD_NUMBER: builtins.int
+    CONTROL_FIELD_NUMBER: builtins.int
+    node_id: builtins.int
+    @property
+    def control(self) -> global___PinchValveControl: ...
+    def __init__(
+        self,
+        *,
+        node_id: builtins.int = ...,
+        control: global___PinchValveControl | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["control", b"control"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["control", b"control", "node_id", b"node_id"]) -> None: ...
+
+global___SendPinchValveControlMessage = SendPinchValveControlMessage
+
+@typing.final
+class SendManyPinchValveControlMessage(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing.final
+    class DataEntry(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        KEY_FIELD_NUMBER: builtins.int
+        VALUE_FIELD_NUMBER: builtins.int
+        key: builtins.int
+        @property
+        def value(self) -> global___PinchValveControl: ...
+        def __init__(
+            self,
+            *,
+            key: builtins.int = ...,
+            value: global___PinchValveControl | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
+
+    DATA_FIELD_NUMBER: builtins.int
+    @property
+    def data(self) -> google.protobuf.internal.containers.MessageMap[builtins.int, global___PinchValveControl]: ...
+    def __init__(
+        self,
+        *,
+        data: collections.abc.Mapping[builtins.int, global___PinchValveControl] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["data", b"data"]) -> None: ...
+
+global___SendManyPinchValveControlMessage = SendManyPinchValveControlMessage
 
 @typing.final
 class GetNodesMessage(google.protobuf.message.Message):

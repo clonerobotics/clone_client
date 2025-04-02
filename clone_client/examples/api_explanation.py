@@ -97,6 +97,7 @@ async def api_run() -> None:
 
         print("Pressures", telemetry.pressures)
         print("IMU", telemetry.imu)
+        print("Magnetic", telemetry.magnetic_data)
         if len(telemetry.pressures) == client.number_of_muscles:
             # Check specific muscle pressure
             muscle_name = client.muscle_name(0)
@@ -107,7 +108,7 @@ async def api_run() -> None:
         # Subscribe to telemetry updates
         count = 0
         async for telemetry in client.subscribe_telemetry():
-            print("Telemetry", telemetry.pressures, telemetry.imu)
+            print("Telemetry", telemetry.pressures, telemetry.imu, telemetry.magnetic_data)
 
             count += 1
             if count > 150:

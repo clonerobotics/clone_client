@@ -12,6 +12,11 @@ service ValveDriverGRPC {
   rpc SendImpulse (SendImpulseMessage) returns (clone.data_types.ServerResponse);
   rpc SendManyImpulse (SendManyImpulseMessage) returns (clone.data_types.ServerResponse);
   rpc SendPulse (SendPulseMessage) returns (clone.data_types.ServerResponse);
+
+  rpc SendPinchValveControl (SendPinchValveControlMessage) returns (clone.data_types.ServerResponse);
+  rpc SendManyPinchValveControl (SendManyPinchValveControlMessage) returns (clone.data_types.ServerResponse);
+  rpc StreamManyPinchValveControl (stream SendManyPinchValveControlMessage) returns (clone.data_types.ServerResponse);
+
   rpc SendManyPressure (SendManyPressureMessage) returns (clone.data_types.ServerResponse);
   rpc StreamManyPressure (stream SendManyPressureMessage) returns (clone.data_types.ServerResponse);
 
@@ -59,6 +64,35 @@ message SendManyPressureMessage {
   map<uint32, PressureControl> data = 1;
 }
 
+message PinchValveControl {
+  enum PositionsType {
+      POSITION_UNKNOWN = 0;	// Cam position unknown
+      BOTH_CLOSED = 1;	// Both inlet and outlet are closed
+      BOTH_OPENED = 2;	// Both inlet and outlet are opened, AKA flush
+      INLET_FULLY_OPENED = 3;	// Inlet valve fully opened
+      INLET_PARTIALLY_OPENED = 4;	// Inlet valve opened, but only partially
+      OUTLET_FULLY_OPENED = 5;	// Outlet valve fully opened
+      OUTLET_PARTIALLY_OPENED = 6;	// Outlet valve opened, but only partially
+  }
+
+  enum ControlMode {
+      RESERVED = 0;
+      ANGLE = 1;
+      PRESSURE = 2;
+      POSITIONS = 3;
+  }
+  ControlMode mode = 1;
+  int32 value = 2;
+}
+
+message SendPinchValveControlMessage {
+  uint32 node_id = 1;
+  PinchValveControl control = 2;
+}
+
+message SendManyPinchValveControlMessage {
+  map<uint32, PinchValveControl> data = 1;
+}
 
 message GetNodesMessage {
   bool rediscover = 1;

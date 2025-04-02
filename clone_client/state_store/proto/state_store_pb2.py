@@ -26,7 +26,7 @@ from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 from clone_client.proto import data_types_pb2 as clone__client_dot_proto_dot_data__types__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n0clone_client/state_store/proto/state_store.proto\x12\x11\x63lone.state_store\x1a\x1bgoogle/protobuf/empty.proto\x1a#clone_client/proto/data_types.proto\"[\n\x12PoseVectorResponse\x12\x0c\n\x04qpos\x18\x01 \x03(\x01\x12\x37\n\rresponse_data\x18\x02 \x01(\x0b\x32 .clone.data_types.ServerResponse\"j\n\x07IMUData\x12\x0f\n\x07node_id\x18\x01 \x01(\r\x12\t\n\x01w\x18\x02 \x01(\x02\x12\t\n\x01x\x18\x03 \x01(\x02\x12\t\n\x01y\x18\x04 \x01(\x02\x12\t\n\x01z\x18\x05 \x01(\x02\x12\n\n\x02\x61x\x18\x06 \x01(\x02\x12\n\n\x02\x61y\x18\x07 \x01(\x02\x12\n\n\x02\x61z\x18\x08 \x01(\x02\"K\n\rTelemetryData\x12\x11\n\tpressures\x18\x01 \x03(\x02\x12\'\n\x03imu\x18\x02 \x03(\x0b\x32\x1a.clone.state_store.IMUData\"\x80\x01\n\x15TelemetryDataResponse\x12.\n\x04\x64\x61ta\x18\x01 \x01(\x0b\x32 .clone.state_store.TelemetryData\x12\x37\n\rresponse_data\x18\x02 \x01(\x0b\x32 .clone.data_types.ServerResponse\"5\n\x19PressureSensorCalibration\x12\x0b\n\x03min\x18\x01 \x01(\x05\x12\x0b\n\x03max\x18\x02 \x01(\x05\"Y\n\x0f\x43\x61librationData\x12\x46\n\x10pressure_sensors\x18\x01 \x03(\x0b\x32,.clone.state_store.PressureSensorCalibration\"@\n\x0fImuMappingModel\x12\x0f\n\x07node_id\x18\x01 \x01(\r\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0e\n\x06parent\x18\x03 \x01(\r\"8\n\nQuaternion\x12\t\n\x01w\x18\x01 \x01(\x01\x12\t\n\x01x\x18\x02 \x01(\x01\x12\t\n\x01y\x18\x03 \x01(\x01\x12\t\n\x01z\x18\x04 \x01(\x01\"\xaa\x02\n\x05Joint\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x12\n\nbone_child\x18\x02 \x01(\t\x12\x13\n\x0b\x62one_parent\x18\x03 \x01(\t\x12+\n\x05jtype\x18\x04 \x01(\x0e\x32\x1c.clone.state_store.JointType\x12\x14\n\x0cimu_id_child\x18\x05 \x01(\x05\x12\x15\n\rimu_id_parent\x18\x06 \x01(\x05\x12\x36\n\x0fr_imu2jnt_child\x18\x07 \x01(\x0b\x32\x1d.clone.state_store.Quaternion\x12\x37\n\x10r_imu2jnt_parent\x18\x08 \x01(\x0b\x32\x1d.clone.state_store.Quaternion\x12\x0f\n\x07qpos_nr\x18\t \x01(\x05\x12\x0e\n\x06jnt_nr\x18\n \x01(\x05\"\xd1\x02\n\nSystemInfo\x12;\n\x07muscles\x18\x02 \x03(\x0b\x32*.clone.state_store.SystemInfo.MusclesEntry\x12\x30\n\x04imus\x18\x03 \x03(\x0b\x32\".clone.state_store.ImuMappingModel\x12<\n\x10\x63\x61libration_data\x18\x04 \x01(\x0b\x32\".clone.state_store.CalibrationData\x12<\n\x10telemetry_config\x18\x05 \x01(\x0e\x32\".clone.state_store.TelemetryConfig\x12(\n\x06joints\x18\x06 \x03(\x0b\x32\x18.clone.state_store.Joint\x1a.\n\x0cMusclesEntry\x12\x0b\n\x03key\x18\x01 \x01(\x05\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"u\n\x12SystemInfoResponse\x12+\n\x04info\x18\x01 \x01(\x0b\x32\x1d.clone.state_store.SystemInfo\x12\x32\n\x08response\x18\x02 \x01(\x0b\x32 .clone.data_types.ServerResponse*1\n\x0fTelemetryConfig\x12\x0c\n\x08PRESSURE\x10\x00\x12\x07\n\x03IMU\x10\x01\x12\x07\n\x03\x41LL\x10\x02*\x1f\n\tJointType\x12\x08\n\x04\x44OF1\x10\x00\x12\x08\n\x04\x44OF3\x10\x01\x32\xa4\x03\n\x16StateStoreReceiverGRPC\x12X\n\x12SubscribeTelemetry\x12\x16.google.protobuf.Empty\x1a(.clone.state_store.TelemetryDataResponse0\x01\x12P\n\x0cGetTelemetry\x12\x16.google.protobuf.Empty\x1a(.clone.state_store.TelemetryDataResponse\x12N\n\rGetSystemInfo\x12\x16.google.protobuf.Empty\x1a%.clone.state_store.SystemInfoResponse\x12\x36\n\x04Ping\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\x12V\n\x13SubscribePoseVector\x12\x16.google.protobuf.Empty\x1a%.clone.state_store.PoseVectorResponse0\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n0clone_client/state_store/proto/state_store.proto\x12\x11\x63lone.state_store\x1a\x1bgoogle/protobuf/empty.proto\x1a#clone_client/proto/data_types.proto\"[\n\x12PoseVectorResponse\x12\x0c\n\x04qpos\x18\x01 \x03(\x01\x12\x37\n\rresponse_data\x18\x02 \x01(\x0b\x32 .clone.data_types.ServerResponse\"j\n\x07IMUData\x12\x0f\n\x07node_id\x18\x01 \x01(\r\x12\t\n\x01w\x18\x02 \x01(\x02\x12\t\n\x01x\x18\x03 \x01(\x02\x12\t\n\x01y\x18\x04 \x01(\x02\x12\t\n\x01z\x18\x05 \x01(\x02\x12\n\n\x02\x61x\x18\x06 \x01(\x02\x12\n\n\x02\x61y\x18\x07 \x01(\x02\x12\n\n\x02\x61z\x18\x08 \x01(\x02\"\x98\x01\n\x0eMagneticSensor\x12?\n\x06pixels\x18\x01 \x03(\x0b\x32/.clone.state_store.MagneticSensor.MagneticPixel\x12\x13\n\x0btemperature\x18\x05 \x01(\x05\x1a\x30\n\rMagneticPixel\x12\t\n\x01x\x18\x01 \x01(\x05\x12\t\n\x01y\x18\x02 \x01(\x05\x12\t\n\x01z\x18\x03 \x01(\x05\"U\n\x0eMagneticHubRaw\x12\x0f\n\x07node_id\x18\x01 \x01(\r\x12\x32\n\x07sensors\x18\x02 \x03(\x0b\x32!.clone.state_store.MagneticSensor\"S\n\rGaussRiderRaw\x12\x0f\n\x07node_id\x18\x01 \x01(\r\x12\x31\n\x06sensor\x18\x02 \x01(\x0b\x32!.clone.state_store.MagneticSensor\"\xc1\x01\n\rTelemetryData\x12\x11\n\tpressures\x18\x01 \x03(\x02\x12\'\n\x03rot\x18\x02 \x03(\x0b\x32\x1a.clone.state_store.IMUData\x12\x38\n\rmagnetic_data\x18\x03 \x03(\x0b\x32!.clone.state_store.MagneticHubRaw\x12:\n\x10gauss_rider_data\x18\x04 \x03(\x0b\x32 .clone.state_store.GaussRiderRaw\"\x80\x01\n\x15TelemetryDataResponse\x12.\n\x04\x64\x61ta\x18\x01 \x01(\x0b\x32 .clone.state_store.TelemetryData\x12\x37\n\rresponse_data\x18\x02 \x01(\x0b\x32 .clone.data_types.ServerResponse\"5\n\x19PressureSensorCalibration\x12\x0b\n\x03min\x18\x01 \x01(\x05\x12\x0b\n\x03max\x18\x02 \x01(\x05\"Y\n\x0f\x43\x61librationData\x12\x46\n\x10pressure_sensors\x18\x01 \x03(\x0b\x32,.clone.state_store.PressureSensorCalibration\"@\n\x0fImuMappingModel\x12\x0f\n\x07node_id\x18\x01 \x01(\r\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0e\n\x06parent\x18\x03 \x01(\r\"8\n\nQuaternion\x12\t\n\x01w\x18\x01 \x01(\x01\x12\t\n\x01x\x18\x02 \x01(\x01\x12\t\n\x01y\x18\x03 \x01(\x01\x12\t\n\x01z\x18\x04 \x01(\x01\"\xaa\x02\n\x05Joint\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x12\n\nbone_child\x18\x02 \x01(\t\x12\x13\n\x0b\x62one_parent\x18\x03 \x01(\t\x12+\n\x05jtype\x18\x04 \x01(\x0e\x32\x1c.clone.state_store.JointType\x12\x14\n\x0cimu_id_child\x18\x05 \x01(\x05\x12\x15\n\rimu_id_parent\x18\x06 \x01(\x05\x12\x36\n\x0fr_imu2jnt_child\x18\x07 \x01(\x0b\x32\x1d.clone.state_store.Quaternion\x12\x37\n\x10r_imu2jnt_parent\x18\x08 \x01(\x0b\x32\x1d.clone.state_store.Quaternion\x12\x0f\n\x07qpos_nr\x18\t \x01(\x05\x12\x0e\n\x06jnt_nr\x18\n \x01(\x05\"\x9f\x02\n\nSystemInfo\x12;\n\x07muscles\x18\x02 \x03(\x0b\x32*.clone.state_store.SystemInfo.MusclesEntry\x12<\n\x10\x63\x61libration_data\x18\x04 \x01(\x0b\x32\".clone.state_store.CalibrationData\x12<\n\x10telemetry_config\x18\x05 \x01(\x0e\x32\".clone.state_store.TelemetryConfig\x12(\n\x06joints\x18\x06 \x03(\x0b\x32\x18.clone.state_store.Joint\x1a.\n\x0cMusclesEntry\x12\x0b\n\x03key\x18\x01 \x01(\x05\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"u\n\x12SystemInfoResponse\x12+\n\x04info\x18\x01 \x01(\x0b\x32\x1d.clone.state_store.SystemInfo\x12\x32\n\x08response\x18\x02 \x01(\x0b\x32 .clone.data_types.ServerResponse*1\n\x0fTelemetryConfig\x12\x0c\n\x08PRESSURE\x10\x00\x12\x07\n\x03IMU\x10\x01\x12\x07\n\x03\x41LL\x10\x02*\x1f\n\tJointType\x12\x08\n\x04\x44OF1\x10\x00\x12\x08\n\x04\x44OF3\x10\x01\x32\xa4\x03\n\x16StateStoreReceiverGRPC\x12X\n\x12SubscribeTelemetry\x12\x16.google.protobuf.Empty\x1a(.clone.state_store.TelemetryDataResponse0\x01\x12P\n\x0cGetTelemetry\x12\x16.google.protobuf.Empty\x1a(.clone.state_store.TelemetryDataResponse\x12N\n\rGetSystemInfo\x12\x16.google.protobuf.Empty\x1a%.clone.state_store.SystemInfoResponse\x12\x36\n\x04Ping\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\x12V\n\x13SubscribePoseVector\x12\x16.google.protobuf.Empty\x1a%.clone.state_store.PoseVectorResponse0\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -35,34 +35,42 @@ if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_SYSTEMINFO_MUSCLESENTRY']._loaded_options = None
   _globals['_SYSTEMINFO_MUSCLESENTRY']._serialized_options = b'8\001'
-  _globals['_TELEMETRYCONFIG']._serialized_start=1576
-  _globals['_TELEMETRYCONFIG']._serialized_end=1625
-  _globals['_JOINTTYPE']._serialized_start=1627
-  _globals['_JOINTTYPE']._serialized_end=1658
+  _globals['_TELEMETRYCONFIG']._serialized_start=1972
+  _globals['_TELEMETRYCONFIG']._serialized_end=2021
+  _globals['_JOINTTYPE']._serialized_start=2023
+  _globals['_JOINTTYPE']._serialized_end=2054
   _globals['_POSEVECTORRESPONSE']._serialized_start=137
   _globals['_POSEVECTORRESPONSE']._serialized_end=228
   _globals['_IMUDATA']._serialized_start=230
   _globals['_IMUDATA']._serialized_end=336
-  _globals['_TELEMETRYDATA']._serialized_start=338
-  _globals['_TELEMETRYDATA']._serialized_end=413
-  _globals['_TELEMETRYDATARESPONSE']._serialized_start=416
-  _globals['_TELEMETRYDATARESPONSE']._serialized_end=544
-  _globals['_PRESSURESENSORCALIBRATION']._serialized_start=546
-  _globals['_PRESSURESENSORCALIBRATION']._serialized_end=599
-  _globals['_CALIBRATIONDATA']._serialized_start=601
-  _globals['_CALIBRATIONDATA']._serialized_end=690
-  _globals['_IMUMAPPINGMODEL']._serialized_start=692
-  _globals['_IMUMAPPINGMODEL']._serialized_end=756
-  _globals['_QUATERNION']._serialized_start=758
-  _globals['_QUATERNION']._serialized_end=814
-  _globals['_JOINT']._serialized_start=817
-  _globals['_JOINT']._serialized_end=1115
-  _globals['_SYSTEMINFO']._serialized_start=1118
-  _globals['_SYSTEMINFO']._serialized_end=1455
-  _globals['_SYSTEMINFO_MUSCLESENTRY']._serialized_start=1409
-  _globals['_SYSTEMINFO_MUSCLESENTRY']._serialized_end=1455
-  _globals['_SYSTEMINFORESPONSE']._serialized_start=1457
-  _globals['_SYSTEMINFORESPONSE']._serialized_end=1574
-  _globals['_STATESTORERECEIVERGRPC']._serialized_start=1661
-  _globals['_STATESTORERECEIVERGRPC']._serialized_end=2081
+  _globals['_MAGNETICSENSOR']._serialized_start=339
+  _globals['_MAGNETICSENSOR']._serialized_end=491
+  _globals['_MAGNETICSENSOR_MAGNETICPIXEL']._serialized_start=443
+  _globals['_MAGNETICSENSOR_MAGNETICPIXEL']._serialized_end=491
+  _globals['_MAGNETICHUBRAW']._serialized_start=493
+  _globals['_MAGNETICHUBRAW']._serialized_end=578
+  _globals['_GAUSSRIDERRAW']._serialized_start=580
+  _globals['_GAUSSRIDERRAW']._serialized_end=663
+  _globals['_TELEMETRYDATA']._serialized_start=666
+  _globals['_TELEMETRYDATA']._serialized_end=859
+  _globals['_TELEMETRYDATARESPONSE']._serialized_start=862
+  _globals['_TELEMETRYDATARESPONSE']._serialized_end=990
+  _globals['_PRESSURESENSORCALIBRATION']._serialized_start=992
+  _globals['_PRESSURESENSORCALIBRATION']._serialized_end=1045
+  _globals['_CALIBRATIONDATA']._serialized_start=1047
+  _globals['_CALIBRATIONDATA']._serialized_end=1136
+  _globals['_IMUMAPPINGMODEL']._serialized_start=1138
+  _globals['_IMUMAPPINGMODEL']._serialized_end=1202
+  _globals['_QUATERNION']._serialized_start=1204
+  _globals['_QUATERNION']._serialized_end=1260
+  _globals['_JOINT']._serialized_start=1263
+  _globals['_JOINT']._serialized_end=1561
+  _globals['_SYSTEMINFO']._serialized_start=1564
+  _globals['_SYSTEMINFO']._serialized_end=1851
+  _globals['_SYSTEMINFO_MUSCLESENTRY']._serialized_start=1805
+  _globals['_SYSTEMINFO_MUSCLESENTRY']._serialized_end=1851
+  _globals['_SYSTEMINFORESPONSE']._serialized_start=1853
+  _globals['_SYSTEMINFORESPONSE']._serialized_end=1970
+  _globals['_STATESTORERECEIVERGRPC']._serialized_start=2057
+  _globals['_STATESTORERECEIVERGRPC']._serialized_end=2477
 # @@protoc_insertion_point(module_scope)

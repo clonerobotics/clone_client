@@ -110,22 +110,111 @@ class IMUData(google.protobuf.message.Message):
 global___IMUData = IMUData
 
 @typing.final
+class MagneticSensor(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing.final
+    class MagneticPixel(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        X_FIELD_NUMBER: builtins.int
+        Y_FIELD_NUMBER: builtins.int
+        Z_FIELD_NUMBER: builtins.int
+        x: builtins.int
+        y: builtins.int
+        z: builtins.int
+        def __init__(
+            self,
+            *,
+            x: builtins.int = ...,
+            y: builtins.int = ...,
+            z: builtins.int = ...,
+        ) -> None: ...
+        def ClearField(self, field_name: typing.Literal["x", b"x", "y", b"y", "z", b"z"]) -> None: ...
+
+    PIXELS_FIELD_NUMBER: builtins.int
+    TEMPERATURE_FIELD_NUMBER: builtins.int
+    temperature: builtins.int
+    @property
+    def pixels(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___MagneticSensor.MagneticPixel]: ...
+    def __init__(
+        self,
+        *,
+        pixels: collections.abc.Iterable[global___MagneticSensor.MagneticPixel] | None = ...,
+        temperature: builtins.int = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["pixels", b"pixels", "temperature", b"temperature"]) -> None: ...
+
+global___MagneticSensor = MagneticSensor
+
+@typing.final
+class MagneticHubRaw(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    NODE_ID_FIELD_NUMBER: builtins.int
+    SENSORS_FIELD_NUMBER: builtins.int
+    node_id: builtins.int
+    @property
+    def sensors(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___MagneticSensor]: ...
+    def __init__(
+        self,
+        *,
+        node_id: builtins.int = ...,
+        sensors: collections.abc.Iterable[global___MagneticSensor] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["node_id", b"node_id", "sensors", b"sensors"]) -> None: ...
+
+global___MagneticHubRaw = MagneticHubRaw
+
+@typing.final
+class GaussRiderRaw(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    NODE_ID_FIELD_NUMBER: builtins.int
+    SENSOR_FIELD_NUMBER: builtins.int
+    node_id: builtins.int
+    @property
+    def sensor(self) -> global___MagneticSensor: ...
+    def __init__(
+        self,
+        *,
+        node_id: builtins.int = ...,
+        sensor: global___MagneticSensor | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["sensor", b"sensor"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["node_id", b"node_id", "sensor", b"sensor"]) -> None: ...
+
+global___GaussRiderRaw = GaussRiderRaw
+
+@typing.final
 class TelemetryData(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
     PRESSURES_FIELD_NUMBER: builtins.int
-    IMU_FIELD_NUMBER: builtins.int
+    ROT_FIELD_NUMBER: builtins.int
+    MAGNETIC_DATA_FIELD_NUMBER: builtins.int
+    GAUSS_RIDER_DATA_FIELD_NUMBER: builtins.int
     @property
     def pressures(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.float]: ...
     @property
-    def imu(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___IMUData]: ...
+    def rot(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___IMUData]: ...
+    @property
+    def magnetic_data(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___MagneticHubRaw]:
+        """Unprocessed magnetic hub's data - currently also here"""
+
+    @property
+    def gauss_rider_data(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GaussRiderRaw]:
+        """Unprocessed gauss rider's data"""
+
     def __init__(
         self,
         *,
         pressures: collections.abc.Iterable[builtins.float] | None = ...,
-        imu: collections.abc.Iterable[global___IMUData] | None = ...,
+        rot: collections.abc.Iterable[global___IMUData] | None = ...,
+        magnetic_data: collections.abc.Iterable[global___MagneticHubRaw] | None = ...,
+        gauss_rider_data: collections.abc.Iterable[global___GaussRiderRaw] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["imu", b"imu", "pressures", b"pressures"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["gauss_rider_data", b"gauss_rider_data", "magnetic_data", b"magnetic_data", "pressures", b"pressures", "rot", b"rot"]) -> None: ...
 
 global___TelemetryData = TelemetryData
 
@@ -295,7 +384,6 @@ class SystemInfo(google.protobuf.message.Message):
         def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
 
     MUSCLES_FIELD_NUMBER: builtins.int
-    IMUS_FIELD_NUMBER: builtins.int
     CALIBRATION_DATA_FIELD_NUMBER: builtins.int
     TELEMETRY_CONFIG_FIELD_NUMBER: builtins.int
     JOINTS_FIELD_NUMBER: builtins.int
@@ -303,22 +391,21 @@ class SystemInfo(google.protobuf.message.Message):
     @property
     def muscles(self) -> google.protobuf.internal.containers.ScalarMap[builtins.int, builtins.str]: ...
     @property
-    def imus(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ImuMappingModel]: ...
-    @property
-    def calibration_data(self) -> global___CalibrationData: ...
+    def calibration_data(self) -> global___CalibrationData:
+        """repeated ImuMappingModel imus=3;"""
+
     @property
     def joints(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Joint]: ...
     def __init__(
         self,
         *,
         muscles: collections.abc.Mapping[builtins.int, builtins.str] | None = ...,
-        imus: collections.abc.Iterable[global___ImuMappingModel] | None = ...,
         calibration_data: global___CalibrationData | None = ...,
         telemetry_config: global___TelemetryConfig.ValueType = ...,
         joints: collections.abc.Iterable[global___Joint] | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["calibration_data", b"calibration_data"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["calibration_data", b"calibration_data", "imus", b"imus", "joints", b"joints", "muscles", b"muscles", "telemetry_config", b"telemetry_config"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["calibration_data", b"calibration_data", "joints", b"joints", "muscles", b"muscles", "telemetry_config", b"telemetry_config"]) -> None: ...
 
 global___SystemInfo = SystemInfo
 

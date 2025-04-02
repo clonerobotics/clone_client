@@ -43,6 +43,7 @@ from clone_client.state_store.proto.state_store_pb2 import (
     TelemetryData,
 )
 from clone_client.utils import async_busy_ticker
+from clone_client.valve_driver.proto.valve_driver_pb2 import PinchValveControl
 
 LOGGER = logging.getLogger(__name__)
 
@@ -218,13 +219,6 @@ class Client:
             muscle_name = info.muscles[valve_id_packed]
             self._ordering[muscle_name] = index
             self._ordering_rev[index] = muscle_name
-        self._imu_mapping_id = {imu.node_id: imu for imu in info.imus}
-        for index, imu_id in enumerate(sorted(self._imu_mapping_id.keys())):
-            imu_name = self._imu_mapping_id[imu_id].name
-            imu = self._imu_mapping_id[imu_id]
-            self._imu_ordering_by_name[imu_name] = index
-            self._imu_ordering_by_id[imu_id] = index
-            self._imu_idx_to_imudata[index] = imu
         for joint in info.joints:
             name = joint.name
             jtype = joint.jtype
@@ -269,6 +263,22 @@ class Client:
     def stream_set_pressures(self, stream: AsyncIterable[Sequence[float]]) -> Coroutine[Any, Any, None]:
         """Start a stream with muscle pressure updates to the controller."""
         return self.controller_tunnel.stream_set_pressures(stream)
+
+    async def send_pinch_valve_control(
+        self, node_id: int, control_mode: PinchValveControl.ControlMode.ValueType, value: int
+    ) -> None:
+        """Send control to selected pinch valve"""
+        await self.controller_tunnel.send_pinch_valve_control(node_id, control_mode, value)
+
+    async def send_many_pinch_valve_control(self, data: dict[int, PinchValveControl]) -> None:
+        """Send mass control to all pinch valves"""
+        await self.controller_tunnel.send_many_pinch_valve_control(data)
+
+    async def stream_many_pinch_valve_control(
+        self, stream: AsyncIterable[dict[int, PinchValveControl]]
+    ) -> None:
+        """Stream mass control to all pinch valves"""
+        await self.controller_tunnel.stream_many_pinch_valve_control(stream)
 
     def subscribe_telemetry(self) -> AsyncIterable[TelemetryData]:
         """Subscribe to muscle pressures updates."""

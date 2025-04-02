@@ -2,7 +2,6 @@ import asyncio
 
 from clone_client.client import Client
 
-FIELDS = ["w", "x", "y", "z", "ax", "ay", "az"]
 DECIM_COEF = 5
 
 
@@ -21,11 +20,7 @@ async def main() -> None:
             i = 0
 
             print("\n" * 100)
-
-            for imu in telemetry.imu:
-                print(f"nodeid: {imu.node_id}")
-                for field in FIELDS:
-                    print(f"\t{field:2s}: {getattr(imu, field):+.6f}")
+            print(telemetry)
 
 
 asyncio.run(main())

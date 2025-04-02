@@ -60,6 +60,21 @@ class ValveDriverGRPCStub(object):
                 request_serializer=clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.SendPulseMessage.SerializeToString,
                 response_deserializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
                 _registered_method=True)
+        self.SendPinchValveControl = channel.unary_unary(
+                '/clone.valve_driver.ValveDriverGRPC/SendPinchValveControl',
+                request_serializer=clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.SendPinchValveControlMessage.SerializeToString,
+                response_deserializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
+                _registered_method=True)
+        self.SendManyPinchValveControl = channel.unary_unary(
+                '/clone.valve_driver.ValveDriverGRPC/SendManyPinchValveControl',
+                request_serializer=clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.SendManyPinchValveControlMessage.SerializeToString,
+                response_deserializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
+                _registered_method=True)
+        self.StreamManyPinchValveControl = channel.stream_unary(
+                '/clone.valve_driver.ValveDriverGRPC/StreamManyPinchValveControl',
+                request_serializer=clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.SendManyPinchValveControlMessage.SerializeToString,
+                response_deserializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
+                _registered_method=True)
         self.SendManyPressure = channel.unary_unary(
                 '/clone.valve_driver.ValveDriverGRPC/SendManyPressure',
                 request_serializer=clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.SendManyPressureMessage.SerializeToString,
@@ -115,6 +130,24 @@ class ValveDriverGRPCServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def SendPulse(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SendPinchValveControl(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SendManyPinchValveControl(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def StreamManyPinchValveControl(self, request_iterator, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -176,6 +209,21 @@ def add_ValveDriverGRPCServicer_to_server(servicer, server):
             'SendPulse': grpc.unary_unary_rpc_method_handler(
                     servicer.SendPulse,
                     request_deserializer=clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.SendPulseMessage.FromString,
+                    response_serializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.SerializeToString,
+            ),
+            'SendPinchValveControl': grpc.unary_unary_rpc_method_handler(
+                    servicer.SendPinchValveControl,
+                    request_deserializer=clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.SendPinchValveControlMessage.FromString,
+                    response_serializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.SerializeToString,
+            ),
+            'SendManyPinchValveControl': grpc.unary_unary_rpc_method_handler(
+                    servicer.SendManyPinchValveControl,
+                    request_deserializer=clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.SendManyPinchValveControlMessage.FromString,
+                    response_serializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.SerializeToString,
+            ),
+            'StreamManyPinchValveControl': grpc.stream_unary_rpc_method_handler(
+                    servicer.StreamManyPinchValveControl,
+                    request_deserializer=clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.SendManyPinchValveControlMessage.FromString,
                     response_serializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.SerializeToString,
             ),
             'SendManyPressure': grpc.unary_unary_rpc_method_handler(
@@ -338,6 +386,87 @@ class ValveDriverGRPC(object):
             target,
             '/clone.valve_driver.ValveDriverGRPC/SendPulse',
             clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.SendPulseMessage.SerializeToString,
+            clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SendPinchValveControl(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/clone.valve_driver.ValveDriverGRPC/SendPinchValveControl',
+            clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.SendPinchValveControlMessage.SerializeToString,
+            clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SendManyPinchValveControl(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/clone.valve_driver.ValveDriverGRPC/SendManyPinchValveControl',
+            clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.SendManyPinchValveControlMessage.SerializeToString,
+            clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def StreamManyPinchValveControl(request_iterator,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.stream_unary(
+            request_iterator,
+            target,
+            '/clone.valve_driver.ValveDriverGRPC/StreamManyPinchValveControl',
+            clone__client_dot_valve__driver_dot_proto_dot_valve__driver__pb2.SendManyPinchValveControlMessage.SerializeToString,
             clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
             options,
             channel_credentials,

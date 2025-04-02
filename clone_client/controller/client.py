@@ -18,7 +18,13 @@ from clone_client.error_frames import handle_response
 from clone_client.grpc_client import GRPCAsyncClient
 from clone_client.proto.data_types_pb2 import ServerResponse
 from clone_client.utils import grpc_translated
-from clone_client.valve_driver.proto.valve_driver_pb2 import GetNodesMessage, NodeList
+from clone_client.valve_driver.proto.valve_driver_pb2 import (
+    GetNodesMessage,
+    NodeList,
+    PinchValveControl,
+    SendManyPinchValveControlMessage,
+    SendPinchValveControlMessage,
+)
 
 
 class ControllerClient(GRPCAsyncClient):
@@ -92,6 +98,43 @@ class ControllerClient(GRPCAsyncClient):
                 yield SetPressuresMessage(pressures=pressures)
 
         response: ServerResponse = await self.stub.StreamSetPressures(mapped_stream(), timeout=None)
+        handle_response(response)
+
+    @grpc_translated()
+    async def send_pinch_valve_control(
+        self, node_id: int, control_mode: PinchValveControl.ControlMode.ValueType, value: int
+    ) -> None:
+        """Send control to selected pinch valve"""
+        # TODO check below:
+        if control_mode == PinchValveControl.ControlMode.POSITIONS:
+            PinchValveControl.PositionsType.Name(value)
+        message = SendPinchValveControlMessage(
+            node_id=node_id, control=PinchValveControl(mode=control_mode, value=value)
+        )
+        response: ServerResponse = await self.stub.SendPinchValveControl(
+            message, timeout=self.config.continuous_rpc_timeout
+        )
+        handle_response(response)
+
+    @grpc_translated()
+    async def send_many_pinch_valve_control(self, data: dict[int, PinchValveControl]) -> None:
+        """Send mass control to all pinch valves"""
+        message = SendManyPinchValveControlMessage(data=data)
+        response: ServerResponse = await self.stub.SendManyPinchValveControl(
+            message, timeout=self.config.continuous_rpc_timeout
+        )
+        handle_response(response)
+
+    async def stream_many_pinch_valve_control(
+        self, stream: AsyncIterable[dict[int, PinchValveControl]]
+    ) -> None:
+        """Start streaming control messages to pinchvalves"""
+
+        async def mapped_stream() -> AsyncIterable[SendManyPinchValveControlMessage]:
+            async for data in stream:
+                yield SendManyPinchValveControlMessage(data=data)
+
+        response: ServerResponse = await self.stub.StreamManyPinchValveControl(mapped_stream(), timeout=None)
         handle_response(response)
 
     @grpc_translated()
