@@ -21,8 +21,11 @@ from clone_client.utils import grpc_translated
 from clone_client.valve_driver.proto.valve_driver_pb2 import (
     GetNodesMessage,
     NodeList,
+    PinchValveCommands,
     PinchValveControl,
+    SendManyPinchValveCommandMessage,
     SendManyPinchValveControlMessage,
+    SendPinchValveCommandMessage,
     SendPinchValveControlMessage,
 )
 
@@ -135,6 +138,31 @@ class ControllerClient(GRPCAsyncClient):
                 yield SendManyPinchValveControlMessage(data=data)
 
         response: ServerResponse = await self.stub.StreamManyPinchValveControl(mapped_stream(), timeout=None)
+        handle_response(response)
+
+    @grpc_translated()
+    async def send_pinch_valve_command(
+        self,
+        node_id: int,
+        command: PinchValveCommands.ValueType,
+    ) -> None:
+        """Send an ON/OFF or VBOOST_ON/VBOOST_OFF command to a pinchvalve"""
+        message = SendPinchValveCommandMessage(
+            node_id=node_id,
+            command=command,
+        )
+        response: ServerResponse = await self.stub.SendPinchValveCommand(
+            message, timeout=self.config.continuous_rpc_timeout
+        )
+        handle_response(response)
+
+    @grpc_translated()
+    async def send_many_pinch_valve_command(self, commands: dict[int, PinchValveCommands.ValueType]) -> None:
+        """Send ON/OFF or VBOOST_ON/VBOOST_OFF commands to selected pinchvalves"""
+        message = SendManyPinchValveCommandMessage(commands=commands)
+        response: ServerResponse = await self.stub.SendManyPinchValveCommand(
+            message, timeout=self.config.continuous_rpc_timeout
+        )
         handle_response(response)
 
     @grpc_translated()

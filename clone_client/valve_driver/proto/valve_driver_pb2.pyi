@@ -19,6 +19,27 @@ else:
 
 DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
 
+class _PinchValveCommands:
+    ValueType = typing.NewType("ValueType", builtins.int)
+    V: typing_extensions.TypeAlias = ValueType
+
+class _PinchValveCommandsEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_PinchValveCommands.ValueType], builtins.type):
+    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+    RESERVED: _PinchValveCommands.ValueType  # 0
+    ENABLE_STEPPER_DRIVER: _PinchValveCommands.ValueType  # 1
+    DISABLE_STEPPER_DRIVER: _PinchValveCommands.ValueType  # 2
+    ENABLE_STEPPER_VBOOST: _PinchValveCommands.ValueType  # 3
+    DISABLE_STEPPER_VBOOST: _PinchValveCommands.ValueType  # 4
+
+class PinchValveCommands(_PinchValveCommands, metaclass=_PinchValveCommandsEnumTypeWrapper): ...
+
+RESERVED: PinchValveCommands.ValueType  # 0
+ENABLE_STEPPER_DRIVER: PinchValveCommands.ValueType  # 1
+DISABLE_STEPPER_DRIVER: PinchValveCommands.ValueType  # 2
+ENABLE_STEPPER_VBOOST: PinchValveCommands.ValueType  # 3
+DISABLE_STEPPER_VBOOST: PinchValveCommands.ValueType  # 4
+global___PinchValveCommands = PinchValveCommands
+
 @typing.final
 class SendDirectMessage(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
@@ -343,6 +364,56 @@ class SendManyPinchValveControlMessage(google.protobuf.message.Message):
     def ClearField(self, field_name: typing.Literal["data", b"data"]) -> None: ...
 
 global___SendManyPinchValveControlMessage = SendManyPinchValveControlMessage
+
+@typing.final
+class SendPinchValveCommandMessage(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    NODE_ID_FIELD_NUMBER: builtins.int
+    COMMAND_FIELD_NUMBER: builtins.int
+    node_id: builtins.int
+    command: global___PinchValveCommands.ValueType
+    def __init__(
+        self,
+        *,
+        node_id: builtins.int = ...,
+        command: global___PinchValveCommands.ValueType = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["command", b"command", "node_id", b"node_id"]) -> None: ...
+
+global___SendPinchValveCommandMessage = SendPinchValveCommandMessage
+
+@typing.final
+class SendManyPinchValveCommandMessage(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing.final
+    class CommandsEntry(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        KEY_FIELD_NUMBER: builtins.int
+        VALUE_FIELD_NUMBER: builtins.int
+        key: builtins.int
+        value: global___PinchValveCommands.ValueType
+        def __init__(
+            self,
+            *,
+            key: builtins.int = ...,
+            value: global___PinchValveCommands.ValueType = ...,
+        ) -> None: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
+
+    COMMANDS_FIELD_NUMBER: builtins.int
+    @property
+    def commands(self) -> google.protobuf.internal.containers.ScalarMap[builtins.int, global___PinchValveCommands.ValueType]: ...
+    def __init__(
+        self,
+        *,
+        commands: collections.abc.Mapping[builtins.int, global___PinchValveCommands.ValueType] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["commands", b"commands"]) -> None: ...
+
+global___SendManyPinchValveCommandMessage = SendManyPinchValveCommandMessage
 
 @typing.final
 class GetNodesMessage(google.protobuf.message.Message):

@@ -4,7 +4,10 @@ import sys
 from typing import AsyncIterable
 
 from clone_client.client import Client
-from clone_client.valve_driver.proto.valve_driver_pb2 import PinchValveControl
+from clone_client.valve_driver.proto.valve_driver_pb2 import (
+    PinchValveCommands,
+    PinchValveControl,
+)
 
 
 async def main_only_tele() -> None:
@@ -63,34 +66,54 @@ async def main() -> None:
     """
     async with Client(address="/run/clone") as client:
         # Should raise ValueError
-        # await client.send_pinch_valve_control(0x80, PinchValveControl.ControlMode.POSITIONS, 0x0100)
-        input("Positions, inlet fully open")
-        await client.send_pinch_valve_control(
-            0x80, PinchValveControl.ControlMode.POSITIONS, PinchValveControl.PositionsType.INLET_FULLY_OPENED
-        )
+        # input("Positions, inlet fully open")
+        # await client.send_pinch_valve_control(
+        #     0x81, PinchValveControl.ControlMode.POSITIONS, PinchValveControl.PositionsType.INLET_FULLY_OPENED
+        # )
 
         # while True:
         #     print('dupa')
-        #     await client.send_pinch_valve_control(0x80, PinchValveControl.PRESSURE, 123)
-        input("Send angle")
-        await client.send_pinch_valve_control(0x80, PinchValveControl.ANGLE, 0x88)
-        input("Send angle")
-        await client.send_pinch_valve_control(0x80, PinchValveControl.ControlMode.ANGLE, 0x88)
-        input("Send pressure (many)")
-        await client.send_many_pinch_valve_control(
-            {0x80: PinchValveControl(mode=PinchValveControl.ControlMode.PRESSURE, value=0x44)}
-        )
-        input("Send pressures")
-        await client.set_pressures([.12])
+        #     await client.send_pinch_valve_control(0x81, PinchValveControl.PRESSURE, 123)
+        # input("Send angle 12")
+        # await client.send_pinch_valve_control(0x81, PinchValveControl.ANGLE, 12)
+        # input("Send angle 74")
+        # await client.send_pinch_valve_control(0x81, PinchValveControl.ControlMode.ANGLE, 74)
+        #
+        # input("Send pressure (many)")
+        # await client.send_many_pinch_valve_control(
+        #     {0x81: PinchValveControl(mode=PinchValveControl.ControlMode.PRESSURE, value=0x44)}
+        # )
+        # input("Send pressures")
+        # await client.set_pressures([.12])
+        await client.send_pinch_valve_command(0x81, PinchValveCommands.ENABLE_STEPPER_DRIVER)
+
+        input()
+        await client.send_pinch_valve_control(0x81, PinchValveControl.ANGLE, 0)
+        input()
+        await client.send_pinch_valve_command(0x81, PinchValveCommands.DISABLE_STEPPER_DRIVER)
+        await client.send_pinch_valve_control(0x81, PinchValveControl.ANGLE, 180)
+        input()
+        await client.send_pinch_valve_command(0x81, PinchValveCommands.DISABLE_STEPPER_VBOOST)
+        await client.send_pinch_valve_control(0x81, PinchValveControl.ANGLE, 180)
+        input()
+        await client.send_pinch_valve_command(0x81, PinchValveCommands.ENABLE_STEPPER_VBOOST)
+        await client.send_pinch_valve_control(0x81, PinchValveControl.ANGLE, 180)
+        input()
+        await client.send_pinch_valve_command(0x81, PinchValveCommands.ENABLE_STEPPER_DRIVER)
+        await client.send_pinch_valve_control(0x81, PinchValveControl.ANGLE, 180)
+        input()
+        await client.send_pinch_valve_command(0x81, PinchValveCommands.DISABLE_STEPPER_VBOOST)
+        await client.send_pinch_valve_control(0x81, PinchValveControl.ANGLE, 359)
 
         async def gowno_stream() -> AsyncIterable[dict[int, PinchValveControl]]:
             while True:
-                value = random.randint(0x0000, 0xFFFF)
+                value = random.randint(0, 360)
                 print(f"{value=}")
-                yield {0x80: PinchValveControl(mode=PinchValveControl.ControlMode.PRESSURE, value=value)}
+                yield {0x81: PinchValveControl(mode=PinchValveControl.ControlMode.ANGLE, value=value)}
                 input("Iter")
 
         input("Stream")
+        await client.send_pinch_valve_command(0x81, PinchValveCommands.ENABLE_STEPPER_VBOOST)
         await client.stream_many_pinch_valve_control(gowno_stream())
 
         # await client.set_pressures([1.] * 10)

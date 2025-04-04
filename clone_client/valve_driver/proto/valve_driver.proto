@@ -16,6 +16,8 @@ service ValveDriverGRPC {
   rpc SendPinchValveControl (SendPinchValveControlMessage) returns (clone.data_types.ServerResponse);
   rpc SendManyPinchValveControl (SendManyPinchValveControlMessage) returns (clone.data_types.ServerResponse);
   rpc StreamManyPinchValveControl (stream SendManyPinchValveControlMessage) returns (clone.data_types.ServerResponse);
+  rpc SendPinchValveCommand (SendPinchValveCommandMessage) returns (clone.data_types.ServerResponse);
+  rpc SendManyPinchValveCommand (SendManyPinchValveCommandMessage) returns (clone.data_types.ServerResponse);
 
   rpc SendManyPressure (SendManyPressureMessage) returns (clone.data_types.ServerResponse);
   rpc StreamManyPressure (stream SendManyPressureMessage) returns (clone.data_types.ServerResponse);
@@ -92,6 +94,23 @@ message SendPinchValveControlMessage {
 
 message SendManyPinchValveControlMessage {
   map<uint32, PinchValveControl> data = 1;
+}
+
+enum PinchValveCommands {
+    RESERVED = 0;
+    ENABLE_STEPPER_DRIVER = 1;
+    DISABLE_STEPPER_DRIVER = 2;
+    ENABLE_STEPPER_VBOOST = 3;
+    DISABLE_STEPPER_VBOOST = 4;
+}
+
+message SendPinchValveCommandMessage {
+    uint32 node_id = 1;
+    PinchValveCommands command = 2;
+}
+
+message SendManyPinchValveCommandMessage {
+    map<uint32, PinchValveCommands> commands = 1;
 }
 
 message GetNodesMessage {

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "clone-client"
-version = "0.0.28"
+version = "0.0.29"
 description = ""
 authors = ["Clone Inc."]
 readme = "README.md"
@@ -19,7 +19,7 @@ zeroconf = "^0.132.2"
 grpcio = "^1.65.5"
 grpcio-tools = "^1.65.5"
 pydantic-settings = "^2.4.0"
-protobuf = "^5.27.2"
+protobuf = "^5.29.0"
 
 [tool.poetry.group.dev.dependencies]
 bandit = "^1.7.9"
@@ -31,7 +31,7 @@ mypy = "1.11.1"
 pylint = "^3.2.6"
 taskipy = "^1.13.0"
 mypy-protobuf = "^3.6.0"
-types-protobuf = "^5.27.0"
+types-protobuf = "^5.29.0"
 pylint-pydantic = "^0.3.2"
 pylint-protobuf = "^0.22.0"
 pytest = "^8.3.2"

@@ -43,7 +43,10 @@ from clone_client.state_store.proto.state_store_pb2 import (
     TelemetryData,
 )
 from clone_client.utils import async_busy_ticker
-from clone_client.valve_driver.proto.valve_driver_pb2 import PinchValveControl
+from clone_client.valve_driver.proto.valve_driver_pb2 import (
+    PinchValveCommands,
+    PinchValveControl,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -279,6 +282,18 @@ class Client:
     ) -> None:
         """Stream mass control to all pinch valves"""
         await self.controller_tunnel.stream_many_pinch_valve_control(stream)
+
+    async def send_pinch_valve_command(
+        self,
+        node_id: int,
+        command: PinchValveCommands.ValueType,
+    ) -> None:
+        """Send ON/OFF or VBOOST_ON/OFF command to a selected pinch valve"""
+        await self.controller_tunnel.send_pinch_valve_command(node_id, command)
+
+    async def send_many_pinch_valve_command(self, commands: dict[int, PinchValveCommands.ValueType]) -> None:
+        """Send ON/OFF or VBOOST_ON/OFF command to many selected pinch valves"""
+        await self.controller_tunnel.send_many_pinch_valve_command(commands)
 
     def subscribe_telemetry(self) -> AsyncIterable[TelemetryData]:
         """Subscribe to muscle pressures updates."""
