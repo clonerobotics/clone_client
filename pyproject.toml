@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "clone-client"
-version = "0.0.29"
+version = "0.0.30"
 description = ""
 authors = ["Clone Inc."]
 readme = "README.md"
@@ -16,10 +16,10 @@ include = [
 pydantic = {version = "2.8.2", extras = ["dotenv"]}
 python = "^3.10"
 zeroconf = "^0.132.2"
-grpcio = "^1.65.5"
-grpcio-tools = "^1.65.5"
+grpcio = "~1.69.0"
+grpcio-tools = "~1.69.0"
 pydantic-settings = "^2.4.0"
-protobuf = "^5.29.0"
+protobuf = "~5.29.0"
 
 [tool.poetry.group.dev.dependencies]
 bandit = "^1.7.9"
