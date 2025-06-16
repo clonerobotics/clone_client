@@ -10,7 +10,10 @@ This repository is in pre-beta, prone to drastic changes in the future, so pleas
 
 We use GitHub tagging mechanism for each update of the package for convenience.
 
-> **Note**: This API client uses **asyncio** to run the client asynchronously, which means any integration with this package requires to be compatible with this paradigm. If you are looking for a simplified, synchronous version of the API client, please see this wrapper: https://github.com/clonerobotics/clone_client_sync
+> **Note**: This README describes the API written in **asyncio** however the non-async version is also available as a almost drop-in replacement just by replacing `clone_client.client` with `clone_client.sync.client`. Every example and function can be used in both versions after few simple modifications (such as removing await and async keywords), with the exception of contructor call of sync `Client` which is missing `server` keyword argument (initialization only via `address` is available). The sync example is available in [this file](./clone_client/examples/api_explanation_sync.py).
+
+> **Depracation Warning**
+> With the sync version of a client being a native part of client core library the previous `clone_client_sync` package is now depracated and not maintained.
 
 ## Requirements
 
@@ -118,13 +121,14 @@ We offer a utility context manager that ensures very precise ticks, see:
 
 ```python
 from clone_client.client import Client
-from clone_client.utils import async_busy_ticker
+from clone_client.utils import async_precise_interval
 
 async def entrypoint():
     async with Client("robot") as client:
+        interval = async_precise_interval(1 / 100, precision=0.9)
         while True:
-            async with async_busy_ticker(1 / 100):
-                await client.set_pressures([0.2] * client.number_of_muscles)
+            await anext(interval)
+            await client.set_pressures([0.2] * client.number_of_muscles)
 ```
 
 > **Warning**: We do not limit the number of concurrent muscle actuations. Setting pressures must be use with caution to ensure the safety of the hardware (to avoid too much tension / strains on the bone / joint). For initial experiments limit the number of actuated muscles or operate on lower values (such as 0.2 - 0.3).
@@ -159,10 +163,7 @@ async def entrypoint():
         # Get current telemetry in the muscles
         telemetry = await client.get_telemetry()
         print("Pressurs ", telemetry.pressures)
-        print("IMU ", telemetry.imu)
 ```
-
-Mind that IMU data is still in beta and might not be available for all versions of the hardware.
 
 Receiving feedback data is also available using subscription. This offer the same functionality but it's hooked directly into the internal feedback loop offering always up-to-date data.
 
@@ -173,7 +174,6 @@ async def entrypoint():
     async with Client("robot") as client:
         async for telemetry in client.subscribe_telemetry():
             print("Pressures ", telemetry.pressures)
-            print("IMU ", telemetry.imu)
 ```
 
 Example code can be found in the [examples](./clone_client/examples) directory.
@@ -219,7 +219,7 @@ async with Client("robot") as client:
     # E.g. swapping two muscles:
     local_ordering = remote_ordering.copy()
     local_ordering["muscle0"], local_ordering["muscle1"] = (
-        local_ordering["muscle1"], 
+        local_ordering["muscle1"],
         local_ordering["muscle0"],
     )
 
@@ -234,7 +234,7 @@ async with Client("robot") as client:
 
         # Send a vector of pressures with local ordering to remote
         pressures_remote_ord = remapper.local_to_remote(pressures_local_ord)
-        client.set_pressures(pressures_remote)
+        await client.set_pressures(pressures_remote)
 ```
 
 Full example of the Remapper's usage you can find in [this file](./clone_client/examples/remapper_example.py).

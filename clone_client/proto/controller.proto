@@ -1,0 +1,101 @@
+syntax="proto3";
+
+package clone.controller;
+
+import "google/protobuf/empty.proto";
+
+import "clone_client/proto/data_types.proto";
+import "clone_client/proto/hardware_driver.proto";
+
+service ControllerGRPC {
+  rpc SetImpulses(SetImpulsesMessage) returns (clone.data_types.ServerResponse);
+  rpc SetPulses(SetPulsesMessage) returns (clone.data_types.ServerResponse);
+  rpc SetPressures(SetPressuresMessage) returns (clone.data_types.ServerResponse);
+  rpc LooseMuscles(google.protobuf.Empty) returns (clone.data_types.ServerResponse);
+  rpc LockMuscles(google.protobuf.Empty) returns (clone.data_types.ServerResponse);
+
+  rpc StreamSetPressures(stream SetPressuresMessage) returns (clone.data_types.ServerResponse);
+
+  rpc SendPinchValveControl (clone.hardware_driver.SendPinchValveControlMessage) returns (clone.data_types.ServerResponse);
+  rpc SendManyPinchValveControl (clone.hardware_driver.SendManyPinchValveControlMessage) returns (clone.data_types.ServerResponse);
+  rpc StreamManyPinchValveControl (stream clone.hardware_driver.SendManyPinchValveControlMessage) returns (clone.data_types.ServerResponse);
+  rpc SendPinchValveCommand (clone.hardware_driver.SendPinchValveCommandMessage) returns (clone.data_types.ServerResponse);
+  rpc SendManyPinchValveCommand (clone.hardware_driver.SendManyPinchValveCommandMessage) returns (clone.data_types.ServerResponse);
+
+  rpc GetWaterPumpInfo(google.protobuf.Empty) returns (WaterPumpInfoResponse);
+  rpc StartWaterPump(google.protobuf.Empty) returns (clone.data_types.ServerResponse);
+  rpc StopWaterPump(google.protobuf.Empty) returns (clone.data_types.ServerResponse);
+  rpc SetWaterPumpPressure(WaterPumpPressure) returns (clone.data_types.ServerResponse);
+  
+  rpc GetConfig(google.protobuf.Empty) returns (ControllerRuntimeConfig);
+
+  rpc GetNodes(google.protobuf.Empty) returns (clone.hardware_driver.NodeMap);
+
+  rpc Ping (google.protobuf.Empty) returns (google.protobuf.Empty);
+}
+
+// Controling muslces by directly setting an absolute value of a pressure
+message SetPressuresMessage{
+  repeated float pressures=1;
+}
+
+// Controlling musles by setting a timed impulse to open / close the valve
+message Impulse {
+  oneof data {
+    float value = 1;
+    bool ignore = 2;
+  }
+}
+
+message SetImpulsesMessage {
+  repeated Impulse impulses = 1;
+}
+
+// Controlling muscles by sending a pulse to open / close the valve using timed oscilations.
+enum PulseType {
+  IN = 0;
+  OUT = 1;
+}
+
+message PulseValue {
+  PulseType ctrl_type = 1;
+  float pulse_len_ms = 2;
+  float delay_len_ms = 3;
+  float duration_ms = 4;
+}
+
+message Pulse {
+  oneof data {
+    PulseValue value = 1;
+    bool ignore = 2;
+  }
+}
+
+message SetPulsesMessage {
+  repeated Pulse pulses = 2;
+}
+
+message ControllerRuntimeConfig {
+  uint32 max_impulse_duration_ms = 1;
+  bool use_pump = 2;
+  bool allow_missing_nodes = 3;
+}
+
+
+// Water pump control
+message WaterPumpPressure{
+  float pressure=1;
+}
+
+message WaterPumpInfo {
+  float desired_pressure=1;
+  float pressure=2;
+  bool is_running=3;
+  bool is_active=4;
+  float temperature=5;
+}
+
+message WaterPumpInfoResponse {
+  WaterPumpInfo info=1;
+  clone.data_types.ServerResponse response=2;
+}

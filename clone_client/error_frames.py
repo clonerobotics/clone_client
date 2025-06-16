@@ -6,13 +6,44 @@ from grpc import Call, RpcError, StatusCode
 from clone_client.exceptions import ClientError
 from clone_client.proto.data_types_pb2 import ErrorInfo, ErrorType, ServerResponse
 
+### ServerResponse ERRORS BELOW
+
 
 class ServerRequestError(ClientError):
     """Generic error returned by server to the client"""
 
 
-class DataAcquisitionError(ServerRequestError):
-    """Failed to collect requested data form state"""
+class InternalGolemServerRequestError(ClientError):
+    """Error generated directly by a Golem server, with an ErrorType"""
+
+    def __init__(self, error_info: ErrorInfo | str) -> None:
+        if isinstance(error_info, ErrorInfo):
+            error_info = f"ServerResponse error: {error_info.info}"
+        super().__init__(error_info)
+
+
+class UnknownGolemError(InternalGolemServerRequestError):
+    """Server answered with an error which it could not classify"""
+
+
+class GolemError(InternalGolemServerRequestError):
+    """Request failed with GolemError"""
+
+    def __init__(self, error_info: ErrorInfo) -> None:
+        self.kind = error_info.subtype
+        message = f"ServerResponse GolemError({error_info.subtype}): {error_info.info}"
+        super().__init__(message)
+
+
+class WrongRequestError(InternalGolemServerRequestError):
+    """Server couldn't process sent request due to wrong parameters"""
+
+
+class DisabledFunctionalityError(InternalGolemServerRequestError):
+    """Server seems to have the selected functionality disabled"""
+
+
+### RPC ERRORS BELOW
 
 
 class UnknownRpcError(ServerRequestError):
@@ -25,10 +56,6 @@ class ServerInstructionError(ServerRequestError):
 
 class ServerInvalidStateError(ServerRequestError):
     """Server current state doesn't allow to handle this type of request"""
-
-
-class UnsupportedRequestError(ServerRequestError):
-    """Server couldn't process sent request"""
 
 
 class ChannelUnavailableError(ServerRequestError):
@@ -55,19 +82,11 @@ class ServiceTimeoutError(ServerRequestError):
         super().__init__(message)
 
 
-class DisabledFunctionalityError(ServerRequestError):
-    """Server seems to have the selected functionality disabled"""
-
-
 # pylint: disable=no-member
-ERROR_CODE_TRANSLATION: Dict[int, Type[ServerRequestError]] = {
-    ErrorType.ACQUISITION: DataAcquisitionError,
-    ErrorType.UNSUPPORTED_REQUEST: UnsupportedRequestError,
-    ErrorType.INSTRUCTION: ServerInstructionError,
-    ErrorType.INVALID_SERVER_STATE: ServerInvalidStateError,
-    ErrorType.SERVICE_TIMEOUT: ServiceTimeoutError,
-    ErrorType.RPC_TIMEOUT: RpcTimeoutError,
-    ErrorType.UNKNOWN: UnknownRpcError,
+ERROR_TYPE_TRANSLATION: Dict[int, Type[InternalGolemServerRequestError]] = {
+    ErrorType.UNKNOWN: UnknownGolemError,
+    ErrorType.GOLEM_ERROR: GolemError,
+    ErrorType.WRONG_REQUEST: WrongRequestError,
     ErrorType.DISABLED_FUNCTIONALITY: DisabledFunctionalityError,
 }
 # pylint: enable=no-member
@@ -76,9 +95,9 @@ ERROR_CODE_TRANSLATION: Dict[int, Type[ServerRequestError]] = {
 LOGGER = logging.getLogger(__name__)
 
 
-def get_request_error(error_info: ErrorInfo) -> ServerRequestError:
+def get_request_error(error_info: ErrorInfo) -> InternalGolemServerRequestError:
     """Translate error info to exception"""
-    return ERROR_CODE_TRANSLATION[error_info.error](str(error_info.info))
+    return ERROR_TYPE_TRANSLATION[error_info.error](error_info)
 
 
 def translate_rpc_error(rpc_name: str, channel: str, error: RpcError) -> ClientError:  # type: ignore

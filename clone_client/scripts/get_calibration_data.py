@@ -14,7 +14,7 @@ import socket
 from typing import AsyncIterator
 
 from clone_client.client import Client
-from clone_client.controller.proto.controller_pb2 import ControllerRuntimeConfig
+from clone_client.proto.controller_pb2 import ControllerRuntimeConfig
 
 GOLEM_HOSTNAME = os.getenv("GOLEM_HOSTNAME", socket.gethostname())
 GOLEM_ADDRESS = os.getenv("GOLEM_ADDRESS", None)

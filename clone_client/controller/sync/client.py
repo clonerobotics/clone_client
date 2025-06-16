@@ -1,10 +1,11 @@
-from typing import AsyncGenerator, AsyncIterable, Optional, Sequence
+from typing import Generator, Iterable, Optional, Sequence
 
 from google.protobuf.empty_pb2 import Empty  # pylint: disable=E0611
+import grpc
 
 from clone_client.controller.config import ControllerClientConfig
 from clone_client.error_frames import handle_response
-from clone_client.grpc_client import GRPCAsyncClient
+from clone_client.grpc_client import GRPCClient
 from clone_client.proto.controller_pb2 import (
     ControllerRuntimeConfig,
     Pulse,
@@ -27,10 +28,10 @@ from clone_client.proto.hardware_driver_pb2 import (
     SendPinchValveCommandMessage,
     SendPinchValveControlMessage,
 )
-from clone_client.utils import grpc_translated, grpc_translated_async
+from clone_client.utils import grpc_translated
 
 
-class ControllerClient(GRPCAsyncClient):
+class ControllerClient(GRPCClient[grpc.Channel]):
     """Client for sending commands and requests to the controller."""
 
     def __init__(self, socket_address: str, config: ControllerClientConfig) -> None:
@@ -38,25 +39,25 @@ class ControllerClient(GRPCAsyncClient):
         self.stub = ControllerGRPCStub(self.channel)
         self.config = config
 
-    @grpc_translated_async()
-    async def get_waterpump_info(self) -> WaterPumpInfo:
+    @grpc_translated()
+    def get_waterpump_info(self) -> WaterPumpInfo:
         """Send request to get the waterpump info."""
-        response: WaterPumpInfoResponse = await self.stub.GetWaterPumpInfo(
+        response: WaterPumpInfoResponse = self.stub.GetWaterPumpInfo(
             Empty(), timeout=self.config.info_gathering_rpc_timeout
         )
         handle_response(response.response)
         return response.info
 
-    @grpc_translated_async()
-    async def set_waterpump_pressure(self, pressure: float) -> None:
+    @grpc_translated()
+    def set_waterpump_pressure(self, pressure: float) -> None:
         """Send request to set the waterpump pressure."""
-        await self.stub.SetWaterPumpPressure(
+        self.stub.SetWaterPumpPressure(
             WaterPumpPressure(pressure=pressure),
             timeout=self.config.critical_rpc_timeout,
         )
 
-    @grpc_translated_async()
-    async def set_impulses(self, impulses: Sequence[Optional[float]]) -> None:
+    @grpc_translated()
+    def set_impulses(self, impulses: Sequence[Optional[float]]) -> None:
         """Send request to set the muscles."""
         message = SetImpulsesMessage()
         for move in impulses:
@@ -65,13 +66,11 @@ class ControllerClient(GRPCAsyncClient):
             else:
                 message.impulses.add().value = move
 
-        response: ServerResponse = await self.stub.SetImpulses(
-            message, timeout=self.config.continuous_rpc_timeout
-        )
+        response: ServerResponse = self.stub.SetImpulses(message, timeout=self.config.continuous_rpc_timeout)
         handle_response(response)
 
-    @grpc_translated_async()
-    async def set_pulses(self, pulses: Sequence[Optional[Pulse]]) -> None:
+    @grpc_translated()
+    def set_pulses(self, pulses: Sequence[Optional[Pulse]]) -> None:
         """Send request to set the muscles."""
         message = SetPulsesMessage()
         for pulse in pulses:
@@ -79,32 +78,28 @@ class ControllerClient(GRPCAsyncClient):
                 message.pulses.add().ignore = True
             else:
                 message.pulses.append(pulse)
-        response: ServerResponse = await self.stub.SetPulses(
-            message, timeout=self.config.continuous_rpc_timeout
-        )
+        response: ServerResponse = self.stub.SetPulses(message, timeout=self.config.continuous_rpc_timeout)
         handle_response(response)
 
-    @grpc_translated_async()
-    async def set_pressures(self, pressures: Sequence[float]) -> None:
+    @grpc_translated()
+    def set_pressures(self, pressures: Sequence[float]) -> None:
         """Send request to set the pressures."""
         message = SetPressuresMessage(pressures=pressures)
-        response: ServerResponse = await self.stub.SetPressures(
-            message, timeout=self.config.continuous_rpc_timeout
-        )
+        response: ServerResponse = self.stub.SetPressures(message, timeout=self.config.continuous_rpc_timeout)
         handle_response(response)
 
-    async def stream_set_pressures(self, stream: AsyncIterable[Sequence[float]]) -> None:
+    def stream_set_pressures(self, stream: Iterable[Sequence[float]]) -> None:
         """Start streaming pressures control"""
 
-        async def mapped_stream() -> AsyncGenerator[SetPressuresMessage, None]:
-            async for pressures in stream:
+        def mapped_stream() -> Generator[SetPressuresMessage, None, None]:
+            for pressures in stream:
                 yield SetPressuresMessage(pressures=pressures)
 
-        response: ServerResponse = await self.stub.StreamSetPressures(mapped_stream(), timeout=None)
+        response: ServerResponse = self.stub.StreamSetPressures(mapped_stream(), timeout=None)
         handle_response(response)
 
-    @grpc_translated_async()
-    async def send_pinch_valve_control(
+    @grpc_translated()
+    def send_pinch_valve_control(
         self, node_id: int, control_mode: PinchValveControl.ControlMode.ValueType, value: int
     ) -> None:
         """Send control to selected pinch valve"""
@@ -113,34 +108,32 @@ class ControllerClient(GRPCAsyncClient):
         message = SendPinchValveControlMessage(
             node_id=node_id, control=PinchValveControl(mode=control_mode, value=value)
         )
-        response: ServerResponse = await self.stub.SendPinchValveControl(
+        response: ServerResponse = self.stub.SendPinchValveControl(
             message, timeout=self.config.continuous_rpc_timeout
         )
         handle_response(response)
 
-    @grpc_translated_async()
-    async def send_many_pinch_valve_control(self, data: dict[int, PinchValveControl]) -> None:
+    @grpc_translated()
+    def send_many_pinch_valve_control(self, data: dict[int, PinchValveControl]) -> None:
         """Send mass control to all pinch valves"""
         message = SendManyPinchValveControlMessage(data=data)
-        response: ServerResponse = await self.stub.SendManyPinchValveControl(
+        response: ServerResponse = self.stub.SendManyPinchValveControl(
             message, timeout=self.config.continuous_rpc_timeout
         )
         handle_response(response)
 
-    async def stream_many_pinch_valve_control(
-        self, stream: AsyncIterable[dict[int, PinchValveControl]]
-    ) -> None:
+    def stream_many_pinch_valve_control(self, stream: Iterable[dict[int, PinchValveControl]]) -> None:
         """Start streaming control messages to pinchvalves"""
 
-        async def mapped_stream() -> AsyncIterable[SendManyPinchValveControlMessage]:
-            async for data in stream:
+        def mapped_stream() -> Iterable[SendManyPinchValveControlMessage]:
+            for data in stream:
                 yield SendManyPinchValveControlMessage(data=data)
 
-        response: ServerResponse = await self.stub.StreamManyPinchValveControl(mapped_stream(), timeout=None)
+        response: ServerResponse = self.stub.StreamManyPinchValveControl(mapped_stream(), timeout=None)
         handle_response(response)
 
-    @grpc_translated_async()
-    async def send_pinch_valve_command(
+    @grpc_translated()
+    def send_pinch_valve_command(
         self,
         node_id: int,
         command: PinchValveCommands.ValueType,
@@ -150,55 +143,55 @@ class ControllerClient(GRPCAsyncClient):
             node_id=node_id,
             command=command,
         )
-        response: ServerResponse = await self.stub.SendPinchValveCommand(
+        response: ServerResponse = self.stub.SendPinchValveCommand(
             message, timeout=self.config.continuous_rpc_timeout
         )
         handle_response(response)
 
-    @grpc_translated_async()
-    async def send_many_pinch_valve_command(self, commands: dict[int, PinchValveCommands.ValueType]) -> None:
+    @grpc_translated()
+    def send_many_pinch_valve_command(self, commands: dict[int, PinchValveCommands.ValueType]) -> None:
         """Send ON/OFF or VBOOST_ON/VBOOST_OFF commands to selected pinchvalves"""
         message = SendManyPinchValveCommandMessage(commands=commands)
-        response: ServerResponse = await self.stub.SendManyPinchValveCommand(
+        response: ServerResponse = self.stub.SendManyPinchValveCommand(
             message, timeout=self.config.continuous_rpc_timeout
         )
         handle_response(response)
 
-    @grpc_translated_async()
-    async def start_waterpump(self) -> None:
+    @grpc_translated()
+    def start_waterpump(self) -> None:
         """Send request to start the waterpump."""
-        await self.stub.StartWaterPump(Empty(), timeout=self.config.critical_rpc_timeout)
+        self.stub.StartWaterPump(Empty(), timeout=self.config.critical_rpc_timeout)
 
-    @grpc_translated_async()
-    async def stop_waterpump(self) -> None:
+    @grpc_translated()
+    def stop_waterpump(self) -> None:
         """Send request to stop the waterpump."""
-        await self.stub.StopWaterPump(Empty(), timeout=self.config.critical_rpc_timeout)
+        self.stub.StopWaterPump(Empty(), timeout=self.config.critical_rpc_timeout)
 
-    @grpc_translated_async()
-    async def loose_all(self) -> None:
+    @grpc_translated()
+    def loose_all(self) -> None:
         """Send request to loose all muscles."""
-        await self.stub.LooseMuscles(Empty(), timeout=self.config.continuous_rpc_timeout)
+        self.stub.LooseMuscles(Empty(), timeout=self.config.continuous_rpc_timeout)
 
-    @grpc_translated_async()
-    async def lock_all(self) -> None:
+    @grpc_translated()
+    def lock_all(self) -> None:
         """Send request to lock all muscles."""
-        await self.stub.LockMuscles(Empty(), timeout=self.config.continuous_rpc_timeout)
+        self.stub.LockMuscles(Empty(), timeout=self.config.continuous_rpc_timeout)
 
-    @grpc_translated_async()
-    async def get_config(self) -> ControllerRuntimeConfig:
+    @grpc_translated()
+    def get_config(self) -> ControllerRuntimeConfig:
         """Get the configuration of the client."""
-        response: ControllerRuntimeConfig = await self.stub.GetConfig(
+        response: ControllerRuntimeConfig = self.stub.GetConfig(
             Empty(), timeout=self.config.info_gathering_rpc_timeout
         )
         return response
 
     @grpc_translated()
-    async def get_nodes(self) -> NodeMap:
+    def get_nodes(self) -> NodeMap:
         """Get bus_name -> list[(node_id, product_id)] map of discovered nodes per bus"""
-        response: NodeMap = await self.stub.GetNodes(GetNodesMessage())
+        response: NodeMap = self.stub.GetNodes(GetNodesMessage())
         return response
 
-    @grpc_translated_async()
-    async def ping(self) -> None:
+    @grpc_translated()
+    def ping(self) -> None:
         """Check if server is responding."""
-        await self.stub.Ping(Empty(), timeout=self.config.info_gathering_rpc_timeout)
+        self.stub.Ping(Empty(), timeout=self.config.info_gathering_rpc_timeout)

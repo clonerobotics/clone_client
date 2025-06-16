@@ -1,0 +1,121 @@
+syntax="proto3";
+
+import "google/protobuf/empty.proto";
+import "clone_client/proto/data_types.proto";
+
+package clone.state_store;
+
+service StateStoreReceiverGRPC {
+  rpc SubscribeTelemetry (google.protobuf.Empty) returns (stream TelemetryDataResponse);
+  rpc GetTelemetry (google.protobuf.Empty) returns (TelemetryDataResponse);
+  rpc GetSystemInfo (google.protobuf.Empty) returns (SystemInfoResponse);
+  rpc Ping (google.protobuf.Empty) returns (google.protobuf.Empty);
+  rpc SubscribePoseVector(google.protobuf.Empty) returns (stream PoseVectorResponse);
+}
+
+message PoseVectorResponse {
+  repeated double qpos=1;
+  clone.data_types.ServerResponse response_data=2;
+}
+
+message IMUData {
+  uint32 node_id=1;
+  float w=2;
+  float x=3;
+  float y=4;
+  float z=5;
+  float ax=6;
+  float ay=7;
+  float az=8;
+}
+
+message MagneticSensor {
+    message MagneticPixel {
+        int32 x=1;
+        int32 y=2;
+        int32 z=3;
+    }
+    repeated MagneticPixel pixels = 1;
+    int32 temperature = 5;
+}
+
+message MagneticHubRaw {
+    uint32 node_id=1;
+    repeated MagneticSensor sensors=2;
+}
+
+message GaussRiderRaw {
+    uint32 node_id=1;
+    MagneticSensor sensor=2;
+}
+
+message TelemetryData {
+  repeated float pressures=1;
+  repeated IMUData rot=2;
+  repeated MagneticHubRaw magnetic_data=3; // Unprocessed magnetic hub's data - currently also here
+  repeated GaussRiderRaw gauss_rider_data=4; // Unprocessed gauss rider's data
+}
+
+message TelemetryDataResponse {
+  TelemetryData data = 1;
+  clone.data_types.ServerResponse response_data=2;
+}
+
+enum TelemetryConfig {
+  PRESSURE = 0;
+  IMU = 1;
+  ALL = 2;
+}
+
+message PressureSensorCalibration {
+  int32 min = 1;
+  int32 max = 2;
+}
+
+message CalibrationData {
+  repeated PressureSensorCalibration pressure_sensors=1;
+}
+
+message ImuMappingModel {
+  uint32 node_id=1;
+  string name=2;
+  uint32 parent=3;
+}
+
+message Quaternion {
+  double w = 1;
+  double x = 2;
+  double y = 3;
+  double z = 4;
+}
+
+enum JointType {
+  DOF1 = 0;
+  DOF3 = 1;
+}
+
+message Joint {
+  string name = 1;
+  string bone_child = 2;
+  string bone_parent = 3;
+  JointType jtype = 4;
+  int32 imu_id_child = 5;
+  int32 imu_id_parent = 6;
+  Quaternion r_imu2jnt_child = 7;
+  Quaternion r_imu2jnt_parent = 8;
+  int32 qpos_nr = 9;
+  int32 jnt_nr = 10;
+}
+
+message SystemInfo {
+  map<int32, string> muscles=2;
+  // repeated ImuMappingModel imus=3;
+  CalibrationData calibration_data=4;
+  TelemetryConfig telemetry_config=5;
+  repeated Joint joints=6;
+}
+
+message SystemInfoResponse {
+  SystemInfo info=1;
+  clone.data_types.ServerResponse response=2;
+}

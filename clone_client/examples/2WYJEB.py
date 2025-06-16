@@ -18,9 +18,9 @@ async def main_only_tele() -> None:
     async with Client(address="/run/clone") as client:
         # async with Client(address="192.168.99.69") as client:
 
-        print(f"{await client.get_system_info(True)}")
-        await asyncio.sleep(1)
-        print(f"{await client.get_all_nodes(True)=}")
+        # print(f"{await client.get_system_info(True)}")
+        # await asyncio.sleep(1)
+        # print(f"{await client.get_all_nodes(True)=}")
         i = 0
         tele_stream = client.subscribe_telemetry()
         async for tele in tele_stream:
@@ -36,14 +36,17 @@ async def main_with_tele() -> None:
     An example showing using API related to discovering nodes existing
     on control and telemetry lines.
     """
-    async with Client(address="/run/clone") as client:
-        # async with Client(address="192.168.99.69") as client:
+    # async with Client(address="/run/clone") as client:
+    async with Client(address="192.168.99.130") as client:
 
         print(f"{await client.get_system_info(True)}")
         await asyncio.sleep(1)
         print(f"{await client.get_all_nodes(True)=}")
         i = 0
         tele_stream = client.subscribe_telemetry()
+        settings = [-0.1] * client.number_of_muscles
+        # settings[0] = 0.01
+        settings[5] = 0.01
         async for tele in tele_stream:
             if i < 50:
                 i += 1
@@ -51,12 +54,15 @@ async def main_with_tele() -> None:
             i = 0
             print(tele)
             try:
-                settings = [0.0] * client.number_of_muscles
-                settings[0] = 0.2
-                await client.set_pressures(settings)
+                print("New settings: ", settings)
+                await client.set_impulses(settings)
                 print("Git")
-            except Exception as e:
+                input("Press enter for next iteration")
+            except KeyboardInterrupt as e:
+                await client.lock_all()
+                await client.loose_all()
                 print(f"Exception: {e}")
+                break
 
 
 async def main() -> None:
@@ -85,36 +91,25 @@ async def main() -> None:
         # )
         # input("Send pressures")
         # await client.set_pressures([.12])
-        await client.send_pinch_valve_command(0x81, PinchValveCommands.ENABLE_STEPPER_DRIVER)
 
-        input()
-        await client.send_pinch_valve_control(0x81, PinchValveControl.ANGLE, 0)
-        input()
-        await client.send_pinch_valve_command(0x81, PinchValveCommands.DISABLE_STEPPER_DRIVER)
-        await client.send_pinch_valve_control(0x81, PinchValveControl.ANGLE, 180)
-        input()
-        await client.send_pinch_valve_command(0x81, PinchValveCommands.DISABLE_STEPPER_VBOOST)
-        await client.send_pinch_valve_control(0x81, PinchValveControl.ANGLE, 180)
-        input()
-        await client.send_pinch_valve_command(0x81, PinchValveCommands.ENABLE_STEPPER_VBOOST)
-        await client.send_pinch_valve_control(0x81, PinchValveControl.ANGLE, 180)
-        input()
-        await client.send_pinch_valve_command(0x81, PinchValveCommands.ENABLE_STEPPER_DRIVER)
-        await client.send_pinch_valve_control(0x81, PinchValveControl.ANGLE, 180)
-        input()
-        await client.send_pinch_valve_command(0x81, PinchValveCommands.DISABLE_STEPPER_VBOOST)
-        await client.send_pinch_valve_control(0x81, PinchValveControl.ANGLE, 359)
-
-        async def gowno_stream() -> AsyncIterable[dict[int, PinchValveControl]]:
+        # async def gowno_stream() -> AsyncIterable[dict[int, PinchValveControl]]:
+        #     while True:
+        #         # value = random.randint(0, 360)
+        #         value = PinchValveControl.PositionsType.BOTH_OPENED
+        #         print(f"{value=}")
+        #         yield {0x80: PinchValveControl(mode=PinchValveControl.ControlMode.POSITIONS, value=value)}
+        #         input("Iter")
+        #
+        # input("Stream")
+        # await client.stream_many_pinch_valve_control(gowno_stream())
+        async def chuj():
             while True:
-                value = random.randint(0, 360)
-                print(f"{value=}")
-                yield {0x81: PinchValveControl(mode=PinchValveControl.ControlMode.ANGLE, value=value)}
-                input("Iter")
+                value = [0.5]
+                print("new value: ", value)
+                await asyncio.sleep(1.0)
+                yield value
 
-        input("Stream")
-        await client.send_pinch_valve_command(0x81, PinchValveCommands.ENABLE_STEPPER_VBOOST)
-        await client.stream_many_pinch_valve_control(gowno_stream())
+        await client.stream_set_pressures(chuj())
 
         # await client.set_pressures([1.] * 10)
 

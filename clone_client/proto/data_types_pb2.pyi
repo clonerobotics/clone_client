@@ -23,29 +23,17 @@ class _ErrorType:
 
 class _ErrorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_ErrorType.ValueType], builtins.type):
     DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
-    UNSUPPORTED_REQUEST: _ErrorType.ValueType  # 0
-    INSTRUCTION: _ErrorType.ValueType  # 1
-    INVALID_SERVER_STATE: _ErrorType.ValueType  # 2
-    ACQUISITION: _ErrorType.ValueType  # 3
-    UNKNOWN: _ErrorType.ValueType  # 4
-    RPC_TIMEOUT: _ErrorType.ValueType  # 5
-    SERVICE_TIMEOUT: _ErrorType.ValueType  # 6
-    MISSING_HARDWARE: _ErrorType.ValueType  # 7
-    DISABLED_FUNCTIONALITY: _ErrorType.ValueType  # 8
-    MISMATCH: _ErrorType.ValueType  # 9
+    UNKNOWN: _ErrorType.ValueType  # 0
+    GOLEM_ERROR: _ErrorType.ValueType  # 1
+    WRONG_REQUEST: _ErrorType.ValueType  # 2
+    DISABLED_FUNCTIONALITY: _ErrorType.ValueType  # 3
 
 class ErrorType(_ErrorType, metaclass=_ErrorTypeEnumTypeWrapper): ...
 
-UNSUPPORTED_REQUEST: ErrorType.ValueType  # 0
-INSTRUCTION: ErrorType.ValueType  # 1
-INVALID_SERVER_STATE: ErrorType.ValueType  # 2
-ACQUISITION: ErrorType.ValueType  # 3
-UNKNOWN: ErrorType.ValueType  # 4
-RPC_TIMEOUT: ErrorType.ValueType  # 5
-SERVICE_TIMEOUT: ErrorType.ValueType  # 6
-MISSING_HARDWARE: ErrorType.ValueType  # 7
-DISABLED_FUNCTIONALITY: ErrorType.ValueType  # 8
-MISMATCH: ErrorType.ValueType  # 9
+UNKNOWN: ErrorType.ValueType  # 0
+GOLEM_ERROR: ErrorType.ValueType  # 1
+WRONG_REQUEST: ErrorType.ValueType  # 2
+DISABLED_FUNCTIONALITY: ErrorType.ValueType  # 3
 global___ErrorType = ErrorType
 
 @typing.final
@@ -54,15 +42,20 @@ class ErrorInfo(google.protobuf.message.Message):
 
     ERROR_FIELD_NUMBER: builtins.int
     INFO_FIELD_NUMBER: builtins.int
+    SUBTYPE_FIELD_NUMBER: builtins.int
     error: global___ErrorType.ValueType
     info: builtins.str
+    subtype: builtins.int
     def __init__(
         self,
         *,
         error: global___ErrorType.ValueType = ...,
         info: builtins.str = ...,
+        subtype: builtins.int | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["error", b"error", "info", b"info"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["_subtype", b"_subtype", "subtype", b"subtype"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_subtype", b"_subtype", "error", b"error", "info", b"info", "subtype", b"subtype"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["_subtype", b"_subtype"]) -> typing.Literal["subtype"] | None: ...
 
 global___ErrorInfo = ErrorInfo
 

@@ -4,26 +4,15 @@ from enum import auto, Flag
 import ipaddress as ip
 import logging
 from pathlib import Path
-from socket import gethostname
 from time import time
 from types import TracebackType
-from typing import (
-    Annotated,
-    Any,
-    AsyncIterable,
-    Coroutine,
-    Dict,
-    Optional,
-    Sequence,
-    Type,
-)
+from typing import Annotated, Dict, Iterable, Optional, Sequence, Type
 
 from typing_extensions import deprecated
 
 from clone_client.config import CommunicationService, CONFIG
-from clone_client.controller.client import ControllerClient
 from clone_client.controller.config import ControllerClientConfig
-from clone_client.discovery import Discovery
+from clone_client.controller.sync.client import ControllerClient
 from clone_client.exceptions import (
     ClientError,
     DesiredPressureNotAchievedError,
@@ -43,9 +32,9 @@ from clone_client.proto.state_store_pb2 import (
     SystemInfo,
     TelemetryData,
 )
-from clone_client.state_store.client import StateStoreReceiverClient
 from clone_client.state_store.config import StateStoreClientConfig
-from clone_client.utils import async_precise_interval
+from clone_client.state_store.sync.client import StateStoreReceiverClient
+from clone_client.utils import precise_interval
 
 LOGGER = logging.getLogger(__name__)
 
@@ -62,11 +51,9 @@ class Client:
 
     def __init__(
         self,
-        server: str = gethostname(),
-        address: Optional[str] = None,
+        address: str,
         tunnels_used: TunnelsUsed = ~TunnelsUsed(0),
     ) -> None:
-        self.server = server
         self.address = address
         self.tunnels_used = tunnels_used
 
@@ -87,61 +74,56 @@ class Client:
         self._qpos_to_joint_name: Dict[Annotated[int, "qpos_nr"], Annotated[str, "Joint name"]] = {}
         self._joint_name_to_qpos: Dict[Annotated[str, "Joint name"], Annotated[int, "qpos_nr"]] = {}
 
-    async def _create_socket_str(self, service: CommunicationService) -> str:
-        if not self.address:
-            service_address, service_port = await Discovery(self.server, service).discover()
+    def _create_socket_str(self, service: CommunicationService) -> str:
+        try:
+            ip.ip_address(self.address)  # test whether valid ip
+            service_address, service_port = (
+                self.address,
+                service.default_port,
+            )
             socket_str = f"{service_address}:{service_port}"
-        else:
-            try:
-                ip.ip_address(self.address)  # test whether valid ip
-                service_address, service_port = (
-                    self.address,
-                    service.default_port,
-                )
-                socket_str = f"{service_address}:{service_port}"
-            except ValueError as e:
-                LOGGER.debug("Passed address is not a net address, trying to use unix-socket")
-                socket_path = Path(self.address) / Path(service.default_unix_sock_name)
-                if not socket_path.is_socket():
-                    raise ValueError(f"Selected path ({socket_path}) does not point to a unix-socket") from e
-                socket_str = f"unix://{socket_path}"
+        except ValueError as e:
+            LOGGER.debug("Passed address is not a net address, trying to use unix-socket")
+            socket_path = Path(self.address) / Path(service.default_unix_sock_name)
+            if not socket_path.is_socket():
+                raise ValueError(f"Selected path ({socket_path}) does not point to a unix-socket") from e
+            socket_str = f"unix://{socket_path}"
+
         LOGGER.debug(socket_str)
         return socket_str
 
-    async def _get_controller(self) -> ControllerClient:
-        socket_str = await self._create_socket_str(CONFIG.communication.controller_service)
+    def _get_controller(self) -> ControllerClient:
+        socket_str = self._create_socket_str(CONFIG.communication.controller_service)
         return ControllerClient(socket_str, ControllerClientConfig())
 
-    async def _get_state(self) -> StateStoreReceiverClient:
-        socket_str = await self._create_socket_str(CONFIG.communication.rcv_web_service)
+    def _get_state(self) -> StateStoreReceiverClient:
+        socket_str = self._create_socket_str(CONFIG.communication.rcv_web_service)
         return StateStoreReceiverClient(socket_str, StateStoreClientConfig())
 
-    async def __aenter__(self) -> Client:
+    def __enter__(self) -> Client:
         if Client.TunnelsUsed.CONTROLLER in self.tunnels_used:
-            self.controller_tunnel = await self._get_controller()
+            self.controller_tunnel = self._get_controller()
         if Client.TunnelsUsed.STATE in self.tunnels_used:
-            self.state_tunnel = await self._get_state()
+            self.state_tunnel = self._get_state()
 
         if Client.TunnelsUsed.CONTROLLER in self.tunnels_used:
-            await self.controller_tunnel.channel_ready()
+            self.controller_tunnel.channel_ready()
         if Client.TunnelsUsed.STATE in self.tunnels_used:
-            await self.state_tunnel.channel_ready()
+            self.state_tunnel.channel_ready()
 
         if Client.TunnelsUsed.STATE in self.tunnels_used:
-            info = await self.get_system_info(reload=True)
+            info = self.get_system_info(reload=True)
             self._update_mappings(info)
 
         LOGGER.info("Client initialized and ready to use.")
 
         return self
 
-    async def __aexit__(
-        self, exc_type: Type[ClientError], value: ClientError, traceback: TracebackType
-    ) -> None:
+    def __exit__(self, exc_type: Type[ClientError], value: ClientError, traceback: TracebackType) -> None:
         if Client.TunnelsUsed.CONTROLLER in self.tunnels_used:
-            await self.controller_tunnel.channel.__aexit__(exc_type, value, traceback)
+            self.controller_tunnel.channel.__exit__(exc_type, value, traceback)
         if Client.TunnelsUsed.STATE in self.tunnels_used:
-            await self.state_tunnel.channel.__aexit__(exc_type, value, traceback)
+            self.state_tunnel.channel.__exit__(exc_type, value, traceback)
 
     @property
     def muscle_order(self) -> Dict[int, str]:
@@ -233,128 +215,126 @@ class Client:
                 self._qpos_to_joint_name[qpos + 2] = f"z_{name}"
         self._joint_name_to_qpos = {name: qpos for qpos, name in self._qpos_to_joint_name.items()}
 
-    async def wait_for_desired_pressure(self, timeout_ms: int = 10000) -> None:
+    def wait_for_desired_pressure(self, timeout_ms: int = 10000) -> None:
         """Block the execution until current waterpump pressure is equal or more than desired pressure."""
         start = time()
-        interval = async_precise_interval(1 / 10, 0.5)
+        interval = precise_interval(1 / 10, precision=0.5)
         while True:
-            await anext(interval)
+            next(interval)
             if time() - start >= timeout_ms / 1000:
                 raise DesiredPressureNotAchievedError(timeout_ms)
 
-            info = await self.get_waterpump_info()
+            info = self.get_waterpump_info()
             if info.pressure >= info.desired_pressure:
                 break
 
-    async def set_impulses(self, impulses: Sequence[Optional[float]]) -> None:
+    def set_impulses(self, impulses: Sequence[Optional[float]]) -> None:
         """Set muscles into certain position for a certain time."""
-        await self.controller_tunnel.set_impulses(impulses)
+        self.controller_tunnel.set_impulses(impulses)
 
     @deprecated('Use "set_impulses" instead.')
-    async def set_muscles(self, muscles: Sequence[Optional[float]]) -> None:
+    def set_muscles(self, muscles: Sequence[Optional[float]]) -> None:
         """Set muscles into certain position for a certain time."""
-        await self.set_impulses(muscles)
+        self.set_impulses(muscles)
 
-    async def set_pulses(self, pulses: Sequence[Pulse]) -> None:
+    def set_pulses(self, pulses: Sequence[Pulse]) -> None:
         """Start pulses (timed oscilations) on muscles."""
-        await self.controller_tunnel.set_pulses(pulses)
+        self.controller_tunnel.set_pulses(pulses)
 
-    async def set_pressures(self, pressures: Sequence[float]) -> None:
+    def set_pressures(self, pressures: Sequence[float]) -> None:
         """Set muscles into certain pressure."""
-        await self.controller_tunnel.set_pressures(pressures)
+        self.controller_tunnel.set_pressures(pressures)
 
-    def stream_set_pressures(self, stream: AsyncIterable[Sequence[float]]) -> Coroutine[Any, Any, None]:
+    def stream_set_pressures(self, stream: Iterable[Sequence[float]]) -> None:
         """Start a stream with muscle pressure updates to the controller."""
         return self.controller_tunnel.stream_set_pressures(stream)
 
-    async def send_pinch_valve_control(
+    def send_pinch_valve_control(
         self, node_id: int, control_mode: PinchValveControl.ControlMode.ValueType, value: int
     ) -> None:
         """Send control to selected pinch valve"""
-        await self.controller_tunnel.send_pinch_valve_control(node_id, control_mode, value)
+        self.controller_tunnel.send_pinch_valve_control(node_id, control_mode, value)
 
-    async def send_many_pinch_valve_control(self, data: dict[int, PinchValveControl]) -> None:
+    def send_many_pinch_valve_control(self, data: dict[int, PinchValveControl]) -> None:
         """Send mass control to all pinch valves"""
-        await self.controller_tunnel.send_many_pinch_valve_control(data)
+        self.controller_tunnel.send_many_pinch_valve_control(data)
 
-    async def stream_many_pinch_valve_control(
-        self, stream: AsyncIterable[dict[int, PinchValveControl]]
-    ) -> None:
+    def stream_many_pinch_valve_control(self, stream: Iterable[dict[int, PinchValveControl]]) -> None:
         """Stream mass control to all pinch valves"""
-        await self.controller_tunnel.stream_many_pinch_valve_control(stream)
+        self.controller_tunnel.stream_many_pinch_valve_control(stream)
 
-    async def send_pinch_valve_command(
+    def send_pinch_valve_command(
         self,
         node_id: int,
         command: PinchValveCommands.ValueType,
     ) -> None:
         """Send ON/OFF or VBOOST_ON/OFF command to a selected pinch valve"""
-        await self.controller_tunnel.send_pinch_valve_command(node_id, command)
+        self.controller_tunnel.send_pinch_valve_command(node_id, command)
 
-    async def send_many_pinch_valve_command(self, commands: dict[int, PinchValveCommands.ValueType]) -> None:
+    def send_many_pinch_valve_command(self, commands: dict[int, PinchValveCommands.ValueType]) -> None:
         """Send ON/OFF or VBOOST_ON/OFF command to many selected pinch valves"""
-        await self.controller_tunnel.send_many_pinch_valve_command(commands)
+        self.controller_tunnel.send_many_pinch_valve_command(commands)
 
-    def subscribe_telemetry(self) -> AsyncIterable[TelemetryData]:
+    def subscribe_telemetry(self) -> Iterable[TelemetryData]:
         """Subscribe to muscle pressures updates."""
         return self.state_tunnel.subscribe_telemetry()
 
-    async def get_telemetry(self) -> TelemetryData:
+    def get_telemetry(self) -> TelemetryData:
         """Get current telemetry data."""
-        return await self.state_tunnel.get_telemetry()
+        return self.state_tunnel.get_telemetry()
 
-    async def loose_all(self) -> None:
+    def loose_all(self) -> None:
         """Loose all muscles (deflate)."""
-        await self.controller_tunnel.loose_all()
+        self.controller_tunnel.loose_all()
 
-    async def lock_all(self) -> None:
+    def lock_all(self) -> None:
         """Lock all muscles (stop any update to the muscles)."""
-        await self.controller_tunnel.lock_all()
+        self.controller_tunnel.lock_all()
 
-    async def start_waterpump(self) -> None:
+    def start_waterpump(self) -> None:
         """Start waterpump"""
-        await self.controller_tunnel.start_waterpump()
+        self.controller_tunnel.start_waterpump()
 
-    async def stop_waterpump(self) -> None:
+    def stop_waterpump(self) -> None:
         """Stop waterpump"""
-        await self.controller_tunnel.stop_waterpump()
+        self.controller_tunnel.stop_waterpump()
 
-    async def set_waterpump_pressure(self, pressure: float) -> None:
+    def set_waterpump_pressure(self, pressure: float) -> None:
         """Stop waterpump and set new desired pressure"""
-        await self.controller_tunnel.set_waterpump_pressure(pressure)
+        self.controller_tunnel.set_waterpump_pressure(pressure)
 
-    async def get_waterpump_info(self) -> GRPCWaterPumpInfo:
+    def get_waterpump_info(self) -> GRPCWaterPumpInfo:
         """Get current information about waterpump metadata."""
-        return await self.controller_tunnel.get_waterpump_info()
+        return self.controller_tunnel.get_waterpump_info()
 
-    async def get_system_info(self, reload: bool = False) -> SystemInfo:
+    def get_system_info(self, reload: bool = False) -> SystemInfo:
         """
         Get current information about hand metadata.
 
         `reload` - if True, force to reload hand info from the controller.
         """
-        info: SystemInfo = await self.state_tunnel.get_system_info(reload)
+        info: SystemInfo = self.state_tunnel.get_system_info(reload)
         if reload:
             self._update_mappings(info)
 
         return info
 
-    async def ping(self) -> None:
+    def ping(self) -> None:
         """Check if server is responding"""
-        await self.state_tunnel.ping()
-        await self.controller_tunnel.ping()
+        self.state_tunnel.ping()
+        self.controller_tunnel.ping()
 
-    async def get_nodes(self) -> dict[str, list[BusDevice]]:
+    def get_nodes(self) -> dict[str, list[BusDevice]]:
         """Returns list of devices per bus"""
         return {
             bus_name: list(devices.nodes)
-            for bus_name, devices in (await self.controller_tunnel.get_nodes()).nodes.items()
+            for bus_name, devices in self.controller_tunnel.get_nodes().nodes.items()
         }
 
-    async def get_controller_config(self) -> ControllerRuntimeConfig:
+    def get_controller_config(self) -> ControllerRuntimeConfig:
         """Get current configuration of the controller."""
-        return await self.controller_tunnel.get_config()
+        return self.controller_tunnel.get_config()
 
-    def subscribe_pose_vector(self) -> AsyncIterable[Sequence[float]]:
+    def subscribe_pose_vector(self) -> Iterable[Sequence[float]]:
         """Subscribe to muscle pressures updates."""
         return self.state_tunnel.subscribe_pose_vector()

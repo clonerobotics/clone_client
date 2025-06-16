@@ -1,15 +1,16 @@
 import asyncio
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, contextmanager
 from functools import wraps
 import logging
 import sys
-from time import get_clock_info, perf_counter, perf_counter_ns
+from time import get_clock_info, perf_counter, perf_counter_ns, sleep
 from typing import (
     Any,
     AsyncGenerator,
     Awaitable,
     Callable,
     Dict,
+    Generator,
     List,
     Optional,
     Protocol,
@@ -31,7 +32,7 @@ RGrpc = TypeVar("RGrpc")
 TGrpc = TypeVar("TGrpc")  # pylint: disable=invalid-name
 
 
-def grpc_translated() -> (
+def grpc_translated_async() -> (
     Callable[[Callable[Concatenate[TGrpc, PGrpc], RGrpc]], Callable[Concatenate[TGrpc, PGrpc], RGrpc]]
 ):
     """Decorator function to call async function with translated error from grpc."""
@@ -43,6 +44,27 @@ def grpc_translated() -> (
         async def wrapper(*args: PGrpc.args, **kwargs: PGrpc.kwargs) -> RGrpc:
             try:
                 return await func(*args, **kwargs)
+            except RpcError as err:
+                golem_err = translate_rpc_error(func.__name__, args[0].socket_address, err)  # type: ignore
+                raise golem_err from err
+
+        return wrapper
+
+    return decorator
+
+
+def grpc_translated() -> (
+    Callable[[Callable[Concatenate[TGrpc, PGrpc], RGrpc]], Callable[Concatenate[TGrpc, PGrpc], RGrpc]]
+):
+    """Decorator function to call function with translated error from grpc."""
+
+    def decorator(
+        func: Callable[Concatenate[Any, PGrpc], RGrpc]
+    ) -> Callable[Concatenate[TGrpc, PGrpc], RGrpc]:
+        @wraps(func)
+        def wrapper(*args: PGrpc.args, **kwargs: PGrpc.kwargs) -> RGrpc:
+            try:
+                return func(*args, **kwargs)
             except RpcError as err:
                 golem_err = translate_rpc_error(func.__name__, args[0].socket_address, err)  # type: ignore
                 raise golem_err from err
@@ -99,14 +121,6 @@ class IsDataclass(Protocol):
 T = TypeVar("T", bound=IsDataclass)
 
 
-def ensure_local(value: str) -> str:
-    """Check if value ends with .local. and add it if not."""
-    if value.endswith(".local."):
-        return value
-
-    return f"{value}.local."
-
-
 PRetry = ParamSpec("PRetry")
 RRetry = TypeVar("RRetry")
 CatchType = Optional[List[Type[BaseException]]]
@@ -151,9 +165,9 @@ def strip_local(value: str) -> str:
     return value
 
 
-async def async_precise_interval(interval: float, precision: float = 0.2) -> AsyncGenerator[None, None]:
+def _precise_interval_base(interval: float, precision: float = 0.2) -> Generator[int | None, None, None]:
     """
-    Interval ticks for precise timeings.
+    Interval ticks for precise timings.
 
     Parameters:
     - interval: Duration between each tick in seconds.
@@ -168,28 +182,34 @@ async def async_precise_interval(interval: float, precision: float = 0.2) -> Asy
 
     interval_ns = int(interval * 1e9)
     resolution = get_clock_info("perf_counter").resolution
-    min_tick = resolution
-    fraction = max(resolution, (1 - precision)) * 1e-9
+    min_tick_ns = int(resolution * 1e9)
+    fraction = max(resolution, (1 - precision))
 
     try:
         while True:
             next_tick = perf_counter_ns() + interval_ns
 
-            yield
+            yield None
 
             remaining = next_tick - perf_counter_ns()
-            await asyncio.sleep(remaining * fraction)
+            if remaining < 0:
+                raise ValueError(
+                    "Tick takes longer than specified interval. Please consider increasing it.", remaining
+                )
+
+            if fraction > 0:
+                yield int(remaining * fraction)
+
             while perf_counter_ns() < next_tick:
-                await asyncio.sleep(min_tick)
+                yield min_tick_ns
 
     except GeneratorExit:
         pass
 
 
-@asynccontextmanager
-async def async_busy_ticker(
+def _busy_ticker_base(
     dur: float, precision: float = 5, min_tick: float = 0.0005
-) -> AsyncGenerator[None, None]:
+) -> Generator[int | None, None, None]:
     """
     Perform a tick every dur seconds and busy sleep until next tick for precise timing.
 
@@ -197,23 +217,66 @@ async def async_busy_ticker(
     By tweaking precision and min_tick you can adjust the resource usage to precision ratio.
     Less precision means less resources used but less accurate timing.
     """
+
+    if precision < 0 or precision > 1:
+        raise ValueError("Precision must be between 0 and 1")
+
+    if dur <= 0:
+        raise ValueError("Duration must be greater than 0")
+
+    dur_ns = int(dur * 1e9)
+    min_tick_ns = int(min_tick * 1e9)
+    next_tick = perf_counter_ns() + dur_ns
+
+    try:
+        while True:
+            yield None
+
+            elapsed = perf_counter_ns() - next_tick
+            # Sleep a fraction to save some resources
+            yield max(0, (dur_ns - elapsed) / precision)
+
+            # Busy sleep until next tick for precise timing
+            while perf_counter() < next_tick:
+                yield min_tick_ns
+
+    except GeneratorExit:
+        pass
+
+
+async def async_precise_interval(interval: float, precision: float = 0.2) -> AsyncGenerator[None, None]:
+    for sleep_time_ns in _precise_interval_base(interval, precision):
+        if sleep_time_ns is not None:
+            await asyncio.sleep(sleep_time_ns / 1e9)
+        else:
+            yield
+
+
+@asynccontextmanager
+async def async_busy_ticker(
+    dur: float, precision: float = 5, min_tick: float = 0.0005
+) -> AsyncGenerator[None, None]:
     warnings.warn("This function is deprecated, use async_precise_interval instead", DeprecationWarning)
-    next_tick = perf_counter() + dur
-
-    yield
-
-    elapsed = perf_counter() - next_tick
-    # Sleep a fraction to save some resources
-    await asyncio.sleep(max(0, (dur - elapsed) / precision))
-
-    # Busy sleep until next tick for precise timing
-    while perf_counter() < next_tick:
-        await asyncio.sleep(min_tick)
+    for sleep_time_ns in _busy_ticker_base(dur, precision, min_tick):
+        if sleep_time_ns is not None:
+            await asyncio.sleep(sleep_time_ns / 1e9)
+        else:
+            yield
 
 
-class IterableAsyncQueue(asyncio.Queue):
-    def __aiter__(self):
-        return self
+def precise_interval(interval: float, precision: float = 0.2) -> Generator[None, None, None]:
+    for sleep_time_ns in _precise_interval_base(interval, precision):
+        if sleep_time_ns is not None:
+            sleep(sleep_time_ns / 1e9)
+        else:
+            yield
 
-    def __anext__(self):
-        return self.get()
+
+@contextmanager
+def busy_ticker(dur: float, precision: float = 5, min_tick: float = 0.0005) -> Generator[None, None, None]:
+    warnings.warn("This function is deprecated, use precise_interval instead", DeprecationWarning)
+    for sleep_time_ns in _busy_ticker_base(dur, precision, min_tick):
+        if sleep_time_ns is not None:
+            sleep(sleep_time_ns / 1e9)
+        else:
+            yield

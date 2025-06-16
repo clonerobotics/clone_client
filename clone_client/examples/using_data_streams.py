@@ -1,6 +1,7 @@
 import asyncio
 import os
 import socket
+import time
 from typing import AsyncIterable, Sequence
 
 from grpc import RpcError
@@ -11,7 +12,7 @@ from clone_client.utils import async_precise_interval
 GOLEM_HOSTNAME = os.getenv("GOLEM_HOSTNAME", socket.gethostname())
 GOLEM_ADDRESS = os.getenv("GOLEM_ADDRESS", None)
 INDEX = 5
-FREQ = 100
+FREQ = 500
 DEFAULT = -1.0
 SAMPLES = FREQ // 2
 ITERATIONS = 20
