@@ -217,10 +217,9 @@ class Client:
         return self._joint_name_to_qpos
 
     def _update_mappings(self, info: SystemInfo) -> None:
-        for index, valve_id_packed in enumerate(sorted(info.muscles.keys())):
-            muscle_name = info.muscles[valve_id_packed]
-            self._ordering[muscle_name] = index
-            self._ordering_rev[index] = muscle_name
+        for muscle_name, muscle_info in info.muscles.items():
+            self._ordering[muscle_name] = muscle_info.index
+            self._ordering_rev[muscle_info.index] = muscle_name
         for joint in info.joints:
             name = joint.name
             jtype = joint.jtype

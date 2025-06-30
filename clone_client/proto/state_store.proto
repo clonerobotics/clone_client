@@ -108,7 +108,13 @@ message Joint {
 }
 
 message SystemInfo {
-  map<int32, string> muscles=2;
+  message MuscleInfo {
+    uint32 index = 1;
+    uint32 node_id = 2;
+    uint32 channel_id = 3;
+  }
+
+  map<string, MuscleInfo> muscles=2;
   // repeated ImuMappingModel imus=3;
   CalibrationData calibration_data=4;
   TelemetryConfig telemetry_config=5;

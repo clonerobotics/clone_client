@@ -368,19 +368,40 @@ class SystemInfo(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
     @typing.final
+    class MuscleInfo(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        INDEX_FIELD_NUMBER: builtins.int
+        NODE_ID_FIELD_NUMBER: builtins.int
+        CHANNEL_ID_FIELD_NUMBER: builtins.int
+        index: builtins.int
+        node_id: builtins.int
+        channel_id: builtins.int
+        def __init__(
+            self,
+            *,
+            index: builtins.int = ...,
+            node_id: builtins.int = ...,
+            channel_id: builtins.int = ...,
+        ) -> None: ...
+        def ClearField(self, field_name: typing.Literal["channel_id", b"channel_id", "index", b"index", "node_id", b"node_id"]) -> None: ...
+
+    @typing.final
     class MusclesEntry(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
         KEY_FIELD_NUMBER: builtins.int
         VALUE_FIELD_NUMBER: builtins.int
-        key: builtins.int
-        value: builtins.str
+        key: builtins.str
+        @property
+        def value(self) -> global___SystemInfo.MuscleInfo: ...
         def __init__(
             self,
             *,
-            key: builtins.int = ...,
-            value: builtins.str = ...,
+            key: builtins.str = ...,
+            value: global___SystemInfo.MuscleInfo | None = ...,
         ) -> None: ...
+        def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
 
     MUSCLES_FIELD_NUMBER: builtins.int
@@ -389,7 +410,7 @@ class SystemInfo(google.protobuf.message.Message):
     JOINTS_FIELD_NUMBER: builtins.int
     telemetry_config: global___TelemetryConfig.ValueType
     @property
-    def muscles(self) -> google.protobuf.internal.containers.ScalarMap[builtins.int, builtins.str]: ...
+    def muscles(self) -> google.protobuf.internal.containers.MessageMap[builtins.str, global___SystemInfo.MuscleInfo]: ...
     @property
     def calibration_data(self) -> global___CalibrationData:
         """repeated ImuMappingModel imus=3;"""
@@ -399,7 +420,7 @@ class SystemInfo(google.protobuf.message.Message):
     def __init__(
         self,
         *,
-        muscles: collections.abc.Mapping[builtins.int, builtins.str] | None = ...,
+        muscles: collections.abc.Mapping[builtins.str, global___SystemInfo.MuscleInfo] | None = ...,
         calibration_data: global___CalibrationData | None = ...,
         telemetry_config: global___TelemetryConfig.ValueType = ...,
         joints: collections.abc.Iterable[global___Joint] | None = ...,

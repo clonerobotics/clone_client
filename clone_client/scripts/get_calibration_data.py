@@ -81,29 +81,36 @@ async def calibrate() -> None:
     """Start calibration process of pressure sensors readings"""
 
     logging.basicConfig(level=logging.INFO)
-    calibration_data = []
 
     async with Client(address=GOLEM_ADDRESS, server=GOLEM_HOSTNAME) as client:
         await client.loose_all()
         await asyncio.sleep(3)
 
         controller_config = await client.get_controller_config()
-        hand_info = await client.get_system_info()
+        info = await client.get_system_info()
 
-        for i in range(client.number_of_muscles):
+        # Prepare empty calibration data
+        calibration_data = {}
+        for muscle_name, muscle_info in info.muscles.items():
+            if muscle_info.node_id not in calibration_data:
+                calibration_data[muscle_info.node_id] = {}
+
+            calibration_data[muscle_info.node_id][muscle_name] = [0, 0]
+
+        for i, mname in sorted(client.muscle_order.items()):
+            muscle_info = info.muscles[mname]
             try:
                 if i not in CONTRACTION_TIME:
                     [mmin, mmax] = LOADED_SNAPSHOT[i]
                     logging.info("Using snapshot data for muscle %d: min=%d, max=%d", i, mmin, mmax)
-                    calibration_data.append([mmin, mmax])
+                    calibration_data[muscle_info.node_id][mname] = [mmin, mmax]
                     continue
             except IndexError:
                 pass
 
-            mname = client.muscle_name(i)
             logging.info("Calibrating muscle %s (%d)", mname, i)
-            calib_min = hand_info.calibration_data.pressure_sensors[i].min
-            calib_max = hand_info.calibration_data.pressure_sensors[i].max
+            calib_min = info.calibration_data.pressure_sensors[i].min
+            calib_max = info.calibration_data.pressure_sensors[i].max
             try:
                 aiter_max = activate_muscle(
                     client, i, controller_config, calib_min=calib_min, calib_max=calib_max, activation=1
@@ -129,8 +136,7 @@ async def calibrate() -> None:
                 calib_max - mmax,
             )
 
-            calibration_data.append([mmin, mmax])
-
+            calibration_data[muscle_info.node_id][mname] = [mmin, mmax]
             if i > 0 and i % SNAPSHOT_AT == 0:
                 logging.info("Here's a snapshot of calibration data (last muscle: %s (%d)): ", mname, i)
                 print(calibration_data)
@@ -155,12 +161,18 @@ async def calibrate() -> None:
             logging.warning("Invalid input, using default value of 50 milibar.")
             soft_limt = 50
 
-        for i in range(client.number_of_muscles):
-            calib_min, calib_max = calibration_data[i]
-            calibration_data[i] = [calib_min + soft_limt, calib_max - soft_limt]
+        for i, mname in client.muscle_order.items():
+            node_id = info.muscles[mname].node_id
+            calib_min, calib_max = calibration_data[node_id][mname]
+            calibration_data[node_id][mname] = [calib_min + soft_limt, calib_max - soft_limt]
 
-        logging.info("Done. Save the data to 'calibration.json' file and restart the server")
-        print(calibration_data)
+        logging.info("Done. Save the data to 'calibration.toml' file and restart the server")
+        
+        for node_id, muscles in calibration_data.items():
+            print(f"[pressure_sensors.{hex(node_id)}]")
+            for mname, minmax in muscles.items():
+                channel_id = info.muscles[mname].channel_id
+                print(f"{channel_id} = {minmax}")
 
 
 if __name__ == "__main__":
