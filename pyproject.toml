@@ -1,11 +1,14 @@
 [tool.poetry]
 name = "clone-client"
-version = "0.0.33"
+version = "0.0.34"
 description = ""
 authors = ["Clone Inc."]
 readme = "README.md"
 packages = [{include = "clone_client"}]
 include = [
+    "clone_client/controller/proto/*",
+    "clone_client/state_store/proto/*",
+    "clone_client/valve_driver/proto/*",
     "clone_client/proto/*",
 ]
 

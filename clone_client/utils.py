@@ -177,8 +177,11 @@ def _precise_interval_base(interval: float, precision: float = 0.2) -> Generator
     if precision < 0 or precision > 1:
         raise ValueError("Precision must be between 0 and 1")
 
-    if interval <= 0:
-        raise ValueError("Interval must be greater than 0")
+    if interval < 0:
+        interval = 0
+        LOGGER.warning( 
+            "Negative interval specified - setting to 0. ", interval
+        )
 
     interval_ns = int(interval * 1e9)
     resolution = get_clock_info("perf_counter").resolution
@@ -193,8 +196,9 @@ def _precise_interval_base(interval: float, precision: float = 0.2) -> Generator
 
             remaining = next_tick - perf_counter_ns()
             if remaining < 0:
-                raise ValueError(
-                    "Tick takes longer than specified interval. Please consider increasing it.", remaining
+                remaining = 0
+                LOGGER.warning( 
+                    "Tick takes longer than specified interval. Please consider increasing it. ", remaining
                 )
 
             if fraction > 0:
@@ -221,8 +225,11 @@ def _busy_ticker_base(
     if precision < 0 or precision > 1:
         raise ValueError("Precision must be between 0 and 1")
 
-    if dur <= 0:
-        raise ValueError("Duration must be greater than 0")
+    if dur < 0:
+        dur = 0
+        LOGGER.warning( 
+            "Negative duration specified - setting to 0. ", dur
+        )
 
     dur_ns = int(dur * 1e9)
     min_tick_ns = int(min_tick * 1e9)
