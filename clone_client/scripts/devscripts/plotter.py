@@ -1,0 +1,94 @@
+import asyncio
+from collections import deque
+from os import environ
+from time import time
+
+import dearpygui.dearpygui as dpg
+
+from clone_client.client import Client
+
+# NOTE: here put GaussRiders' addresses for which charts are to be generated
+SENSOR_IDS = [0x7f, 0x80, 0x81]
+PIXEL_COUNT = 4
+AXES_COUNT = 3
+
+
+def create_plots():
+    dpg.create_context()
+    dpg.create_viewport(title="GaussRider data viewer", width=900, height=700)
+
+    with dpg.window(tag="GaussRider data viewer", width=1200, height=680):
+        with dpg.group(horizontal=False):
+            for sensor_id in SENSOR_IDS:
+                with dpg.group(horizontal=True):
+                    dpg.add_text(f"{sensor_id}")
+                    for i in range(PIXEL_COUNT):
+                        with dpg.plot(label=f"Pixel {i}", height=500, width=475):
+                            dpg.add_plot_legend()
+                            dpg.add_plot_axis(
+                                dpg.mvXAxis, label="X Axis", tag=f"node.{sensor_id}_pixel.{i}_xaxis"
+                            )
+                            y_axis = dpg.add_plot_axis(
+                                dpg.mvYAxis, label="Y Axis", tag=f"node.{sensor_id}_pixel.{i}_yaxis"
+                            )
+                            for s in "xyz":
+                                tag = f"node.{sensor_id}_pixel.{i}_axis.{s}"
+                                dpg.add_line_series([], [], label=f"Series {s}", parent=y_axis, tag=tag)
+    dpg.setup_dearpygui()
+    dpg.show_viewport()
+    dpg.set_primary_window("GaussRider data viewer", True)
+
+
+def update_plots(data: dict):
+    for plot_key, series_dict in data.items():
+        for series_key, (x_vals, y_vals) in series_dict.items():
+            tag = f"{plot_key}_{series_key}"
+            dpg.set_value(tag, [list(x_vals), list(y_vals)])
+        dpg.fit_axis_data(f"{plot_key}_xaxis")
+        dpg.fit_axis_data(f"{plot_key}_yaxis")
+    if not dpg.is_dearpygui_running():
+        raise KeyboardInterrupt()
+
+
+async def main():
+    print("main started")
+    dpg.render_dearpygui_frame()
+    start_time = time()
+    address = environ.get("GOLEM_ADDRESS") or "192.168.99.146"
+    async with Client(address=address, tunnels_used=Client.TunnelsUsed.STATE) as client:
+        print("client connected")
+        data = {
+            f"node.{sensor_id}_pixel.{px}": {
+                f"axis.{ax}": (deque(maxlen=2000), deque(maxlen=2000)) for ax in "xyz"
+            }
+            for sensor_id in SENSOR_IDS
+            for px in range(4)
+        }
+        last_render_time = -float("inf")
+        async for tele in client.subscribe_telemetry():
+            try:
+                curr_time = time()
+                time_since_start = curr_time - start_time
+                grs = {gr.node_id: gr for gr in tele.gauss_rider_data}
+                for sensor_id in SENSOR_IDS:
+                    s = grs[sensor_id].sensor
+                    for px_nr, px in enumerate(s.pixels):
+                        for ax in "xyz":
+                            t, x = data[f"node.{sensor_id}_pixel.{px_nr}"][f"axis.{ax}"]
+                            t.append(time_since_start)
+                            x.append(getattr(px, ax))
+                update_plots(data)
+                if curr_time - last_render_time > 0.1:
+                    last_render_time = curr_time
+                    dpg.render_dearpygui_frame()
+            except KeyError:
+                continue
+
+
+if __name__ == "__main__":
+    create_plots()
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        pass
+    dpg.destroy_context()

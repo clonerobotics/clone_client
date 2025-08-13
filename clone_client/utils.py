@@ -179,9 +179,7 @@ def _precise_interval_base(interval: float, precision: float = 0.2) -> Generator
 
     if interval < 0:
         interval = 0
-        LOGGER.warning( 
-            "Negative interval specified - setting to 0. ", interval
-        )
+        LOGGER.warning("Negative interval specified - setting to 0. ", interval)
 
     interval_ns = int(interval * 1e9)
     resolution = get_clock_info("perf_counter").resolution
@@ -197,7 +195,7 @@ def _precise_interval_base(interval: float, precision: float = 0.2) -> Generator
             remaining = next_tick - perf_counter_ns()
             if remaining < 0:
                 remaining = 0
-                LOGGER.warning( 
+                LOGGER.warning(
                     "Tick takes longer than specified interval. Please consider increasing it. ", remaining
                 )
 
@@ -227,9 +225,7 @@ def _busy_ticker_base(
 
     if dur < 0:
         dur = 0
-        LOGGER.warning( 
-            "Negative duration specified - setting to 0. ", dur
-        )
+        LOGGER.warning("Negative duration specified - setting to 0. ", dur)
 
     dur_ns = int(dur * 1e9)
     min_tick_ns = int(min_tick * 1e9)

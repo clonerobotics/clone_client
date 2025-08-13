@@ -2,6 +2,59 @@ syntax="proto3";
 
 package clone.hardware_driver;
 
+import "google/protobuf/empty.proto";
+
+import "clone_client/proto/data_types.proto";
+
+
+service HardwareDriverGRPC {
+  rpc SendDirect (SendDirectMessage) returns (clone.data_types.ServerResponse);
+  rpc SendManyDirect (SendManyDirectMessage) returns (clone.data_types.ServerResponse);
+  rpc SendImpulse (SendImpulseMessage) returns (clone.data_types.ServerResponse);
+  rpc SendManyImpulse (SendManyImpulseMessage) returns (clone.data_types.ServerResponse);
+
+  rpc SendPinchValveControl (SendPinchValveControlMessage) returns (clone.data_types.ServerResponse);
+  rpc SendManyPinchValveControl (SendManyPinchValveControlMessage) returns (clone.data_types.ServerResponse);
+  rpc StreamManyPinchValveControl (stream SendManyPinchValveControlMessage) returns (clone.data_types.ServerResponse);
+  rpc SendPinchValveCommand (SendPinchValveCommandMessage) returns (clone.data_types.ServerResponse);
+  rpc SendManyPinchValveCommand (SendManyPinchValveCommandMessage) returns (clone.data_types.ServerResponse);
+
+  rpc SendManyPressure (SendManyPressureMessage) returns (clone.data_types.ServerResponse);
+  rpc StreamManyPressure (stream SendManyPressureMessage) returns (clone.data_types.ServerResponse);
+
+  rpc GetNodes (google.protobuf.Empty) returns (NodeMap);
+
+  rpc GetGaussRiderSpecSettings(google.protobuf.Empty) returns (GaussRiderSpecSettingsResponse);
+}
+
+message GaussRiderSpecSettings {
+  uint32 should_write = 2;
+  repeated uint32 register_address = 3;
+  repeated int32 measurement_cfg_x = 4;
+  repeated int32 measurement_cfg_y = 5;
+  repeated int32 measurement_cfg_z = 6;
+  int32 measurement_cfg_temperature = 7;
+  repeated int32 offsets_0 = 8;
+  repeated int32 Hval_P_T0 = 9;
+  repeated int32 Hval_N_T0 = 10;
+  repeated int32 temperatures = 11;
+  repeated int32 Hval_P_T1 = 12;
+  repeated int32 Hval_N_T1 = 13;
+  repeated int32 offsets_1 = 14;
+  repeated int32 Hval_O_P = 15;
+  repeated int32 Hval_O_N = 16;
+}
+
+message GaussRiderSpecSettingsResponse {
+  message SuccessMessage {
+      map<uint32, GaussRiderSpecSettings> spec_settings = 1;
+  }
+  oneof inner {
+    SuccessMessage success = 1;
+    clone.data_types.ErrorInfo error = 2;
+  }
+}
+
 message SendDirectMessage {
   uint32 node_id = 1;
   uint32 valves = 2;

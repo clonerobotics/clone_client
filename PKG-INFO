@@ -1,6 +1,6 @@
 Metadata-Version: 2.3
 Name: clone-client
-Version: 0.0.34
+Version: 0.0.35
 Summary: 
 Author: Clone Inc.
 Requires-Python: >=3.10,<4.0
@@ -11,6 +11,7 @@ Classifier: Programming Language :: Python :: 3.12
 Classifier: Programming Language :: Python :: 3.13
 Requires-Dist: grpcio (>=1.65.5,<2.0.0)
 Requires-Dist: grpcio-tools (>=1.65.5,<2.0.0)
+Requires-Dist: numpy (==2.2)
 Requires-Dist: protobuf (>=5.29.0,<6.0.0)
 Requires-Dist: pydantic-settings (>=2.4.0,<3.0.0)
 Requires-Dist: pydantic[dotenv] (==2.8.2)

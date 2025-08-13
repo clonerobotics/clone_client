@@ -4,6 +4,7 @@ isort:skip_file
 """
 
 import builtins
+import clone_client.proto.data_types_pb2
 import collections.abc
 import google.protobuf.descriptor
 import google.protobuf.internal.containers
@@ -39,6 +40,130 @@ DISABLE_STEPPER_DRIVER: PinchValveCommands.ValueType  # 2
 ENABLE_STEPPER_VBOOST: PinchValveCommands.ValueType  # 3
 DISABLE_STEPPER_VBOOST: PinchValveCommands.ValueType  # 4
 global___PinchValveCommands = PinchValveCommands
+
+@typing.final
+class GaussRiderSpecSettings(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SHOULD_WRITE_FIELD_NUMBER: builtins.int
+    REGISTER_ADDRESS_FIELD_NUMBER: builtins.int
+    MEASUREMENT_CFG_X_FIELD_NUMBER: builtins.int
+    MEASUREMENT_CFG_Y_FIELD_NUMBER: builtins.int
+    MEASUREMENT_CFG_Z_FIELD_NUMBER: builtins.int
+    MEASUREMENT_CFG_TEMPERATURE_FIELD_NUMBER: builtins.int
+    OFFSETS_0_FIELD_NUMBER: builtins.int
+    HVAL_P_T0_FIELD_NUMBER: builtins.int
+    HVAL_N_T0_FIELD_NUMBER: builtins.int
+    TEMPERATURES_FIELD_NUMBER: builtins.int
+    HVAL_P_T1_FIELD_NUMBER: builtins.int
+    HVAL_N_T1_FIELD_NUMBER: builtins.int
+    OFFSETS_1_FIELD_NUMBER: builtins.int
+    HVAL_O_P_FIELD_NUMBER: builtins.int
+    HVAL_O_N_FIELD_NUMBER: builtins.int
+    should_write: builtins.int
+    measurement_cfg_temperature: builtins.int
+    @property
+    def register_address(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+    @property
+    def measurement_cfg_x(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+    @property
+    def measurement_cfg_y(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+    @property
+    def measurement_cfg_z(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+    @property
+    def offsets_0(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+    @property
+    def Hval_P_T0(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+    @property
+    def Hval_N_T0(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+    @property
+    def temperatures(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+    @property
+    def Hval_P_T1(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+    @property
+    def Hval_N_T1(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+    @property
+    def offsets_1(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+    @property
+    def Hval_O_P(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+    @property
+    def Hval_O_N(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+    def __init__(
+        self,
+        *,
+        should_write: builtins.int = ...,
+        register_address: collections.abc.Iterable[builtins.int] | None = ...,
+        measurement_cfg_x: collections.abc.Iterable[builtins.int] | None = ...,
+        measurement_cfg_y: collections.abc.Iterable[builtins.int] | None = ...,
+        measurement_cfg_z: collections.abc.Iterable[builtins.int] | None = ...,
+        measurement_cfg_temperature: builtins.int = ...,
+        offsets_0: collections.abc.Iterable[builtins.int] | None = ...,
+        Hval_P_T0: collections.abc.Iterable[builtins.int] | None = ...,
+        Hval_N_T0: collections.abc.Iterable[builtins.int] | None = ...,
+        temperatures: collections.abc.Iterable[builtins.int] | None = ...,
+        Hval_P_T1: collections.abc.Iterable[builtins.int] | None = ...,
+        Hval_N_T1: collections.abc.Iterable[builtins.int] | None = ...,
+        offsets_1: collections.abc.Iterable[builtins.int] | None = ...,
+        Hval_O_P: collections.abc.Iterable[builtins.int] | None = ...,
+        Hval_O_N: collections.abc.Iterable[builtins.int] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["Hval_N_T0", b"Hval_N_T0", "Hval_N_T1", b"Hval_N_T1", "Hval_O_N", b"Hval_O_N", "Hval_O_P", b"Hval_O_P", "Hval_P_T0", b"Hval_P_T0", "Hval_P_T1", b"Hval_P_T1", "measurement_cfg_temperature", b"measurement_cfg_temperature", "measurement_cfg_x", b"measurement_cfg_x", "measurement_cfg_y", b"measurement_cfg_y", "measurement_cfg_z", b"measurement_cfg_z", "offsets_0", b"offsets_0", "offsets_1", b"offsets_1", "register_address", b"register_address", "should_write", b"should_write", "temperatures", b"temperatures"]) -> None: ...
+
+global___GaussRiderSpecSettings = GaussRiderSpecSettings
+
+@typing.final
+class GaussRiderSpecSettingsResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing.final
+    class SuccessMessage(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        @typing.final
+        class SpecSettingsEntry(google.protobuf.message.Message):
+            DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+            KEY_FIELD_NUMBER: builtins.int
+            VALUE_FIELD_NUMBER: builtins.int
+            key: builtins.int
+            @property
+            def value(self) -> global___GaussRiderSpecSettings: ...
+            def __init__(
+                self,
+                *,
+                key: builtins.int = ...,
+                value: global___GaussRiderSpecSettings | None = ...,
+            ) -> None: ...
+            def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
+            def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
+
+        SPEC_SETTINGS_FIELD_NUMBER: builtins.int
+        @property
+        def spec_settings(self) -> google.protobuf.internal.containers.MessageMap[builtins.int, global___GaussRiderSpecSettings]: ...
+        def __init__(
+            self,
+            *,
+            spec_settings: collections.abc.Mapping[builtins.int, global___GaussRiderSpecSettings] | None = ...,
+        ) -> None: ...
+        def ClearField(self, field_name: typing.Literal["spec_settings", b"spec_settings"]) -> None: ...
+
+    SUCCESS_FIELD_NUMBER: builtins.int
+    ERROR_FIELD_NUMBER: builtins.int
+    @property
+    def success(self) -> global___GaussRiderSpecSettingsResponse.SuccessMessage: ...
+    @property
+    def error(self) -> clone_client.proto.data_types_pb2.ErrorInfo: ...
+    def __init__(
+        self,
+        *,
+        success: global___GaussRiderSpecSettingsResponse.SuccessMessage | None = ...,
+        error: clone_client.proto.data_types_pb2.ErrorInfo | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["error", b"error", "inner", b"inner", "success", b"success"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["error", b"error", "inner", b"inner", "success", b"success"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["inner", b"inner"]) -> typing.Literal["success", "error"] | None: ...
+
+global___GaussRiderSpecSettingsResponse = GaussRiderSpecSettingsResponse
 
 @typing.final
 class SendDirectMessage(google.protobuf.message.Message):

@@ -46,6 +46,9 @@ class CommunicationConfig(BaseModel):
         ),
         title="State store publisher Avahi service",
     )
+    hw_driver_service: CommunicationService = CommunicationService(
+        name="golem_hardware_driver", default_port=4692, default_unix_sock_name="hardware_driver.socket"
+    )
 
 
 class Config(BaseSettings):

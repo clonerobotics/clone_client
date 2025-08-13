@@ -167,7 +167,7 @@ async def calibrate() -> None:
             calibration_data[node_id][mname] = [calib_min + soft_limt, calib_max - soft_limt]
 
         logging.info("Done. Save the data to 'calibration.toml' file and restart the server")
-        
+
         for node_id, muscles in calibration_data.items():
             print(f"[pressure_sensors.{hex(node_id)}]")
             for mname, minmax in muscles.items():
