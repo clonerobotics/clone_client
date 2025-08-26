@@ -18,6 +18,7 @@ from clone_client.proto.controller_pb2 import ControllerRuntimeConfig
 
 GOLEM_HOSTNAME = os.getenv("GOLEM_HOSTNAME", socket.gethostname())
 GOLEM_ADDRESS = os.getenv("GOLEM_ADDRESS", None)
+USE_PINCH_VALVES = os.getenv("USE_PINCH_VALVES", False)
 NO_READINGS = 150
 ACT_TIME = 3
 SNAPSHOT_AT = 5
@@ -63,10 +64,18 @@ async def activate_muscle(
     Increase pressure for the given muscle to the maximum
     """
     contraction_time = CONTRACTION_TIME.get(index, ACT_TIME)
-    impulses: list[float | None] = [None] * client.number_of_muscles
-    impulses[index] = contraction_time * 1000 / controller_config.max_impulse_duration_ms * activation
+    if not USE_PINCH_VALVES:
+        impulses: list[float | None] = [None] * client.number_of_muscles
+        impulses[index] = contraction_time * 1000 / controller_config.max_impulse_duration_ms * activation
+    else:
+        impulses: list[int] = [-1000] * client.number_of_muscles
+        impulses[index] = 1000 * activation
+
     for _ in range(3):
-        await client.set_impulses(impulses)
+        if not USE_PINCH_VALVES:
+            await client.set_impulses(impulses)
+        else:
+            await client.set_pressures(pressures=impulses)
         await asyncio.sleep(((contraction_time) // 3))
 
     await asyncio.sleep(0.5)
@@ -83,7 +92,10 @@ async def calibrate() -> None:
     logging.basicConfig(level=logging.INFO)
 
     async with Client(address=GOLEM_ADDRESS, server=GOLEM_HOSTNAME) as client:
-        await client.loose_all()
+        if not USE_PINCH_VALVES:
+            await client.loose_all()
+        else:
+            await client.set_pressures([-1000] * client.number_of_muscles)
         await asyncio.sleep(3)
 
         controller_config = await client.get_controller_config()
