@@ -59,9 +59,3 @@ class StateStoreReceiverClient(GRPCClient[grpc.Channel]):
     def ping(self) -> None:
         """Check if server is responding."""
         self.stub.Ping(Empty(), timeout=self._config.info_gathering_rpc_timeout)
-
-    def subscribe_pose_vector(self) -> Iterable[Sequence[float]]:
-        """Subscribe for estimated joint position vector"""
-        for response in self.stub.SubscribePoseVector(Empty(), timeout=None):
-            handle_response(response.response_data)
-            yield response.qpos

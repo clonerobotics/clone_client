@@ -58,9 +58,3 @@ class StateStoreReceiverClient(GRPCAsyncClient):
     async def ping(self) -> None:
         """Check if server is responding."""
         await self.stub.Ping(Empty(), timeout=self._config.info_gathering_rpc_timeout)
-
-    async def subscribe_pose_vector(self) -> AsyncIterable[Sequence[float]]:
-        """Subscribe for estimated joint position vector"""
-        async for response in self.stub.SubscribePoseVector(Empty(), timeout=None):
-            handle_response(response.response_data)
-            yield response.qpos

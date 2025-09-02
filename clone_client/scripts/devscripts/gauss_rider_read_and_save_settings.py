@@ -26,6 +26,7 @@ async def fetch_all_calibration_data(address: str) -> dict[int, CalibrationDataR
     await client.channel_ready()
     gauss_riders = await fetch_gauss_riders_ids(client)
     gauss_settings = await client.get_gauss_rider_spec_settings()
+    print(gauss_settings)
     if gauss_riders.difference(gauss_settings.keys()):
         raise ValueError("Fetching failure, try again")
     return {
@@ -64,16 +65,13 @@ def test_calculator_creators(calib_data: dict[int, CalibrationDataRaw]) -> dict[
 
 async def main() -> None:
     print("Start")
-    try:
-        address = environ["GOLEM_ADDRESS"]
-    except KeyError:
-        print("`GOLEM_ADDRESS` must be set")
-        return
+    address = environ.get("GOLEM_ADDRESS", "127.0.0.1")
     if ":" not in address:
         address = f"{address}:{CONFIG.communication.hw_driver_service.default_port}"
+    dir_name = environ.get("CALIB_DIR") or "./fetched_calibration"
     calib_data = await fetch_all_calibration_data(address)
-    save_calibration_data(calib_data, "./fetched_calibration")
-    calib_data_loaded = test_calibration_data_load("./fetched_calibration")
+    save_calibration_data(calib_data, dir_name)
+    calib_data_loaded = test_calibration_data_load(dir_name)
     if calib_data_loaded.keys() != calib_data.keys():
         raise RuntimeError("Loaded calibration data do not match saved ones")
     print(calib_data_loaded)

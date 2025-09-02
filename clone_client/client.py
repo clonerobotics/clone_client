@@ -353,7 +353,3 @@ class Client:
     async def get_controller_config(self) -> ControllerRuntimeConfig:
         """Get current configuration of the controller."""
         return await self.controller_tunnel.get_config()
-
-    def subscribe_pose_vector(self) -> AsyncIterable[Sequence[float]]:
-        """Subscribe to muscle pressures updates."""
-        return self.state_tunnel.subscribe_pose_vector()

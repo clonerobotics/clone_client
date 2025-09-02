@@ -1,14 +1,16 @@
 import asyncio
 from collections import deque
 from os import environ
+from pathlib import Path
 from time import time
 
 import dearpygui.dearpygui as dpg
 
 from clone_client.client import Client
+from clone_client.magnet import CalibrationDataRaw, gauss_rider_rewrap, GaussCalculator
 
 # NOTE: here put GaussRiders' addresses for which charts are to be generated
-SENSOR_IDS = [0x7f, 0x80, 0x81]
+SENSOR_IDS = [0x7F, 0x80, 0x81]
 PIXEL_COUNT = 4
 AXES_COUNT = 3
 
@@ -50,11 +52,29 @@ def update_plots(data: dict):
         raise KeyboardInterrupt()
 
 
+def load_calibration_data(dir_name: str) -> dict[int, CalibrationDataRaw]:
+    path = Path(dir_name)
+    calibs = {}
+    for file in path.iterdir():
+        print("found file: ", file.name)
+        constant, node_id, suffix = file.name.split(".")
+        if constant != "gauss_rider_raw_calib" or suffix != "json":
+            raise RuntimeError("Invalid name")
+        calibs[int(node_id)] = CalibrationDataRaw.load(str(file))
+    return calibs
+
+
 async def main():
     print("main started")
     dpg.render_dearpygui_frame()
     start_time = time()
-    address = environ.get("GOLEM_ADDRESS") or "192.168.99.146"
+    address = environ.get("GOLEM_ADDRESS", "127.0.0.1")
+    calib_dir = environ.get("CALIB_DIR") or "./fetched_calibration"
+    calibs = None
+    if environ.get("CONVERT"):
+        calib_data = load_calibration_data(calib_dir)
+        calibs = {node_id: GaussCalculator(calib) for node_id, calib in calib_data.items()}
+
     async with Client(address=address, tunnels_used=Client.TunnelsUsed.STATE) as client:
         print("client connected")
         data = {
@@ -69,14 +89,22 @@ async def main():
             try:
                 curr_time = time()
                 time_since_start = curr_time - start_time
-                grs = {gr.node_id: gr for gr in tele.gauss_rider_data}
+                grs = {gr.node_id: gr for gr in tele.sensor_data.gauss_rider_data}
                 for sensor_id in SENSOR_IDS:
-                    s = grs[sensor_id].sensor
-                    for px_nr, px in enumerate(s.pixels):
-                        for ax in "xyz":
-                            t, x = data[f"node.{sensor_id}_pixel.{px_nr}"][f"axis.{ax}"]
-                            t.append(time_since_start)
-                            x.append(getattr(px, ax))
+                    s = grs[sensor_id]
+                    if calibs is not None:
+                        out = calibs[sensor_id].calculate_bfield([gauss_rider_rewrap(grs[sensor_id])])
+                        for px_nr, px in enumerate(out[0]):
+                            for ax_nr, ax in enumerate("xyz"):
+                                t, x = data[f"node.{sensor_id}_pixel.{px_nr}"][f"axis.{ax}"]
+                                t.append(time_since_start)
+                                x.append(px[ax_nr])
+                    else:
+                        for px_nr, px in enumerate(s.sensor.pixels):
+                            for ax in "xyz":
+                                t, x = data[f"node.{sensor_id}_pixel.{px_nr}"][f"axis.{ax}"]
+                                t.append(time_since_start)
+                                x.append(getattr(px, ax))
                 update_plots(data)
                 if curr_time - last_render_time > 0.1:
                     last_render_time = curr_time

@@ -162,7 +162,7 @@ async def entrypoint():
 
         # Get current telemetry in the muscles
         telemetry = await client.get_telemetry()
-        print("Pressurs ", telemetry.pressures)
+        print("Pressurs ", telemetry.sensor_data.pressures)
 ```
 
 Receiving feedback data is also available using subscription. This offer the same functionality but it's hooked directly into the internal feedback loop offering always up-to-date data.
@@ -173,7 +173,7 @@ from clone_client.client import Client
 async def entrypoint():
     async with Client("robot") as client:
         async for telemetry in client.subscribe_telemetry():
-            print("Pressures ", telemetry.pressures)
+            print("Pressures ", telemetry.sensor_data.pressures)
 ```
 
 Example code can be found in the [examples](./clone_client/examples) directory.
@@ -230,7 +230,7 @@ async with Client("robot") as client:
     async for tele in client.subscribe_telemetry():
 
         # Convert a remote vector of pressures to local ordering
-        pressures_local_ord = remapper.remote_to_local(tele.pressures)
+        pressures_local_ord = remapper.remote_to_local(tele.sensor_data.pressures)
 
         # Send a vector of pressures with local ordering to remote
         pressures_remote_ord = remapper.local_to_remote(pressures_local_ord)

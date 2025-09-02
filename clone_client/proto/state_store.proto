@@ -10,12 +10,6 @@ service StateStoreReceiverGRPC {
   rpc GetTelemetry (google.protobuf.Empty) returns (TelemetryDataResponse);
   rpc GetSystemInfo (google.protobuf.Empty) returns (SystemInfoResponse);
   rpc Ping (google.protobuf.Empty) returns (google.protobuf.Empty);
-  rpc SubscribePoseVector(google.protobuf.Empty) returns (stream PoseVectorResponse);
-}
-
-message PoseVectorResponse {
-  repeated double qpos=1;
-  clone.data_types.ServerResponse response_data=2;
 }
 
 message IMUData {
@@ -49,11 +43,21 @@ message GaussRiderRaw {
     MagneticSensor sensor=2;
 }
 
-message TelemetryData {
+message SensorData {
   repeated float pressures=1;
   repeated IMUData rot=2;
   repeated MagneticHubRaw magnetic_data=3; // Unprocessed magnetic hub's data - currently also here
   repeated GaussRiderRaw gauss_rider_data=4; // Unprocessed gauss rider's data
+  map<uint32, Bfield> bfields=5;
+}
+
+message TelemetryData {
+  SensorData sensor_data=1;
+  repeated double pose_estimation=2;
+}
+
+message Bfield {
+  repeated double bfield=1; // Bfield vector, pxs: 0, 1, 2, 3, axes: x, y, z, in teslas
 }
 
 message TelemetryDataResponse {

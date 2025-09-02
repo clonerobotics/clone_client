@@ -66,7 +66,7 @@ async def run_with_living_client() -> None:
         await asyncio.sleep(3.0)
         async for tele in client.subscribe_telemetry():
             print("\n" * 100)
-            pressures_from_remote = tele.pressures
+            pressures_from_remote = tele.sensor_data.pressures
             print(f"{pressures_from_remote=}")
             pressures_from_remote_remapped = remapper.remote_to_local(pressures_from_remote)
             print(f"{pressures_from_remote_remapped=}")

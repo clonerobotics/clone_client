@@ -176,18 +176,12 @@ class CalibrationDataRaw:  # pylint: disable=invalid-name
 class Calibration:
     """Structure containing closures calculating dynamic calibration values"""
 
-    # temperature postprocessing t_val_pp(t_val) = (t_val - t_offset) * t_config_factor
-    temperature: Callable[[npt.NDArray[np.number]], npt.NDArray[np.double]]
     # sensitivities S(t_val_pp) = s_t0 + s_scale_coef * t_val_pp
     sensitivity: Callable[[npt.NDArray[np.number]], npt.NDArray[Matrix4x3]]  # mT/digit
     # offsets O(t_val_pp) = o_t0 + o_scale_coef * t_val_pp:
     offsets: Callable[[npt.NDArray[np.number]], npt.NDArray[Matrix4x3]]  # mT
     # orthogonality
     orthogonality: Callable[[npt.NDArray[Vec4[np.number]]], npt.NDArray[Matrix4x2]]  # mT
-
-
-def _temperature_default(t):  # type: ignore
-    return t - 4033 * 1.0
 
 
 def _sensitivity_default(_):  # type: ignore
@@ -206,7 +200,6 @@ def _orthogonality_default(_):  # type: ignore
 
 
 CALIBRATION_OLD_COMPATIBILITY = Calibration(
-    temperature=_temperature_default,
     sensitivity=_sensitivity_default,
     offsets=_offsets_default,
     orthogonality=_orthogonality_default,
@@ -220,11 +213,9 @@ class GaussCalculator:
     class Config:
         """Configuration of a given sensor"""
 
-        t_dec_len: int = FH3D04.BASIC_DEC_LEN
         icoil: float = 1.0  # mA
 
     def __init__(self, calibration: CalibrationDataRaw | Calibration, config: Config = Config()) -> None:
-        self._t_dec_len_factor = FH3D04.BASIC_DEC_LEN / config.t_dec_len
         self._config = config
         if isinstance(calibration, CalibrationDataRaw):
             self._calibration = self._calibration_from_raw(calibration)
@@ -233,13 +224,11 @@ class GaussCalculator:
 
     def _calibration_from_raw(self, calibration: CalibrationDataRaw) -> Calibration:
         temperatures = calibration.temperatures.ravel()
-        t_offset = temperatures[3] * self._t_dec_len_factor
-        t = lambda t_val: (t_val - t_offset) * self._t_dec_len_factor
-        t_val_pp_start = t(temperatures[0])  # pylint: disable=unused-variable
-        t_val_pp_0_tlo = t(temperatures[2])
-        t_val_pp_1_tlo = t(temperatures[1])
-        t_val_pp_0 = t(temperatures[3])
-        t_val_pp_1 = t(temperatures[4])
+        t_val_start = temperatures[0]  # pylint: disable=unused-variable
+        t_val_0_tlo = temperatures[2]
+        t_val_1_tlo = temperatures[1]
+        t_val_0 = temperatures[3]
+        t_val_1 = temperatures[4]
 
         bcoil_xy = 191.0 * self._config.icoil  # uT
         bcoil_z = 182.0 * self._config.icoil  # uT
@@ -254,17 +243,17 @@ class GaussCalculator:
         bcoil = np.array([bcoil_xy, bcoil_xy, bcoil_z]) * signs
 
         # [3] / [4, 3] -> [4, 3]
-        s_t_0 = bcoil / ((calibration.Hval_P_T0 - calibration.Hval_N_T0) / 2.0) / 1000.0
-        s_t_1 = bcoil / ((calibration.Hval_P_T1 - calibration.Hval_N_T1) / 2.0) / 1000.0
-        s_t_coef = (s_t_1 - s_t_0) / (t_val_pp_1 - t_val_pp_0)
+        s_t_0 = bcoil / ((calibration.Hval_P_T0 - calibration.Hval_N_T0) / 2.0) / 1000_000.0
+        s_t_1 = bcoil / ((calibration.Hval_P_T1 - calibration.Hval_N_T1) / 2.0) / 1000_000.0
+        s_t_coef = (s_t_1 - s_t_0) / (t_val_1 - t_val_0)
         # [4, 3] + [4, 3] * [x, 1, 1] -> [x, 4, 3]
-        s = lambda t_val_pp: s_t_0 + s_t_coef * t_val_pp[:, np.newaxis, np.newaxis]
+        s = lambda t_val: s_t_0 + s_t_coef * (t_val[:, np.newaxis, np.newaxis] - t_val_0)
 
         o_t_0 = calibration.offsets_0.astype(np.double)
         o_t_1 = calibration.offsets_1.astype(np.double)
-        o_scale_coef = (o_t_1 - o_t_0) / (t_val_pp_1_tlo - t_val_pp_0_tlo)
+        o_scale_coef = (o_t_1 - o_t_0) / (t_val_1_tlo - t_val_0_tlo)
         # [4, 3] + [4, 3] * [x, 1, 1] -> [x, 4, 3]
-        o = lambda t_val_pp: o_t_0 + o_scale_coef * t_val_pp[:, np.newaxis, np.newaxis]
+        o = lambda t_val: o_t_0 + o_scale_coef * (t_val[:, np.newaxis, np.newaxis] - t_val_0_tlo)
 
         h_val_pp_p = calibration.Hval_O_P
         h_val_pp_n = calibration.Hval_O_N
@@ -275,18 +264,11 @@ class GaussCalculator:
         orth = lambda h_val_pp_z: h_val_pp_z[..., np.newaxis] * orth_coef
 
         ret = Calibration(
-            temperature=t,
             sensitivity=s,
             offsets=o,
             orthogonality=orth,
         )
         return ret
-
-    def calculate_temp(self, t_val: Sequence[int]) -> tuple[np.ndarray[np.double], np.ndarray[np.double]]:
-        """Returns temperature in Celcius degrees from raw temperature"""
-        t_val_pp = self._calibration.temperature(np.asarray(t_val))
-        t_val_deg_c = t_val_pp * FH3D04.TEMP_DIGIT2CELS + 25.0
-        return t_val_deg_c, t_val_pp  # type: ignore
 
     def calculate_bfield(self, data: Sequence[Vec13[np.int16]]) -> npt.NDArray[Matrix4x3[np.double]]:
         """data: array of raw B and temperature data from a sensor (flattened 4x3 magnetic
@@ -294,13 +276,13 @@ class GaussCalculator:
         # input shape: [x, 13]
         data_arr = np.asarray(data, dtype=np.double)
         # [x]
-        t_val_pp = self._calibration.temperature(data_arr[:, -1])
-        L.debug("T: %s", t_val_pp)
+        t_val = data_arr[:, -1]
+        L.debug("T: %s", t_val)
         # [x] -> [x, 4, 3]
-        s = self._calibration.sensitivity(t_val_pp)
+        s = self._calibration.sensitivity(t_val)
         L.debug("S: %s", s)
         # [x] -> [x, 4, 3]
-        o = self._calibration.offsets(t_val_pp)
+        o = self._calibration.offsets(t_val)
         L.debug("O: %s", o)
         # ([x, 4, 3] - [4, 3]) * [4, 3] -> [x, 4, 3]
         B = (data_arr[..., :-1].reshape((-1, 4, 3)) - o) * s  # pylint: disable=invalid-name

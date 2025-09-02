@@ -108,19 +108,19 @@ async def api_run() -> None:
         # Get telemetry
         telemetry = await client.get_telemetry()
 
-        print("Pressures", telemetry.pressures)
-        print("Magnetic", telemetry.magnetic_data)
-        if len(telemetry.pressures) == client.number_of_muscles:
+        print("Pressures", telemetry.sensor_data.pressures)
+        print("Magnetic", telemetry.sensor_data.magnetic_data)
+        if len(telemetry.sensor_data.pressures) == client.number_of_muscles:
             # Check specific muscle pressure
             muscle_name = client.muscle_name(0)
             index_extensor_index = client.muscle_idx(muscle_name)
-            index_extensor_pressure = telemetry.pressures[index_extensor_index]
+            index_extensor_pressure = telemetry.sensor_data.pressures[index_extensor_index]
             print(f"{muscle_name} pressure: {index_extensor_pressure}")
 
         # Subscribe to telemetry updates
         count = 0
         async for telemetry in client.subscribe_telemetry():
-            print("Telemetry", telemetry.pressures, telemetry.magnetic_data)
+            print("Telemetry", telemetry.sensor_data.pressures, telemetry.sensor_data.magnetic_data)
 
             count += 1
             if count > 150:

@@ -83,7 +83,7 @@ async def activate_muscle(
     for _ in range(NO_READINGS):
         await asyncio.sleep(0.05)
         telemetry = await client.get_telemetry()
-        yield denormalize_value(telemetry.pressures[index], calib_min, calib_max)
+        yield denormalize_value(telemetry.sensor_data.pressures[index], calib_min, calib_max)
 
 
 async def calibrate() -> None:

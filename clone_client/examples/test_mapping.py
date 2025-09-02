@@ -18,7 +18,9 @@ async def main():
         for muscle_name, muscle_info in info.muscles.items():
             idx = client.muscle_idx(muscle_name)
             print(f"Muscle {muscle_name}")
-            print(f"NodeID: {muscle_info.node_id}, ChannelID: {muscle_info.channel_id}, Index: {muscle_info.index}")
+            print(
+                f"NodeID: {muscle_info.node_id}, ChannelID: {muscle_info.channel_id}, Index: {muscle_info.index}"
+            )
             assert idx == muscle_info.index
 
             for act in [100, -100]:
@@ -27,7 +29,7 @@ async def main():
                 await client.set_pressures(impulses)
                 await asyncio.sleep(1)
                 tele = await client.get_telemetry()
-                print(f"Pressure: {round(tele.pressures[idx], 3)}")
+                print(f"Pressure: {round(tele.sensor_data.pressures[idx], 3)}")
 
 
 if __name__ == "__main__":

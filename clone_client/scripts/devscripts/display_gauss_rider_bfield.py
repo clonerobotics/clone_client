@@ -20,7 +20,7 @@ async def main() -> None:
     calc = GaussCalculator(calib_data_raw)
     async with Client(address=address, tunnels_used=Client.TunnelsUsed.STATE) as client:
         async for tele in client.subscribe_telemetry():
-            gauss_map = {gr.node_id: gr for gr in tele.gauss_rider_data}
+            gauss_map = {gr.node_id: gr for gr in tele.sensor_data.gauss_rider_data}
             b = calc.calculate_bfield([gauss_rider_rewrap(gauss_map[0x61])])
             print("\n" * 100)
             print(b)

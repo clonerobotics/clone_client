@@ -53,27 +53,6 @@ DOF3: JointType.ValueType  # 1
 global___JointType = JointType
 
 @typing.final
-class PoseVectorResponse(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
-
-    QPOS_FIELD_NUMBER: builtins.int
-    RESPONSE_DATA_FIELD_NUMBER: builtins.int
-    @property
-    def qpos(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.float]: ...
-    @property
-    def response_data(self) -> clone_client.proto.data_types_pb2.ServerResponse: ...
-    def __init__(
-        self,
-        *,
-        qpos: collections.abc.Iterable[builtins.float] | None = ...,
-        response_data: clone_client.proto.data_types_pb2.ServerResponse | None = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing.Literal["response_data", b"response_data"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["qpos", b"qpos", "response_data", b"response_data"]) -> None: ...
-
-global___PoseVectorResponse = PoseVectorResponse
-
-@typing.final
 class IMUData(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -187,13 +166,32 @@ class GaussRiderRaw(google.protobuf.message.Message):
 global___GaussRiderRaw = GaussRiderRaw
 
 @typing.final
-class TelemetryData(google.protobuf.message.Message):
+class SensorData(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing.final
+    class BfieldsEntry(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        KEY_FIELD_NUMBER: builtins.int
+        VALUE_FIELD_NUMBER: builtins.int
+        key: builtins.int
+        @property
+        def value(self) -> global___Bfield: ...
+        def __init__(
+            self,
+            *,
+            key: builtins.int = ...,
+            value: global___Bfield | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
 
     PRESSURES_FIELD_NUMBER: builtins.int
     ROT_FIELD_NUMBER: builtins.int
     MAGNETIC_DATA_FIELD_NUMBER: builtins.int
     GAUSS_RIDER_DATA_FIELD_NUMBER: builtins.int
+    BFIELDS_FIELD_NUMBER: builtins.int
     @property
     def pressures(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.float]: ...
     @property
@@ -206,6 +204,8 @@ class TelemetryData(google.protobuf.message.Message):
     def gauss_rider_data(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GaussRiderRaw]:
         """Unprocessed gauss rider's data"""
 
+    @property
+    def bfields(self) -> google.protobuf.internal.containers.MessageMap[builtins.int, global___Bfield]: ...
     def __init__(
         self,
         *,
@@ -213,10 +213,50 @@ class TelemetryData(google.protobuf.message.Message):
         rot: collections.abc.Iterable[global___IMUData] | None = ...,
         magnetic_data: collections.abc.Iterable[global___MagneticHubRaw] | None = ...,
         gauss_rider_data: collections.abc.Iterable[global___GaussRiderRaw] | None = ...,
+        bfields: collections.abc.Mapping[builtins.int, global___Bfield] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["gauss_rider_data", b"gauss_rider_data", "magnetic_data", b"magnetic_data", "pressures", b"pressures", "rot", b"rot"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["bfields", b"bfields", "gauss_rider_data", b"gauss_rider_data", "magnetic_data", b"magnetic_data", "pressures", b"pressures", "rot", b"rot"]) -> None: ...
+
+global___SensorData = SensorData
+
+@typing.final
+class TelemetryData(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SENSOR_DATA_FIELD_NUMBER: builtins.int
+    POSE_ESTIMATION_FIELD_NUMBER: builtins.int
+    @property
+    def sensor_data(self) -> global___SensorData: ...
+    @property
+    def pose_estimation(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.float]: ...
+    def __init__(
+        self,
+        *,
+        sensor_data: global___SensorData | None = ...,
+        pose_estimation: collections.abc.Iterable[builtins.float] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["sensor_data", b"sensor_data"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["pose_estimation", b"pose_estimation", "sensor_data", b"sensor_data"]) -> None: ...
 
 global___TelemetryData = TelemetryData
+
+@typing.final
+class Bfield(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    BFIELD_FIELD_NUMBER: builtins.int
+    @property
+    def bfield(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.float]:
+        """Bfield vector, pxs: 0, 1, 2, 3, axes: x, y, z, in teslas"""
+
+    def __init__(
+        self,
+        *,
+        bfield: collections.abc.Iterable[builtins.float] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["bfield", b"bfield"]) -> None: ...
+
+global___Bfield = Bfield
 
 @typing.final
 class TelemetryDataResponse(google.protobuf.message.Message):
