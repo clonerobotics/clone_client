@@ -92,6 +92,21 @@ class ControllerGRPCStub(object):
                 request_serializer=clone__client_dot_proto_dot_hardware__driver__pb2.SendManyPinchValveCommandMessage.SerializeToString,
                 response_deserializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
                 _registered_method=True)
+        self.SendHydraControl = channel.unary_unary(
+                '/clone.controller.ControllerGRPC/SendHydraControl',
+                request_serializer=clone__client_dot_proto_dot_hardware__driver__pb2.SendHydraControlMessage.SerializeToString,
+                response_deserializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
+                _registered_method=True)
+        self.SendManyHydraControl = channel.unary_unary(
+                '/clone.controller.ControllerGRPC/SendManyHydraControl',
+                request_serializer=clone__client_dot_proto_dot_hardware__driver__pb2.SendManyHydraControlMessage.SerializeToString,
+                response_deserializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
+                _registered_method=True)
+        self.StreamManyHydraControl = channel.stream_unary(
+                '/clone.controller.ControllerGRPC/StreamManyHydraControl',
+                request_serializer=clone__client_dot_proto_dot_hardware__driver__pb2.SendManyHydraControlMessage.SerializeToString,
+                response_deserializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
+                _registered_method=True)
         self.GetWaterPumpInfo = channel.unary_unary(
                 '/clone.controller.ControllerGRPC/GetWaterPumpInfo',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
@@ -198,6 +213,24 @@ class ControllerGRPCServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def SendHydraControl(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SendManyHydraControl(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def StreamManyHydraControl(self, request_iterator, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def GetWaterPumpInfo(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -296,6 +329,21 @@ def add_ControllerGRPCServicer_to_server(servicer, server):
             'SendManyPinchValveCommand': grpc.unary_unary_rpc_method_handler(
                     servicer.SendManyPinchValveCommand,
                     request_deserializer=clone__client_dot_proto_dot_hardware__driver__pb2.SendManyPinchValveCommandMessage.FromString,
+                    response_serializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.SerializeToString,
+            ),
+            'SendHydraControl': grpc.unary_unary_rpc_method_handler(
+                    servicer.SendHydraControl,
+                    request_deserializer=clone__client_dot_proto_dot_hardware__driver__pb2.SendHydraControlMessage.FromString,
+                    response_serializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.SerializeToString,
+            ),
+            'SendManyHydraControl': grpc.unary_unary_rpc_method_handler(
+                    servicer.SendManyHydraControl,
+                    request_deserializer=clone__client_dot_proto_dot_hardware__driver__pb2.SendManyHydraControlMessage.FromString,
+                    response_serializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.SerializeToString,
+            ),
+            'StreamManyHydraControl': grpc.stream_unary_rpc_method_handler(
+                    servicer.StreamManyHydraControl,
+                    request_deserializer=clone__client_dot_proto_dot_hardware__driver__pb2.SendManyHydraControlMessage.FromString,
                     response_serializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.SerializeToString,
             ),
             'GetWaterPumpInfo': grpc.unary_unary_rpc_method_handler(
@@ -630,6 +678,87 @@ class ControllerGRPC(object):
             target,
             '/clone.controller.ControllerGRPC/SendManyPinchValveCommand',
             clone__client_dot_proto_dot_hardware__driver__pb2.SendManyPinchValveCommandMessage.SerializeToString,
+            clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SendHydraControl(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/clone.controller.ControllerGRPC/SendHydraControl',
+            clone__client_dot_proto_dot_hardware__driver__pb2.SendHydraControlMessage.SerializeToString,
+            clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SendManyHydraControl(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/clone.controller.ControllerGRPC/SendManyHydraControl',
+            clone__client_dot_proto_dot_hardware__driver__pb2.SendManyHydraControlMessage.SerializeToString,
+            clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def StreamManyHydraControl(request_iterator,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.stream_unary(
+            request_iterator,
+            target,
+            '/clone.controller.ControllerGRPC/StreamManyHydraControl',
+            clone__client_dot_proto_dot_hardware__driver__pb2.SendManyHydraControlMessage.SerializeToString,
             clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
             options,
             channel_credentials,

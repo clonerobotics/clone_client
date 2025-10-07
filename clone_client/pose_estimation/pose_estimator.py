@@ -3,7 +3,7 @@ from collections import deque
 from itertools import repeat
 import json
 from pathlib import Path
-from typing import Annotated, Mapping, Optional, Self, Sequence
+from typing import Annotated, Mapping, Optional, Sequence
 
 import numpy as np
 from scipy import interpolate
@@ -49,7 +49,7 @@ class PoseEstimatorMagInterpol:
         self._qpos_len: Optional[int] = qpos_len
 
     @classmethod
-    def from_interpol_mapping_file(cls, interpol_mapping_path: str) -> Self:
+    def from_interpol_mapping_file(cls, interpol_mapping_path: str) -> "PoseEstimatorMagInterpol":
         """Create a magnetic interpolator from a file with angle -> bfield map"""
         mapping = cls._load_interpol_mapping(Path(interpol_mapping_path))
         interpolators = {}
@@ -70,7 +70,7 @@ class PoseEstimatorMagInterpol:
         joint_axis_name2qpos: dict[tuple[str, str], int],
         filter_avg_samples: int = 8,
         filter_avg_use: bool = False,
-    ) -> Self:
+    ) -> "PoseEstimatorMagInterpol":
         """Create a magnetic interpolator from data obtained from state-store"""
         interpolators: dict[int, interpolate.RBFInterpolator] = {}
         qpos_to_nodeid: dict[int, tuple[int, int]] = {}

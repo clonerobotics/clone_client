@@ -491,6 +491,183 @@ class SendManyPinchValveControlMessage(google.protobuf.message.Message):
 global___SendManyPinchValveControlMessage = SendManyPinchValveControlMessage
 
 @typing.final
+class HydraControlMessage(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    class _PositionsType:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _PositionsTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[HydraControlMessage._PositionsType.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        POSITION_UNKNOWN: HydraControlMessage._PositionsType.ValueType  # 0
+        """Cam position unknown"""
+        BOTH_CLOSED: HydraControlMessage._PositionsType.ValueType  # 1
+        """Both inlet and outlet are closed"""
+        BOTH_OPENED: HydraControlMessage._PositionsType.ValueType  # 2
+        """Both inlet and outlet are opened, AKA flush"""
+        INLET_FULLY_OPENED: HydraControlMessage._PositionsType.ValueType  # 3
+        """Inlet valve fully opened"""
+        INLET_PARTIALLY_OPENED: HydraControlMessage._PositionsType.ValueType  # 4
+        """Inlet valve opened, but only partially"""
+        OUTLET_FULLY_OPENED: HydraControlMessage._PositionsType.ValueType  # 5
+        """Outlet valve fully opened"""
+        OUTLET_PARTIALLY_OPENED: HydraControlMessage._PositionsType.ValueType  # 6
+        """Outlet valve opened, but only partially"""
+
+    class PositionsType(_PositionsType, metaclass=_PositionsTypeEnumTypeWrapper): ...
+    POSITION_UNKNOWN: HydraControlMessage.PositionsType.ValueType  # 0
+    """Cam position unknown"""
+    BOTH_CLOSED: HydraControlMessage.PositionsType.ValueType  # 1
+    """Both inlet and outlet are closed"""
+    BOTH_OPENED: HydraControlMessage.PositionsType.ValueType  # 2
+    """Both inlet and outlet are opened, AKA flush"""
+    INLET_FULLY_OPENED: HydraControlMessage.PositionsType.ValueType  # 3
+    """Inlet valve fully opened"""
+    INLET_PARTIALLY_OPENED: HydraControlMessage.PositionsType.ValueType  # 4
+    """Inlet valve opened, but only partially"""
+    OUTLET_FULLY_OPENED: HydraControlMessage.PositionsType.ValueType  # 5
+    """Outlet valve fully opened"""
+    OUTLET_PARTIALLY_OPENED: HydraControlMessage.PositionsType.ValueType  # 6
+    """Outlet valve opened, but only partially"""
+
+    @typing.final
+    class Angles(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        ANGLES_FIELD_NUMBER: builtins.int
+        @property
+        def angles(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.float]: ...
+        def __init__(
+            self,
+            *,
+            angles: collections.abc.Iterable[builtins.float] | None = ...,
+        ) -> None: ...
+        def ClearField(self, field_name: typing.Literal["angles", b"angles"]) -> None: ...
+
+    @typing.final
+    class Pressures(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        PRESSURES_FIELD_NUMBER: builtins.int
+        @property
+        def pressures(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+        def __init__(
+            self,
+            *,
+            pressures: collections.abc.Iterable[builtins.int] | None = ...,
+        ) -> None: ...
+        def ClearField(self, field_name: typing.Literal["pressures", b"pressures"]) -> None: ...
+
+    @typing.final
+    class Positions(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        POSITIONS_FIELD_NUMBER: builtins.int
+        @property
+        def positions(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[global___HydraControlMessage.PositionsType.ValueType]: ...
+        def __init__(
+            self,
+            *,
+            positions: collections.abc.Iterable[global___HydraControlMessage.PositionsType.ValueType] | None = ...,
+        ) -> None: ...
+        def ClearField(self, field_name: typing.Literal["positions", b"positions"]) -> None: ...
+
+    @typing.final
+    class Speeds(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        SPEEDS_FIELD_NUMBER: builtins.int
+        @property
+        def speeds(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+        def __init__(
+            self,
+            *,
+            speeds: collections.abc.Iterable[builtins.int] | None = ...,
+        ) -> None: ...
+        def ClearField(self, field_name: typing.Literal["speeds", b"speeds"]) -> None: ...
+
+    ANGLES_FIELD_NUMBER: builtins.int
+    PRESSURES_FIELD_NUMBER: builtins.int
+    POSITIONS_FIELD_NUMBER: builtins.int
+    SPEEDS_FIELD_NUMBER: builtins.int
+    @property
+    def angles(self) -> global___HydraControlMessage.Angles: ...
+    @property
+    def pressures(self) -> global___HydraControlMessage.Pressures: ...
+    @property
+    def positions(self) -> global___HydraControlMessage.Positions: ...
+    @property
+    def speeds(self) -> global___HydraControlMessage.Speeds: ...
+    def __init__(
+        self,
+        *,
+        angles: global___HydraControlMessage.Angles | None = ...,
+        pressures: global___HydraControlMessage.Pressures | None = ...,
+        positions: global___HydraControlMessage.Positions | None = ...,
+        speeds: global___HydraControlMessage.Speeds | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["angles", b"angles", "positions", b"positions", "pressures", b"pressures", "speeds", b"speeds", "value", b"value"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["angles", b"angles", "positions", b"positions", "pressures", b"pressures", "speeds", b"speeds", "value", b"value"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["value", b"value"]) -> typing.Literal["angles", "pressures", "positions", "speeds"] | None: ...
+
+global___HydraControlMessage = HydraControlMessage
+
+@typing.final
+class SendHydraControlMessage(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    NODE_ID_FIELD_NUMBER: builtins.int
+    CONTROL_FIELD_NUMBER: builtins.int
+    node_id: builtins.int
+    @property
+    def control(self) -> global___HydraControlMessage: ...
+    def __init__(
+        self,
+        *,
+        node_id: builtins.int = ...,
+        control: global___HydraControlMessage | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["control", b"control"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["control", b"control", "node_id", b"node_id"]) -> None: ...
+
+global___SendHydraControlMessage = SendHydraControlMessage
+
+@typing.final
+class SendManyHydraControlMessage(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing.final
+    class DataEntry(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        KEY_FIELD_NUMBER: builtins.int
+        VALUE_FIELD_NUMBER: builtins.int
+        key: builtins.int
+        @property
+        def value(self) -> global___HydraControlMessage: ...
+        def __init__(
+            self,
+            *,
+            key: builtins.int = ...,
+            value: global___HydraControlMessage | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
+
+    DATA_FIELD_NUMBER: builtins.int
+    @property
+    def data(self) -> google.protobuf.internal.containers.MessageMap[builtins.int, global___HydraControlMessage]: ...
+    def __init__(
+        self,
+        *,
+        data: collections.abc.Mapping[builtins.int, global___HydraControlMessage] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["data", b"data"]) -> None: ...
+
+global___SendManyHydraControlMessage = SendManyHydraControlMessage
+
+@typing.final
 class GetNodesMessage(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 

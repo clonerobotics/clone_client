@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: clone-client
-Version: 0.0.39
+Version: 0.0.40
 Summary: 
 Author: Clone Inc.
 Requires-Python: >=3.10,<4.0
@@ -16,6 +16,7 @@ Requires-Dist: numpy (==2.2)
 Requires-Dist: protobuf (>=5.29.0,<6.0.0)
 Requires-Dist: pydantic-settings (>=2.4.0,<3.0.0)
 Requires-Dist: pydantic[dotenv] (==2.8.2)
+Requires-Dist: scipy (==1.15.3)
 Requires-Dist: zeroconf (>=0.132.2,<0.133.0)
 Description-Content-Type: text/markdown
 

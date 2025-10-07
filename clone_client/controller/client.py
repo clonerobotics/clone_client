@@ -19,9 +19,12 @@ from clone_client.proto.controller_pb2_grpc import ControllerGRPCStub
 from clone_client.proto.data_types_pb2 import ServerResponse
 from clone_client.proto.hardware_driver_pb2 import (
     GetNodesMessage,
+    HydraControlMessage,
     NodeMap,
     PinchValveCommands,
     PinchValveControl,
+    SendHydraControlMessage,
+    SendManyHydraControlMessage,
     SendManyPinchValveCommandMessage,
     SendManyPinchValveControlMessage,
     SendPinchValveCommandMessage,
@@ -162,6 +165,38 @@ class ControllerClient(GRPCAsyncClient):
         response: ServerResponse = await self.stub.SendManyPinchValveCommand(
             message, timeout=self.config.continuous_rpc_timeout
         )
+        handle_response(response)
+
+    @grpc_translated_async()
+    async def send_hydra_control(
+        self,
+        node_id: int,
+        control_msg: HydraControlMessage,
+    ) -> None:
+        """Send control to selected Hydra valves"""
+        message = SendHydraControlMessage(node_id=node_id, control=control_msg)
+        response: ServerResponse = await self.stub.SendHydraControl(
+            message, timeout=self.config.continuous_rpc_timeout
+        )
+        handle_response(response)
+
+    @grpc_translated_async()
+    async def send_many_hydra_control(self, data: dict[int, HydraControlMessage]) -> None:
+        """Send mass control to all Hydra valves"""
+        message = SendManyHydraControlMessage(data=data)
+        response: ServerResponse = await self.stub.SendManyHydraControl(
+            message, timeout=self.config.continuous_rpc_timeout
+        )
+        handle_response(response)
+
+    async def stream_many_hydra_control(self, stream: AsyncIterable[dict[int, HydraControlMessage]]) -> None:
+        """Start streaming control messages to Hydra valves"""
+
+        async def mapped_stream() -> AsyncIterable[SendManyHydraControlMessage]:
+            async for data in stream:
+                yield SendManyHydraControlMessage(data=data)
+
+        response: ServerResponse = await self.stub.StreamManyHydraControl(mapped_stream(), timeout=None)
         handle_response(response)
 
     @grpc_translated_async()

@@ -125,6 +125,46 @@ message SendManyPinchValveControlMessage {
   map<uint32, PinchValveControl> data = 1;
 }
 
+message HydraControlMessage {
+  enum PositionsType {
+      POSITION_UNKNOWN = 0;	// Cam position unknown
+      BOTH_CLOSED = 1;	// Both inlet and outlet are closed
+      BOTH_OPENED = 2;	// Both inlet and outlet are opened, AKA flush
+      INLET_FULLY_OPENED = 3;	// Inlet valve fully opened
+      INLET_PARTIALLY_OPENED = 4;	// Inlet valve opened, but only partially
+      OUTLET_FULLY_OPENED = 5;	// Outlet valve fully opened
+      OUTLET_PARTIALLY_OPENED = 6;	// Outlet valve opened, but only partially
+  }
+  message Angles {
+    repeated float angles = 1;
+  }
+  message Pressures {
+    repeated int32 pressures = 1;
+  }
+  message Positions {
+    repeated PositionsType positions = 1;
+  }
+  message Speeds {
+    repeated int32 speeds = 1;
+  }
+
+  oneof value {
+    Angles angles = 1;
+    Pressures pressures = 2;
+    Positions positions = 3;
+    Speeds speeds = 4;
+  }
+}
+
+message SendHydraControlMessage {
+  uint32 node_id = 1;
+  HydraControlMessage control = 2;
+}
+
+message SendManyHydraControlMessage {
+  map<uint32, HydraControlMessage> data = 1;
+}
+
 message GetNodesMessage {
   // bool rediscover = 1;
   optional uint32 product_id = 2;

@@ -25,6 +25,7 @@ from clone_client.proto.controller_pb2 import ControllerRuntimeConfig, Pulse
 from clone_client.proto.controller_pb2 import WaterPumpInfo as GRPCWaterPumpInfo
 from clone_client.proto.hardware_driver_pb2 import (
     BusDevice,
+    HydraControlMessage,
     PinchValveCommands,
     PinchValveControl,
 )
@@ -253,6 +254,22 @@ class Client:
     def send_many_pinch_valve_command(self, commands: dict[int, PinchValveCommands.ValueType]) -> None:
         """Send ON/OFF or VBOOST_ON/OFF command to many selected pinch valves"""
         self.controller_tunnel.send_many_pinch_valve_command(commands)
+
+    def send_hydra_control(
+        self,
+        node_id: int,
+        control: HydraControlMessage,
+    ) -> None:
+        """Send control to selected Hydra valve"""
+        self.controller_tunnel.send_hydra_control(node_id, control)
+
+    def send_many_hydra_control(self, data: dict[int, HydraControlMessage]) -> None:
+        """Send mass control to all Hydra valves"""
+        self.controller_tunnel.send_many_hydra_control(data)
+
+    def stream_many_hydra_control(self, stream: Iterable[dict[int, HydraControlMessage]]) -> None:
+        """Stream mass control to all Hydra valves"""
+        self.controller_tunnel.stream_many_hydra_control(stream)
 
     def subscribe_telemetry(self) -> Iterable[TelemetryData]:
         """Subscribe to muscle pressures updates."""

@@ -22,6 +22,10 @@ service ControllerGRPC {
   rpc SendPinchValveCommand (clone.hardware_driver.SendPinchValveCommandMessage) returns (clone.data_types.ServerResponse);
   rpc SendManyPinchValveCommand (clone.hardware_driver.SendManyPinchValveCommandMessage) returns (clone.data_types.ServerResponse);
 
+  rpc SendHydraControl (clone.hardware_driver.SendHydraControlMessage) returns (clone.data_types.ServerResponse);
+  rpc SendManyHydraControl (clone.hardware_driver.SendManyHydraControlMessage) returns (clone.data_types.ServerResponse);
+  rpc StreamManyHydraControl (stream clone.hardware_driver.SendManyHydraControlMessage) returns (clone.data_types.ServerResponse);
+
   rpc GetWaterPumpInfo(google.protobuf.Empty) returns (WaterPumpInfoResponse);
   rpc StartWaterPump(google.protobuf.Empty) returns (clone.data_types.ServerResponse);
   rpc StopWaterPump(google.protobuf.Empty) returns (clone.data_types.ServerResponse);

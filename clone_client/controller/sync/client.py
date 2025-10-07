@@ -20,9 +20,12 @@ from clone_client.proto.controller_pb2_grpc import ControllerGRPCStub
 from clone_client.proto.data_types_pb2 import ServerResponse
 from clone_client.proto.hardware_driver_pb2 import (
     GetNodesMessage,
+    HydraControlMessage,
     NodeMap,
     PinchValveCommands,
     PinchValveControl,
+    SendHydraControlMessage,
+    SendManyHydraControlMessage,
     SendManyPinchValveCommandMessage,
     SendManyPinchValveControlMessage,
     SendPinchValveCommandMessage,
@@ -155,6 +158,38 @@ class ControllerClient(GRPCClient[grpc.Channel]):
         response: ServerResponse = self.stub.SendManyPinchValveCommand(
             message, timeout=self.config.continuous_rpc_timeout
         )
+        handle_response(response)
+
+    @grpc_translated()
+    def send_hydra_control(
+        self,
+        node_id: int,
+        control_msg: HydraControlMessage,
+    ) -> None:
+        """Send control to selected Hydra valves"""
+        message = SendHydraControlMessage(node_id=node_id, control=control_msg)
+        response: ServerResponse = self.stub.SendHydraControl(
+            message, timeout=self.config.continuous_rpc_timeout
+        )
+        handle_response(response)
+
+    @grpc_translated()
+    def send_many_hydra_control(self, data: dict[int, HydraControlMessage]) -> None:
+        """Send mass control to all Hydra valves"""
+        message = SendManyHydraControlMessage(data=data)
+        response: ServerResponse = self.stub.SendManyHydraControl(
+            message, timeout=self.config.continuous_rpc_timeout
+        )
+        handle_response(response)
+
+    def stream_many_hydra_control(self, stream: Iterable[dict[int, HydraControlMessage]]) -> None:
+        """Start streaming control messages to Hydra valves"""
+
+        def mapped_stream() -> Iterable[SendManyHydraControlMessage]:
+            for data in stream:
+                yield SendManyHydraControlMessage(data=data)
+
+        response: ServerResponse = self.stub.StreamManyHydraControl(mapped_stream(), timeout=None)
         handle_response(response)
 
     @grpc_translated()
