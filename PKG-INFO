@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: clone-client
-Version: 0.0.40
+Version: 0.0.41
 Summary: 
 Author: Clone Inc.
 Requires-Python: >=3.10,<4.0

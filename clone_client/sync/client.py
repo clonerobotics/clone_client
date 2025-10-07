@@ -30,8 +30,6 @@ from clone_client.proto.hardware_driver_pb2 import (
     PinchValveControl,
 )
 from clone_client.proto.state_store_pb2 import (
-    ImuMappingModel,
-    JointType,
     SystemInfo,
     TelemetryData,
 )
@@ -56,9 +54,9 @@ class Client:
     class Config:
         """Additional parameters for client"""
 
-        maginterp_disable = True
-        maginterp_filter_avg_use = True
-        maginterp_filter_avg_samples = 8
+        maginterp_disable: bool = True
+        maginterp_filter_avg_use: bool = True
+        maginterp_filter_avg_samples: int = 8
 
     def __init__(
         self, address: str, tunnels_used: TunnelsUsed = ~TunnelsUsed(0), additional_config: Config = Config()

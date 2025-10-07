@@ -41,7 +41,6 @@ from clone_client.proto.hardware_driver_pb2 import (
     PinchValveControl,
 )
 from clone_client.proto.state_store_pb2 import (
-    PoseEstimationInfo,
     SystemInfo,
     TelemetryData,
 )
