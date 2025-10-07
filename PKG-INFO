@@ -1,6 +1,6 @@
-Metadata-Version: 2.3
+Metadata-Version: 2.4
 Name: clone-client
-Version: 0.0.38
+Version: 0.0.39
 Summary: 
 Author: Clone Inc.
 Requires-Python: >=3.10,<4.0
@@ -9,6 +9,7 @@ Classifier: Programming Language :: Python :: 3.10
 Classifier: Programming Language :: Python :: 3.11
 Classifier: Programming Language :: Python :: 3.12
 Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
 Requires-Dist: grpcio (>=1.65.5,<2.0.0)
 Requires-Dist: grpcio-tools (>=1.65.5,<2.0.0)
 Requires-Dist: numpy (==2.2)

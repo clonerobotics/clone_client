@@ -26,7 +26,7 @@ from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 from clone_client.proto import data_types_pb2 as clone__client_dot_proto_dot_data__types__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n$clone_client/proto/state_store.proto\x12\x11\x63lone.state_store\x1a\x1bgoogle/protobuf/empty.proto\x1a#clone_client/proto/data_types.proto\"j\n\x07IMUData\x12\x0f\n\x07node_id\x18\x01 \x01(\r\x12\t\n\x01w\x18\x02 \x01(\x02\x12\t\n\x01x\x18\x03 \x01(\x02\x12\t\n\x01y\x18\x04 \x01(\x02\x12\t\n\x01z\x18\x05 \x01(\x02\x12\n\n\x02\x61x\x18\x06 \x01(\x02\x12\n\n\x02\x61y\x18\x07 \x01(\x02\x12\n\n\x02\x61z\x18\x08 \x01(\x02\"\x98\x01\n\x0eMagneticSensor\x12?\n\x06pixels\x18\x01 \x03(\x0b\x32/.clone.state_store.MagneticSensor.MagneticPixel\x12\x13\n\x0btemperature\x18\x05 \x01(\x05\x1a\x30\n\rMagneticPixel\x12\t\n\x01x\x18\x01 \x01(\x05\x12\t\n\x01y\x18\x02 \x01(\x05\x12\t\n\x01z\x18\x03 \x01(\x05\"U\n\x0eMagneticHubRaw\x12\x0f\n\x07node_id\x18\x01 \x01(\r\x12\x32\n\x07sensors\x18\x02 \x03(\x0b\x32!.clone.state_store.MagneticSensor\"S\n\rGaussRiderRaw\x12\x0f\n\x07node_id\x18\x01 \x01(\r\x12\x31\n\x06sensor\x18\x02 \x01(\x0b\x32!.clone.state_store.MagneticSensor\"\xc6\x02\n\nSensorData\x12\x11\n\tpressures\x18\x01 \x03(\x02\x12\'\n\x03rot\x18\x02 \x03(\x0b\x32\x1a.clone.state_store.IMUData\x12\x38\n\rmagnetic_data\x18\x03 \x03(\x0b\x32!.clone.state_store.MagneticHubRaw\x12:\n\x10gauss_rider_data\x18\x04 \x03(\x0b\x32 .clone.state_store.GaussRiderRaw\x12;\n\x07\x62\x66ields\x18\x05 \x03(\x0b\x32*.clone.state_store.SensorData.BfieldsEntry\x1aI\n\x0c\x42\x66ieldsEntry\x12\x0b\n\x03key\x18\x01 \x01(\r\x12(\n\x05value\x18\x02 \x01(\x0b\x32\x19.clone.state_store.Bfield:\x02\x38\x01\"\\\n\rTelemetryData\x12\x32\n\x0bsensor_data\x18\x01 \x01(\x0b\x32\x1d.clone.state_store.SensorData\x12\x17\n\x0fpose_estimation\x18\x02 \x03(\x01\"\x18\n\x06\x42\x66ield\x12\x0e\n\x06\x62\x66ield\x18\x01 \x03(\x01\"\x80\x01\n\x15TelemetryDataResponse\x12.\n\x04\x64\x61ta\x18\x01 \x01(\x0b\x32 .clone.state_store.TelemetryData\x12\x37\n\rresponse_data\x18\x02 \x01(\x0b\x32 .clone.data_types.ServerResponse\"5\n\x19PressureSensorCalibration\x12\x0b\n\x03min\x18\x01 \x01(\x05\x12\x0b\n\x03max\x18\x02 \x01(\x05\"Y\n\x0f\x43\x61librationData\x12\x46\n\x10pressure_sensors\x18\x01 \x03(\x0b\x32,.clone.state_store.PressureSensorCalibration\"@\n\x0fImuMappingModel\x12\x0f\n\x07node_id\x18\x01 \x01(\r\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0e\n\x06parent\x18\x03 \x01(\r\"8\n\nQuaternion\x12\t\n\x01w\x18\x01 \x01(\x01\x12\t\n\x01x\x18\x02 \x01(\x01\x12\t\n\x01y\x18\x03 \x01(\x01\x12\t\n\x01z\x18\x04 \x01(\x01\"\xaa\x02\n\x05Joint\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x12\n\nbone_child\x18\x02 \x01(\t\x12\x13\n\x0b\x62one_parent\x18\x03 \x01(\t\x12+\n\x05jtype\x18\x04 \x01(\x0e\x32\x1c.clone.state_store.JointType\x12\x14\n\x0cimu_id_child\x18\x05 \x01(\x05\x12\x15\n\rimu_id_parent\x18\x06 \x01(\x05\x12\x36\n\x0fr_imu2jnt_child\x18\x07 \x01(\x0b\x32\x1d.clone.state_store.Quaternion\x12\x37\n\x10r_imu2jnt_parent\x18\x08 \x01(\x0b\x32\x1d.clone.state_store.Quaternion\x12\x0f\n\x07qpos_nr\x18\t \x01(\x05\x12\x0e\n\x06jnt_nr\x18\n \x01(\x05\"\x8b\x03\n\nSystemInfo\x12;\n\x07muscles\x18\x02 \x03(\x0b\x32*.clone.state_store.SystemInfo.MusclesEntry\x12<\n\x10\x63\x61libration_data\x18\x04 \x01(\x0b\x32\".clone.state_store.CalibrationData\x12<\n\x10telemetry_config\x18\x05 \x01(\x0e\x32\".clone.state_store.TelemetryConfig\x12(\n\x06joints\x18\x06 \x03(\x0b\x32\x18.clone.state_store.Joint\x1a@\n\nMuscleInfo\x12\r\n\x05index\x18\x01 \x01(\r\x12\x0f\n\x07node_id\x18\x02 \x01(\r\x12\x12\n\nchannel_id\x18\x03 \x01(\r\x1aX\n\x0cMusclesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x37\n\x05value\x18\x02 \x01(\x0b\x32(.clone.state_store.SystemInfo.MuscleInfo:\x02\x38\x01\"u\n\x12SystemInfoResponse\x12+\n\x04info\x18\x01 \x01(\x0b\x32\x1d.clone.state_store.SystemInfo\x12\x32\n\x08response\x18\x02 \x01(\x0b\x32 .clone.data_types.ServerResponse*1\n\x0fTelemetryConfig\x12\x0c\n\x08PRESSURE\x10\x00\x12\x07\n\x03IMU\x10\x01\x12\x07\n\x03\x41LL\x10\x02*\x1f\n\tJointType\x12\x08\n\x04\x44OF1\x10\x00\x12\x08\n\x04\x44OF3\x10\x01\x32\xcc\x02\n\x16StateStoreReceiverGRPC\x12X\n\x12SubscribeTelemetry\x12\x16.google.protobuf.Empty\x1a(.clone.state_store.TelemetryDataResponse0\x01\x12P\n\x0cGetTelemetry\x12\x16.google.protobuf.Empty\x1a(.clone.state_store.TelemetryDataResponse\x12N\n\rGetSystemInfo\x12\x16.google.protobuf.Empty\x1a%.clone.state_store.SystemInfoResponse\x12\x36\n\x04Ping\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Emptyb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n$clone_client/proto/state_store.proto\x12\x11\x63lone.state_store\x1a\x1bgoogle/protobuf/empty.proto\x1a#clone_client/proto/data_types.proto\"j\n\x07IMUData\x12\x0f\n\x07node_id\x18\x01 \x01(\r\x12\t\n\x01w\x18\x02 \x01(\x02\x12\t\n\x01x\x18\x03 \x01(\x02\x12\t\n\x01y\x18\x04 \x01(\x02\x12\t\n\x01z\x18\x05 \x01(\x02\x12\n\n\x02\x61x\x18\x06 \x01(\x02\x12\n\n\x02\x61y\x18\x07 \x01(\x02\x12\n\n\x02\x61z\x18\x08 \x01(\x02\"\x98\x01\n\x0eMagneticSensor\x12?\n\x06pixels\x18\x01 \x03(\x0b\x32/.clone.state_store.MagneticSensor.MagneticPixel\x12\x13\n\x0btemperature\x18\x05 \x01(\x05\x1a\x30\n\rMagneticPixel\x12\t\n\x01x\x18\x01 \x01(\x05\x12\t\n\x01y\x18\x02 \x01(\x05\x12\t\n\x01z\x18\x03 \x01(\x05\"U\n\x0eMagneticHubRaw\x12\x0f\n\x07node_id\x18\x01 \x01(\r\x12\x32\n\x07sensors\x18\x02 \x03(\x0b\x32!.clone.state_store.MagneticSensor\"S\n\rGaussRiderRaw\x12\x0f\n\x07node_id\x18\x01 \x01(\r\x12\x31\n\x06sensor\x18\x02 \x01(\x0b\x32!.clone.state_store.MagneticSensor\"\xc6\x02\n\nSensorData\x12\x11\n\tpressures\x18\x01 \x03(\x02\x12\'\n\x03rot\x18\x02 \x03(\x0b\x32\x1a.clone.state_store.IMUData\x12\x38\n\rmagnetic_data\x18\x03 \x03(\x0b\x32!.clone.state_store.MagneticHubRaw\x12:\n\x10gauss_rider_data\x18\x04 \x03(\x0b\x32 .clone.state_store.GaussRiderRaw\x12;\n\x07\x62\x66ields\x18\x05 \x03(\x0b\x32*.clone.state_store.SensorData.BfieldsEntry\x1aI\n\x0c\x42\x66ieldsEntry\x12\x0b\n\x03key\x18\x01 \x01(\r\x12(\n\x05value\x18\x02 \x01(\x0b\x32\x19.clone.state_store.Bfield:\x02\x38\x01\"\\\n\rTelemetryData\x12\x32\n\x0bsensor_data\x18\x01 \x01(\x0b\x32\x1d.clone.state_store.SensorData\x12\x17\n\x0fpose_estimation\x18\x02 \x03(\x01\"\x18\n\x06\x42\x66ield\x12\x0e\n\x06\x62\x66ield\x18\x01 \x03(\x01\"\x80\x01\n\x15TelemetryDataResponse\x12.\n\x04\x64\x61ta\x18\x01 \x01(\x0b\x32 .clone.state_store.TelemetryData\x12\x37\n\rresponse_data\x18\x02 \x01(\x0b\x32 .clone.data_types.ServerResponse\"5\n\x19PressureSensorCalibration\x12\x0b\n\x03min\x18\x01 \x01(\x05\x12\x0b\n\x03max\x18\x02 \x01(\x05\"Y\n\x0f\x43\x61librationData\x12\x46\n\x10pressure_sensors\x18\x01 \x03(\x0b\x32,.clone.state_store.PressureSensorCalibration\"\xf1\x04\n\x12PoseEstimationInfo\x12\x10\n\x08qpos_len\x18\x01 \x01(\r\x12K\n\tmaginterp\x18\x02 \x01(\x0b\x32\x33.clone.state_store.PoseEstimationInfo.MagInterpInfoH\x00\x88\x01\x01\x1a\xed\x03\n\rMagInterpInfo\x12O\n\x06magmap\x18\x01 \x03(\x0b\x32?.clone.state_store.PoseEstimationInfo.MagInterpInfo.MagmapEntry\x1a<\n\x0eMagMapPosition\x12\x12\n\nangles_rad\x18\x01 \x03(\x01\x12\x16\n\x0e\x62\x66ields_teslas\x18\x02 \x03(\x01\x1a\xd7\x01\n\x10MagMapJointEntry\x12\x16\n\taxis0name\x18\x01 \x01(\tH\x00\x88\x01\x01\x12\x16\n\taxis1name\x18\x02 \x01(\tH\x01\x88\x01\x01\x12\x16\n\x0egauss_rider_id\x18\x03 \x01(\r\x12_\n\x13\x61ngle_bfield_points\x18\x04 \x03(\x0b\x32\x42.clone.state_store.PoseEstimationInfo.MagInterpInfo.MagMapPositionB\x0c\n\n_axis0nameB\x0c\n\n_axis1name\x1as\n\x0bMagmapEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12S\n\x05value\x18\x02 \x01(\x0b\x32\x44.clone.state_store.PoseEstimationInfo.MagInterpInfo.MagMapJointEntry:\x02\x38\x01\x42\x0c\n\n_maginterp\"\'\n\x04Vec3\x12\t\n\x01x\x18\x01 \x01(\x01\x12\t\n\x01y\x18\x02 \x01(\x01\x12\t\n\x01z\x18\x03 \x01(\x01\"\xd4\x01\n\x05Joint\x12\x30\n\x04\x61xes\x18\x01 \x03(\x0b\x32\".clone.state_store.Joint.AxesEntry\x1aM\n\x04\x41xis\x12\x10\n\x08qpos_idx\x18\x01 \x01(\r\x12*\n\x04\x61xis\x18\x02 \x01(\x0b\x32\x17.clone.state_store.Vec3H\x00\x88\x01\x01\x42\x07\n\x05_axis\x1aJ\n\tAxesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12,\n\x05value\x18\x02 \x01(\x0b\x32\x1d.clone.state_store.Joint.Axis:\x02\x38\x01\"\xbe\x04\n\nSystemInfo\x12;\n\x07muscles\x18\x02 \x03(\x0b\x32*.clone.state_store.SystemInfo.MusclesEntry\x12<\n\x10\x63\x61libration_data\x18\x04 \x01(\x0b\x32\".clone.state_store.CalibrationData\x12<\n\x10telemetry_config\x18\x05 \x01(\x0e\x32\".clone.state_store.TelemetryConfig\x12\x39\n\x06joints\x18\x06 \x03(\x0b\x32).clone.state_store.SystemInfo.JointsEntry\x12\x43\n\x0fpose_estimation\x18\x07 \x01(\x0b\x32%.clone.state_store.PoseEstimationInfoH\x00\x88\x01\x01\x1a@\n\nMuscleInfo\x12\r\n\x05index\x18\x01 \x01(\r\x12\x0f\n\x07node_id\x18\x02 \x01(\r\x12\x12\n\nchannel_id\x18\x03 \x01(\r\x1aX\n\x0cMusclesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x37\n\x05value\x18\x02 \x01(\x0b\x32(.clone.state_store.SystemInfo.MuscleInfo:\x02\x38\x01\x1aG\n\x0bJointsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\'\n\x05value\x18\x02 \x01(\x0b\x32\x18.clone.state_store.Joint:\x02\x38\x01\x42\x12\n\x10_pose_estimation\"u\n\x12SystemInfoResponse\x12+\n\x04info\x18\x01 \x01(\x0b\x32\x1d.clone.state_store.SystemInfo\x12\x32\n\x08response\x18\x02 \x01(\x0b\x32 .clone.data_types.ServerResponse*1\n\x0fTelemetryConfig\x12\x0c\n\x08PRESSURE\x10\x00\x12\x07\n\x03IMU\x10\x01\x12\x07\n\x03\x41LL\x10\x02\x32\xcc\x02\n\x16StateStoreReceiverGRPC\x12X\n\x12SubscribeTelemetry\x12\x16.google.protobuf.Empty\x1a(.clone.state_store.TelemetryDataResponse0\x01\x12P\n\x0cGetTelemetry\x12\x16.google.protobuf.Empty\x1a(.clone.state_store.TelemetryDataResponse\x12N\n\rGetSystemInfo\x12\x16.google.protobuf.Empty\x1a%.clone.state_store.SystemInfoResponse\x12\x36\n\x04Ping\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Emptyb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -35,12 +35,16 @@ if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_SENSORDATA_BFIELDSENTRY']._loaded_options = None
   _globals['_SENSORDATA_BFIELDSENTRY']._serialized_options = b'8\001'
+  _globals['_POSEESTIMATIONINFO_MAGINTERPINFO_MAGMAPENTRY']._loaded_options = None
+  _globals['_POSEESTIMATIONINFO_MAGINTERPINFO_MAGMAPENTRY']._serialized_options = b'8\001'
+  _globals['_JOINT_AXESENTRY']._loaded_options = None
+  _globals['_JOINT_AXESENTRY']._serialized_options = b'8\001'
   _globals['_SYSTEMINFO_MUSCLESENTRY']._loaded_options = None
   _globals['_SYSTEMINFO_MUSCLESENTRY']._serialized_options = b'8\001'
-  _globals['_TELEMETRYCONFIG']._serialized_start=2228
-  _globals['_TELEMETRYCONFIG']._serialized_end=2277
-  _globals['_JOINTTYPE']._serialized_start=2279
-  _globals['_JOINTTYPE']._serialized_end=2310
+  _globals['_SYSTEMINFO_JOINTSENTRY']._loaded_options = None
+  _globals['_SYSTEMINFO_JOINTSENTRY']._serialized_options = b'8\001'
+  _globals['_TELEMETRYCONFIG']._serialized_start=2866
+  _globals['_TELEMETRYCONFIG']._serialized_end=2915
   _globals['_IMUDATA']._serialized_start=125
   _globals['_IMUDATA']._serialized_end=231
   _globals['_MAGNETICSENSOR']._serialized_start=234
@@ -65,20 +69,34 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_PRESSURESENSORCALIBRATION']._serialized_end=1193
   _globals['_CALIBRATIONDATA']._serialized_start=1195
   _globals['_CALIBRATIONDATA']._serialized_end=1284
-  _globals['_IMUMAPPINGMODEL']._serialized_start=1286
-  _globals['_IMUMAPPINGMODEL']._serialized_end=1350
-  _globals['_QUATERNION']._serialized_start=1352
-  _globals['_QUATERNION']._serialized_end=1408
-  _globals['_JOINT']._serialized_start=1411
-  _globals['_JOINT']._serialized_end=1709
-  _globals['_SYSTEMINFO']._serialized_start=1712
-  _globals['_SYSTEMINFO']._serialized_end=2107
-  _globals['_SYSTEMINFO_MUSCLEINFO']._serialized_start=1953
-  _globals['_SYSTEMINFO_MUSCLEINFO']._serialized_end=2017
-  _globals['_SYSTEMINFO_MUSCLESENTRY']._serialized_start=2019
-  _globals['_SYSTEMINFO_MUSCLESENTRY']._serialized_end=2107
-  _globals['_SYSTEMINFORESPONSE']._serialized_start=2109
-  _globals['_SYSTEMINFORESPONSE']._serialized_end=2226
-  _globals['_STATESTORERECEIVERGRPC']._serialized_start=2313
-  _globals['_STATESTORERECEIVERGRPC']._serialized_end=2645
+  _globals['_POSEESTIMATIONINFO']._serialized_start=1287
+  _globals['_POSEESTIMATIONINFO']._serialized_end=1912
+  _globals['_POSEESTIMATIONINFO_MAGINTERPINFO']._serialized_start=1405
+  _globals['_POSEESTIMATIONINFO_MAGINTERPINFO']._serialized_end=1898
+  _globals['_POSEESTIMATIONINFO_MAGINTERPINFO_MAGMAPPOSITION']._serialized_start=1503
+  _globals['_POSEESTIMATIONINFO_MAGINTERPINFO_MAGMAPPOSITION']._serialized_end=1563
+  _globals['_POSEESTIMATIONINFO_MAGINTERPINFO_MAGMAPJOINTENTRY']._serialized_start=1566
+  _globals['_POSEESTIMATIONINFO_MAGINTERPINFO_MAGMAPJOINTENTRY']._serialized_end=1781
+  _globals['_POSEESTIMATIONINFO_MAGINTERPINFO_MAGMAPENTRY']._serialized_start=1783
+  _globals['_POSEESTIMATIONINFO_MAGINTERPINFO_MAGMAPENTRY']._serialized_end=1898
+  _globals['_VEC3']._serialized_start=1914
+  _globals['_VEC3']._serialized_end=1953
+  _globals['_JOINT']._serialized_start=1956
+  _globals['_JOINT']._serialized_end=2168
+  _globals['_JOINT_AXIS']._serialized_start=2015
+  _globals['_JOINT_AXIS']._serialized_end=2092
+  _globals['_JOINT_AXESENTRY']._serialized_start=2094
+  _globals['_JOINT_AXESENTRY']._serialized_end=2168
+  _globals['_SYSTEMINFO']._serialized_start=2171
+  _globals['_SYSTEMINFO']._serialized_end=2745
+  _globals['_SYSTEMINFO_MUSCLEINFO']._serialized_start=2498
+  _globals['_SYSTEMINFO_MUSCLEINFO']._serialized_end=2562
+  _globals['_SYSTEMINFO_MUSCLESENTRY']._serialized_start=2564
+  _globals['_SYSTEMINFO_MUSCLESENTRY']._serialized_end=2652
+  _globals['_SYSTEMINFO_JOINTSENTRY']._serialized_start=2654
+  _globals['_SYSTEMINFO_JOINTSENTRY']._serialized_end=2725
+  _globals['_SYSTEMINFORESPONSE']._serialized_start=2747
+  _globals['_SYSTEMINFORESPONSE']._serialized_end=2864
+  _globals['_STATESTORERECEIVERGRPC']._serialized_start=2918
+  _globals['_STATESTORERECEIVERGRPC']._serialized_end=3250
 # @@protoc_insertion_point(module_scope)

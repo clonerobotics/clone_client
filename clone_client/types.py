@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import dataclasses
+from dataclasses import dataclass
 import struct
 from typing import cast, Mapping
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclass(frozen=True)
 class ValveAddress:
     """Represents a valve address."""
 

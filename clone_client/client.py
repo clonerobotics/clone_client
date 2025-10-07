@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from enum import auto, Flag
 import ipaddress as ip
 import logging
@@ -30,6 +31,7 @@ from clone_client.exceptions import (
     IncorrectMuscleIndexError,
     IncorrectMuscleNameError,
 )
+from clone_client.pose_estimation.pose_estimator import PoseEstimatorMagInterpol
 from clone_client.proto.controller_pb2 import ControllerRuntimeConfig, Pulse
 from clone_client.proto.controller_pb2 import WaterPumpInfo as GRPCWaterPumpInfo
 from clone_client.proto.hardware_driver_pb2 import (
@@ -38,8 +40,7 @@ from clone_client.proto.hardware_driver_pb2 import (
     PinchValveControl,
 )
 from clone_client.proto.state_store_pb2 import (
-    ImuMappingModel,
-    JointType,
+    PoseEstimationInfo,
     SystemInfo,
     TelemetryData,
 )
@@ -60,15 +61,25 @@ class Client:
         CONTROLLER = auto()
         STATE = auto()
 
+    @dataclass
+    class Config:
+        """Additional parameters for client"""
+
+        maginterp_disable: bool = True
+        maginterp_filter_avg_use: bool = True
+        maginterp_filter_avg_samples: int = 8
+
     def __init__(
         self,
         server: str = gethostname(),
         address: Optional[str] = None,
         tunnels_used: TunnelsUsed = ~TunnelsUsed(0),
+        additional_config: Config = Config(),
     ) -> None:
         self.server = server
         self.address = address
         self.tunnels_used = tunnels_used
+        self._config = additional_config
 
         if Client.TunnelsUsed.CONTROLLER in tunnels_used:
             self.controller_tunnel: ControllerClient
@@ -78,14 +89,14 @@ class Client:
         self._ordering: Dict[str, int] = {}
         self._ordering_rev: Dict[int, str] = {}
 
-        self._imu_mapping_id: Dict[Annotated[int, "node_id"], ImuMappingModel] = {}
-        self._imu_idx_to_imudata: Dict[Annotated[int, "idx"], ImuMappingModel] = {}
-        # both dicts below return idx basing on sorting by node id
-        self._imu_ordering_by_name: Dict[Annotated[str, "name"], Annotated[int, "idx"]] = {}
-        self._imu_ordering_by_id: Dict[Annotated[int, "node_id"], Annotated[int, "idx"]] = {}
+        self._qpos_to_joint_axis_name: Dict[
+            Annotated[int, "qpos_nr"], Annotated[tuple[str, str], "Joint and axis names"]
+        ] = {}
+        self._joint_axis_name_to_qpos: Dict[
+            Annotated[tuple[str, str], "Joint and axis names"], Annotated[int, "qpos_nr"]
+        ] = {}
 
-        self._qpos_to_joint_name: Dict[Annotated[int, "qpos_nr"], Annotated[str, "Joint name"]] = {}
-        self._joint_name_to_qpos: Dict[Annotated[str, "Joint name"], Annotated[int, "qpos_nr"]] = {}
+        self._pose_estimator_maginterp: Optional[PoseEstimatorMagInterpol] = None
 
     async def _create_socket_str(self, service: CommunicationService) -> str:
         if not self.address:
@@ -168,69 +179,40 @@ class Client:
             raise IncorrectMuscleIndexError(idx) from err
 
     @property
-    def number_of_imus(self) -> int:
-        """Get number of IMUs"""
-        return len(self._imu_mapping_id)
-
-    def imu_index_by_name(self, name: str) -> int:
-        """Get IMU index by name."""
-        return self._imu_ordering_by_name[name]
-
-    def imu_index_by_id(self, node_id: int) -> int:
-        """Get IMU index by id."""
-        return self._imu_ordering_by_id[node_id]
-
-    def imu_name(self, idx: int) -> str:
-        """Get IMU name by index."""
-        return self._imu_idx_to_imudata[idx].name
-
-    def imu_id(self, idx: int) -> int:
-        """Get IMU id by index."""
-        return self._imu_idx_to_imudata[idx].node_id
-
-    def imu_order(self) -> Dict[int, ImuMappingModel]:
-        """Get IMU order."""
-        return self._imu_idx_to_imudata
-
-    def imu_info(self, node_id: int) -> ImuMappingModel:
-        """Get IMU info for id."""
-        return self._imu_mapping_id[node_id]
+    def qpos_to_jnt_mapping(
+        self,
+    ) -> dict[Annotated[int, "qpos_nr"], Annotated[tuple[str, str], "Joint and axis names"]]:
+        """Get mapping from position in qpos vector to joint and axis names tuple."""
+        return self._qpos_to_joint_axis_name
 
     @property
-    def imu_mapping(self) -> dict[Annotated[int, "node_id"], ImuMappingModel]:
-        """Property giving access to an IMU mapping currently used by the client.
-        Should not be mutated.
-        """
-        return self._imu_mapping_id
-
-    @property
-    def qpos_to_jnt_mapping(self) -> dict[Annotated[int, "qpos_nr"], Annotated[str, "Joint name"]]:
-        """Get mapping from position in qpos vector to joint name.
-        Note: 3-axes joints are prepended by an "{x, y, z}_" suffix
-        for subsequent axes, e.g. 5 -> x_humerus.r, 6 -> y_humerus.r, 7 -> z_humerus.r
-        """
-        return self._qpos_to_joint_name
-
-    @property
-    def jnt_to_qpos_mapping(self) -> dict[Annotated[str, "Joint name"], Annotated[int, "qpos_nr"]]:
-        """Get mapping from a joint name to its qpos. It is reverse of qpos_to_jnt_mapping"""
-        return self._joint_name_to_qpos
+    def jnt_to_qpos_mapping(
+        self,
+    ) -> dict[Annotated[tuple[str, str], "Joint and axis names"], Annotated[int, "qpos_nr"]]:
+        """Get mapping from joint and axis names tuple to its qpos. It is reverse of qpos_to_jnt_mapping"""
+        return self._joint_axis_name_to_qpos
 
     def _update_mappings(self, info: SystemInfo) -> None:
         for muscle_name, muscle_info in info.muscles.items():
             self._ordering[muscle_name] = muscle_info.index
             self._ordering_rev[muscle_info.index] = muscle_name
-        for joint in info.joints:
-            name = joint.name
-            jtype = joint.jtype
-            qpos = joint.qpos_nr
-            if jtype == JointType.DOF1:
-                self._qpos_to_joint_name[qpos] = name
-            elif jtype == JointType.DOF3:
-                self._qpos_to_joint_name[qpos] = f"x_{name}"
-                self._qpos_to_joint_name[qpos + 1] = f"y_{name}"
-                self._qpos_to_joint_name[qpos + 2] = f"z_{name}"
-        self._joint_name_to_qpos = {name: qpos for qpos, name in self._qpos_to_joint_name.items()}
+        for joint_name, joint in info.joints.items():
+            for axis_name, axis in joint.axes.items():
+                self._qpos_to_joint_axis_name[axis.qpos_idx] = (joint_name, axis_name)
+        self._joint_axis_name_to_qpos = {
+            joint_axis_names: qpos for qpos, joint_axis_names in self._qpos_to_joint_axis_name.items()
+        }
+        if not self._config.maginterp_disable:
+            if info.pose_estimation is None:
+                raise RuntimeError("No pose estimator information was obtained from golem")
+            if not info.pose_estimation.HasField("maginterp"):
+                raise RuntimeError("No information on magnetic interpolator pose estimation obtained")
+            self._pose_estimator_maginterp = PoseEstimatorMagInterpol.from_maginterp_info(
+                info.pose_estimation,
+                self._joint_axis_name_to_qpos,
+                filter_avg_samples=self._config.maginterp_filter_avg_samples,
+                filter_avg_use=self._config.maginterp_filter_avg_use,
+            )
 
     async def wait_for_desired_pressure(self, timeout_ms: int = 10000) -> None:
         """Block the execution until current waterpump pressure is equal or more than desired pressure."""
@@ -353,3 +335,33 @@ class Client:
     async def get_controller_config(self) -> ControllerRuntimeConfig:
         """Get current configuration of the controller."""
         return await self.controller_tunnel.get_config()
+
+    async def subscribe_angles(
+        self, telemetry_stream: Optional[AsyncIterable[TelemetryData]] = None
+    ) -> AsyncIterable[Sequence[float]]:
+        """Subscribe pose estimation stream"""
+        if self._pose_estimator_maginterp is None:
+            raise RuntimeError(
+                "Pose estimation not available with current setup."
+                "Pose estimation is either disabled in client config"
+                "or on golem server"
+            )
+        if telemetry_stream is None:
+            telemetry_stream = self.subscribe_telemetry()
+        async for telemetry in telemetry_stream:
+            yield self._pose_estimator_maginterp.get_angles_vec(  # type: ignore
+                telemetry.sensor_data.bfields, telemetry.pose_estimation
+            )
+
+    async def get_angles(self) -> Sequence[float]:
+        """Get current pose estimation as a numpy array"""
+        if self._pose_estimator_maginterp is None:
+            raise RuntimeError(
+                "Pose estimation not available with current setup."
+                "Pose estimation is either disabled in client config"
+                "or on golem server"
+            )
+        telemetry = await self.get_telemetry()
+        return self._pose_estimator_maginterp.get_angles_vec(
+            telemetry.sensor_data.bfields, telemetry.pose_estimation
+        )
