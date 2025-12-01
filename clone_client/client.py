@@ -118,7 +118,7 @@ class Client:
             await self.controller.channel.__aexit__(exc_type, value, traceback)
         if Client.TunnelsUsed.STATE in self.tunnels_used:
             await self.state_store.channel.__aexit__(exc_type, value, traceback)
-        if Client.TunnelsUsed.CONTROLLER in self.tunnels_used:
+        if Client.TunnelsUsed.HW_DRIVER in self.tunnels_used:
             await self.hw_driver.channel.__aexit__(exc_type, value, traceback)
 
     async def ping(self) -> None:

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import IntEnum
 import logging
-from typing import Annotated, Optional, Self
+from typing import Annotated, Optional
 
 from google.protobuf.empty_pb2 import Empty
 import grpc
@@ -79,7 +79,7 @@ class NodeGenericSettings:
     _pad3: int = 0
 
     @classmethod
-    def from_proto(cls, proto: ProtoNodeGenericSettings) -> Self:
+    def from_proto(cls, proto: ProtoNodeGenericSettings) -> "NodeGenericSettings":
         """Create `NodeGenericSettings` from protobuf transport class"""
         return cls(
             node_id=proto.node_id,
@@ -99,7 +99,7 @@ class BusDevice:
     product_id: ProductId
 
     @classmethod
-    def from_proto(cls, proto: ProtoBusDevice) -> Self:
+    def from_proto(cls, proto: ProtoBusDevice) -> "BusDevice":
         """Create `BusDevice` from protobuf transport class"""
         return cls(node_id=proto.node_id, product_id=ProductId(proto.product_id))
 
@@ -131,9 +131,7 @@ class HWDriverClient(GRPCClient[grpc.Channel]):
     @grpc_translated()
     def get_nodes(self) -> dict[str, list[BusDevice]]:
         """Get bus_name -> list[(node_id, product_id)] map of discovered nodes per bus"""
-        response: NodeMap = self.stub.GetNodes(
-            GetNodesMessage(), timeout=self._config.continuous_rpc_timeout
-        )
+        response: NodeMap = self.stub.GetNodes(GetNodesMessage(), timeout=self._config.continuous_rpc_timeout)
         ret = {bus: list(map(BusDevice.from_proto, nodes.nodes)) for bus, nodes in response.nodes.items()}
         return ret
 
@@ -222,9 +220,7 @@ class HWDriverClient(GRPCClient[grpc.Channel]):
         self,
     ) -> HardwareDriverErrors:
         """Get hardware drivers errors"""
-        response: HwDriverErrors = self.stub.GetErrors(
-            Empty(), timeout=self._config.continuous_rpc_timeout
-        )
+        response: HwDriverErrors = self.stub.GetErrors(Empty(), timeout=self._config.continuous_rpc_timeout)
         if response.HasField("hw_driver_errors"):
             hw_driver_errors = list(response.hw_driver_errors.errors)
         else:

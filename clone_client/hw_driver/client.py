@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import IntEnum
 import logging
-from typing import Annotated, Optional, Self
+from typing import Annotated, Optional
 
 from google.protobuf.empty_pb2 import Empty
 
@@ -78,7 +78,7 @@ class NodeGenericSettings:
     _pad3: int = 0
 
     @classmethod
-    def from_proto(cls, proto: ProtoNodeGenericSettings) -> Self:
+    def from_proto(cls, proto: ProtoNodeGenericSettings) -> "NodeGenericSettings":
         """Create `NodeGenericSettings` from protobuf transport class"""
         return cls(
             node_id=proto.node_id,
@@ -98,7 +98,7 @@ class BusDevice:
     product_id: ProductId
 
     @classmethod
-    def from_proto(cls, proto: ProtoBusDevice) -> Self:
+    def from_proto(cls, proto: ProtoBusDevice) -> "BusDevice":
         """Create `BusDevice` from protobuf transport class"""
         return cls(node_id=proto.node_id, product_id=ProductId(proto.product_id))
 

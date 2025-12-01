@@ -82,6 +82,7 @@ class StateStoreClient(GRPCClient[grpc.Channel]):
                 Empty(), timeout=self._config.info_gathering_rpc_timeout
             )
             self._system_info = response.info
+            self._update_mappings(self._system_info)
 
         return self._system_info
 

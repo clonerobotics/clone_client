@@ -108,7 +108,7 @@ class Client:
             self.controller.channel.__exit__(exc_type, value, traceback)
         if Client.TunnelsUsed.STATE in self.tunnels_used:
             self.state_store.channel.__exit__(exc_type, value, traceback)
-        if Client.TunnelsUsed.CONTROLLER in self.tunnels_used:
+        if Client.TunnelsUsed.HW_DRIVER in self.tunnels_used:
             self.hw_driver.channel.__exit__(exc_type, value, traceback)
 
     def ping(self) -> None:
