@@ -90,7 +90,7 @@ async def main():
             for px in range(4)
         }
         last_render_time = -float("inf")
-        async for tele in client.subscribe_telemetry():
+        async for tele in client.state_store.subscribe_telemetry():
             try:
                 curr_time = time()
                 time_since_start = curr_time - start_time

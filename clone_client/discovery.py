@@ -13,7 +13,7 @@ from zeroconf.asyncio import (
 
 from clone_client.config import CommunicationService, CONFIG
 from clone_client.exceptions import ClientError
-from clone_client.utils import retry, strip_local
+from clone_client.utils import strip_local
 
 LOGGER = logging.getLogger(__name__)
 
@@ -53,7 +53,6 @@ class Discovery(ServiceListener):
 
         self._found_address_timeout = AsyncThreadSafeEvent()
 
-    @retry(max_retries=CONFIG.max_retries, catch=[ServiceNotFoundError])
     async def discover(self) -> Tuple[str, int]:
         """
         Discover specified service.

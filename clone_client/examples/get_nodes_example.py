@@ -11,7 +11,7 @@ async def main() -> None:
     async with Client(address="192.168.99.146") as client:
 
         await asyncio.sleep(1)
-        print(f"{await client.get_nodes()}")
+        print(f"{await client.controller.get_nodes()}")
 
 
 asyncio.run(main())

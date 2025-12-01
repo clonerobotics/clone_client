@@ -22,9 +22,16 @@ service HardwareDriverGRPC {
   rpc SendManyPressure (SendManyPressureMessage) returns (clone.data_types.ServerResponse);
   rpc StreamManyPressure (stream SendManyPressureMessage) returns (clone.data_types.ServerResponse);
 
+  // Get list of nodes discovered at startup (as opposed to `Discovery`)
   rpc GetNodes (google.protobuf.Empty) returns (NodeMap);
+  rpc PingNode (PingNodeMessage) returns (clone.data_types.ServerResponse);
+  // Conduct discovery and return discovered nodes
+  rpc Discovery (DiscoveryMessage) returns (DiscoveryResponse);
+  rpc GetNodesSettings (GetNodesSettingsMessage) returns (GetNodesSettingsResponse);
 
   rpc GetGaussRiderSpecSettings(google.protobuf.Empty) returns (GaussRiderSpecSettingsResponse);
+
+  rpc GetErrors(google.protobuf.Empty) returns (HwDriverErrors);
 }
 
 message GaussRiderSpecSettings {
@@ -198,4 +205,58 @@ message SendPinchValveCommandMessage {
 
 message SendManyPinchValveCommandMessage {
     map<uint32, PinchValveCommands> commands = 1;
+}
+
+message PingNodeMessage {
+  uint32 node_id = 1;
+  string bus_name = 2;
+  uint64 timeout_us = 3;
+}
+
+message DiscoveryMessage {
+  message DiscoveryRange {
+    uint32 start_node = 1;
+    uint32 end_node = 2;
+  }
+  string bus_name = 1;
+  uint64 timeout_us = 2;
+  // for mass discovery enter 0 - 254 range, optionally
+  // eliminating some nodes with a blacklist
+  repeated DiscoveryRange discovery_ranges = 3;
+  repeated uint32 discovery_blacklist = 4;
+}
+
+message DiscoveryResponse {
+  clone.data_types.ServerResponse server_response = 1;
+  repeated uint32 node_ids = 2;
+}
+
+message GetNodesSettingsMessage {
+  string bus_name = 1;
+  repeated uint32 node_ids = 2;
+  uint64 timeout_us = 3;
+}
+
+message NodeGenericSettings {
+  uint32 node_id = 1;
+  int32 product_id = 2;
+  int32 pcb_id = 3;
+  int32 _valve_hold_duty = 4; // legacy
+  int32 _pad3 = 5;
+  int32 device_random_id = 6;
+}
+
+message GetNodesSettingsResponse {
+  // if None then no response was received
+  message NodeSettingsWrapper {
+    optional NodeGenericSettings settings = 1;
+  }
+  // if whole map is empty than no such a bus exists
+  map<uint32, NodeSettingsWrapper> settings = 1;
+}
+
+message HwDriverErrors {
+  // inner error list, cause this field is implicitly optional
+  clone.data_types.ErrorList.ErrorList hw_driver_errors = 1;
+  map<string, clone.data_types.ErrorList> buses_errors = 2;
 }

@@ -20,8 +20,8 @@ async def run_with_living_client() -> None:
     async with Client(address="/run/clone") as client:
 
         # Obtain system info currently used by the station and get an ordering
-        await client.get_system_info()
-        remote_ordering = Remapper.swap_ordering(client.muscle_order)
+        await client.state_store.get_system_info()
+        remote_ordering = Remapper.swap_ordering(client.state_store.muscle_order)
 
         # Create local ordering by changing the remote one:
         local_ordering = remote_ordering.copy()
@@ -64,17 +64,17 @@ async def run_with_living_client() -> None:
         print(f"{revec_from_remote=}")
 
         await asyncio.sleep(3.0)
-        async for tele in client.subscribe_telemetry():
+        async for tele in client.state_store.subscribe_telemetry():
             print("\n" * 100)
             pressures_from_remote = tele.sensor_data.pressures
             print(f"{pressures_from_remote=}")
             pressures_from_remote_remapped = remapper.remote_to_local(pressures_from_remote)
             print(f"{pressures_from_remote_remapped=}")
-            pressures_to_set = [random.uniform(0.0, 0.2) for _ in range(client.number_of_muscles)]
+            pressures_to_set = [random.uniform(0.0, 0.2) for _ in range(client.state_store.number_of_muscles)]
             print(f"{pressures_to_set=}")
             pressures_to_set_remapped = remapper.local_to_remote(pressures_to_set)
             print(f"{pressures_to_set_remapped=}")
-            await client.set_pressures(pressures_to_set_remapped)
+            await client.controller.set_pressures(pressures_to_set_remapped)
 
 
 if __name__ == "__main__":

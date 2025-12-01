@@ -20,7 +20,7 @@ ITERATIONS = 20
 
 async def main() -> None:
     async with Client(server=GOLEM_HOSTNAME, address=GOLEM_ADDRESS) as client:
-        await client.loose_all()
+        await client.controller.loose_all()
         await asyncio.sleep(3)
         # This is very basic example, usually a more complex solution would be needed to embedd the client
         # within existing solution like creating separated threads / tasks for streaming and buffering etc.
@@ -28,21 +28,21 @@ async def main() -> None:
         async def control_generator() -> AsyncIterable[Sequence[float]]:
             tick = async_precise_interval(1 / FREQ, 0.9)
             for sample in range(ITERATIONS):
-                pressures = [DEFAULT] * client.number_of_muscles
+                pressures = [DEFAULT] * client.state_store.number_of_muscles
                 for sample in range(SAMPLES):
                     await anext(tick)
                     pressures[INDEX] = sample / SAMPLES
                     yield pressures
 
-                pressures = [DEFAULT] * client.number_of_muscles
+                pressures = [DEFAULT] * client.state_store.number_of_muscles
                 for sample in range(SAMPLES):
                     await anext(tick)
                     pressures[INDEX] = 1 - (sample / SAMPLES)
                     yield pressures
 
         try:
-            print(f"Starting control stream for {client.muscle_name(INDEX)}")
-            await client.stream_set_pressures(control_generator())
+            print(f"Starting control stream for {client.state_store.muscle_name(INDEX)}")
+            await client.controller.stream_set_pressures(control_generator())
         except RpcError as e:
             print(e)
 
@@ -50,7 +50,7 @@ async def main() -> None:
 
         telemetry_count = 100
         print("Subscribing to telemetry")
-        async for telemetry in client.subscribe_telemetry():
+        async for telemetry in client.state_store.subscribe_telemetry():
             print(telemetry)
 
             telemetry_count -= 1

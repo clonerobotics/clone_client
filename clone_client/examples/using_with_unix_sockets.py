@@ -11,7 +11,7 @@ async def main() -> None:
         await asyncio.sleep(1.0)
 
         print("Subscribing to telemetry")
-        async for telemetry in client.subscribe_telemetry():
+        async for telemetry in client.state_store.subscribe_telemetry():
             print("\n" * 100)
             print(telemetry)
 

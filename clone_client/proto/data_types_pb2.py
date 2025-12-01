@@ -22,19 +22,24 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
+from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n#clone_client/proto/data_types.proto\x12\x10\x63lone.data_types\"g\n\tErrorInfo\x12*\n\x05\x65rror\x18\x01 \x01(\x0e\x32\x1b.clone.data_types.ErrorType\x12\x0c\n\x04info\x18\x02 \x01(\t\x12\x14\n\x07subtype\x18\x03 \x01(\rH\x00\x88\x01\x01\x42\n\n\x08_subtype\"\\\n\x0eServerResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12/\n\x05\x65rror\x18\x02 \x01(\x0b\x32\x1b.clone.data_types.ErrorInfoH\x00\x88\x01\x01\x42\x08\n\x06_error*X\n\tErrorType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0f\n\x0bGOLEM_ERROR\x10\x01\x12\x11\n\rWRONG_REQUEST\x10\x02\x12\x1a\n\x16\x44ISABLED_FUNCTIONALITY\x10\x03\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n#clone_client/proto/data_types.proto\x12\x10\x63lone.data_types\x1a\x1fgoogle/protobuf/timestamp.proto\"\xba\x01\n\tErrorInfo\x12*\n\x05\x65rror\x18\x01 \x01(\x0e\x32\x1b.clone.data_types.ErrorType\x12\x0c\n\x04info\x18\x02 \x01(\t\x12\x14\n\x07subtype\x18\x03 \x01(\rH\x00\x88\x01\x01\x12\x15\n\x08location\x18\x04 \x01(\tH\x01\x88\x01\x01\x12-\n\ttimestamp\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.TimestampB\n\n\x08_subtypeB\x0b\n\t_location\"\\\n\x0eServerResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12/\n\x05\x65rror\x18\x02 \x01(\x0b\x32\x1b.clone.data_types.ErrorInfoH\x00\x88\x01\x01\x42\x08\n\x06_error\"\x96\x01\n\tErrorList\x12?\n\x0b\x65rrors_list\x18\x01 \x01(\x0b\x32%.clone.data_types.ErrorList.ErrorListH\x00\x88\x01\x01\x1a\x38\n\tErrorList\x12+\n\x06\x65rrors\x18\x01 \x03(\x0b\x32\x1b.clone.data_types.ErrorInfoB\x0e\n\x0c_errors_list*i\n\tErrorType\x12\x0b\n\x07UNKNOWN\x10\x00\x12\x0f\n\x0bGOLEM_ERROR\x10\x01\x12\x11\n\rWRONG_REQUEST\x10\x02\x12\x1a\n\x16\x44ISABLED_FUNCTIONALITY\x10\x03\x12\x0f\n\x0bSNAIL_ERROR\x10\x04\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'clone_client.proto.data_types_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_ERRORTYPE']._serialized_start=256
-  _globals['_ERRORTYPE']._serialized_end=344
-  _globals['_ERRORINFO']._serialized_start=57
-  _globals['_ERRORINFO']._serialized_end=160
-  _globals['_SERVERRESPONSE']._serialized_start=162
-  _globals['_SERVERRESPONSE']._serialized_end=254
+  _globals['_ERRORTYPE']._serialized_start=526
+  _globals['_ERRORTYPE']._serialized_end=631
+  _globals['_ERRORINFO']._serialized_start=91
+  _globals['_ERRORINFO']._serialized_end=277
+  _globals['_SERVERRESPONSE']._serialized_start=279
+  _globals['_SERVERRESPONSE']._serialized_end=371
+  _globals['_ERRORLIST']._serialized_start=374
+  _globals['_ERRORLIST']._serialized_end=524
+  _globals['_ERRORLIST_ERRORLIST']._serialized_start=452
+  _globals['_ERRORLIST_ERRORLIST']._serialized_end=508
 # @@protoc_insertion_point(module_scope)

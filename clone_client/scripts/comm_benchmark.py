@@ -21,7 +21,7 @@ SAMPLES = 1000
 async def main() -> None:
     async with Client(address=GOLEM_ADDRESS, server=GOLEM_HOSTNAME) as client:
         start_freq = FREQUENCY
-        pressures = [-1] * client.number_of_muscles
+        pressures = [-1] * client.state_store.number_of_muscles
 
         for freq_add in range(0, 200, 10):
             freq = start_freq + freq_add
@@ -51,7 +51,7 @@ async def main() -> None:
                 await asyncio.sleep(2)
 
             try:
-                await client.stream_set_pressures(control_generator())
+                await client.controller.stream_set_pressures(control_generator())
             except Exception as e:
                 print(f"Error: {e}")
 

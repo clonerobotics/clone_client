@@ -1,5 +1,6 @@
 # mypy: disable-error-code="no-any-unimported"
 from collections import deque
+from dataclasses import dataclass
 from itertools import repeat
 import json
 from pathlib import Path
@@ -15,6 +16,15 @@ def rewrap_telemetry(telemetry: TelemetryData) -> dict[int, Sequence[float]]:
     """Convinience function to rewrap data from a telemetry stream so it is prepared
     to be passed to `PoseEstimatorMagInterpol.get_angles_dict`"""
     return {nodeid: bfield.bfield for nodeid, bfield in telemetry.sensor_data.bfields.items()}
+
+
+@dataclass
+class MagInterpolConfig:
+    """Additional parameters for client"""
+
+    disable: bool = True
+    filter_avg_use: bool = True
+    filter_avg_samples: int = 8
 
 
 class PoseEstimatorMagInterpol:
@@ -128,7 +138,7 @@ class PoseEstimatorMagInterpol:
             B_filtered = B_arr
 
         for snsr_nr, B in B_filtered.items():
-            interpol = self._interpolators[snsr_nr]
+            interpol = self._interpolators.get(snsr_nr, None)
             if interpol is None:
                 continue
             angles = interpol(B.ravel()[np.newaxis, :]).ravel()

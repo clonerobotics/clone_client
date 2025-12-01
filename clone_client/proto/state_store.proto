@@ -10,6 +10,7 @@ service StateStoreReceiverGRPC {
   rpc GetTelemetry (google.protobuf.Empty) returns (TelemetryDataResponse);
   rpc GetSystemInfo (google.protobuf.Empty) returns (SystemInfoResponse);
   rpc Ping (google.protobuf.Empty) returns (google.protobuf.Empty);
+  rpc GetErrors(google.protobuf.Empty) returns (clone.data_types.ErrorList);
 }
 
 message IMUData {
@@ -33,11 +34,6 @@ message MagneticSensor {
     int32 temperature = 5;
 }
 
-message MagneticHubRaw {
-    uint32 node_id=1;
-    repeated MagneticSensor sensors=2;
-}
-
 message GaussRiderRaw {
     uint32 node_id=1;
     MagneticSensor sensor=2;
@@ -46,7 +42,7 @@ message GaussRiderRaw {
 message SensorData {
   repeated float pressures=1;
   repeated IMUData rot=2;
-  repeated MagneticHubRaw magnetic_data=3; // Unprocessed magnetic hub's data - currently also here
+  // repeated MagneticHubRaw magnetic_data=3; // Unprocessed magnetic hub's data - currently also here
   repeated GaussRiderRaw gauss_rider_data=4; // Unprocessed gauss rider's data
   map<uint32, Bfield> bfields=5;
 }
@@ -80,6 +76,26 @@ message CalibrationData {
   repeated PressureSensorCalibration pressure_sensors=1;
 }
 
+message Vec3 {
+  double x = 1;
+  double y = 2;
+  double z = 3;
+}
+
+message Joint {
+  message Axis {
+    uint32 qpos_idx = 1;
+    optional Vec3 axis = 2;
+  }
+  map<string, Axis> axes = 1;
+}
+
+// Joint with information on what nodes are used to estimate it
+message JointExt {
+  Joint joint = 1;
+  repeated uint32 node_ids = 2;
+}
+
 message PoseEstimationInfo {
   message MagInterpInfo {
     message MagMapPosition {
@@ -95,21 +111,8 @@ message PoseEstimationInfo {
     map<string, MagMapJointEntry> magmap = 1;
   }
   uint32 qpos_len = 1;
-  optional MagInterpInfo maginterp = 2;
-}
-
-message Vec3 {
-  double x = 1;
-  double y = 2;
-  double z = 3;
-}
-
-message Joint {
-  message Axis {
-    uint32 qpos_idx = 1;
-    optional Vec3 axis = 2;
-  }
-  map<string, Axis> axes = 1;
+  map<string, JointExt> joints=2;
+  optional MagInterpInfo maginterp = 3;
 }
 
 message SystemInfo {
@@ -123,8 +126,7 @@ message SystemInfo {
   // repeated ImuMappingModel imus=3;
   CalibrationData calibration_data=4;
   TelemetryConfig telemetry_config=5;
-  map<string, Joint> joints=6;
-  optional PoseEstimationInfo pose_estimation=7;
+  optional PoseEstimationInfo pose_estimation=6;
 }
 
 message SystemInfoResponse {

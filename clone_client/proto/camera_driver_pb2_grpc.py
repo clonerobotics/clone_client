@@ -3,8 +3,7 @@
 import grpc
 import warnings
 
-from clone_client.proto import data_types_pb2 as clone__client_dot_proto_dot_data__types__pb2
-from clone_client.proto import state_store_pb2 as clone__client_dot_proto_dot_state__store__pb2
+from clone_client.proto import camera_driver_pb2 as clone__client_dot_proto_dot_camera__driver__pb2
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 GRPC_GENERATED_VERSION = '1.69.0'
@@ -20,14 +19,14 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in clone_client/proto/state_store_pb2_grpc.py depends on'
+        + f' but the generated code in clone_client/proto/camera_driver_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
     )
 
 
-class StateStoreReceiverGRPCStub(object):
+class CameraDriverServiceStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -36,134 +35,123 @@ class StateStoreReceiverGRPCStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.SubscribeTelemetry = channel.unary_stream(
-                '/clone.state_store.StateStoreReceiverGRPC/SubscribeTelemetry',
+        self.GetConfig = channel.unary_unary(
+                '/clone.camera_driver.CameraDriverService/GetConfig',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-                response_deserializer=clone__client_dot_proto_dot_state__store__pb2.TelemetryDataResponse.FromString,
+                response_deserializer=clone__client_dot_proto_dot_camera__driver__pb2.GetConfigResponse.FromString,
                 _registered_method=True)
-        self.GetTelemetry = channel.unary_unary(
-                '/clone.state_store.StateStoreReceiverGRPC/GetTelemetry',
+        self.ListStreams = channel.unary_unary(
+                '/clone.camera_driver.CameraDriverService/ListStreams',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-                response_deserializer=clone__client_dot_proto_dot_state__store__pb2.TelemetryDataResponse.FromString,
+                response_deserializer=clone__client_dot_proto_dot_camera__driver__pb2.ListStreamsResponse.FromString,
                 _registered_method=True)
-        self.GetSystemInfo = channel.unary_unary(
-                '/clone.state_store.StateStoreReceiverGRPC/GetSystemInfo',
-                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-                response_deserializer=clone__client_dot_proto_dot_state__store__pb2.SystemInfoResponse.FromString,
+        self.ListSinks = channel.unary_unary(
+                '/clone.camera_driver.CameraDriverService/ListSinks',
+                request_serializer=clone__client_dot_proto_dot_camera__driver__pb2.ListSinksRequest.SerializeToString,
+                response_deserializer=clone__client_dot_proto_dot_camera__driver__pb2.ListSinksResponse.FromString,
                 _registered_method=True)
-        self.Ping = channel.unary_unary(
-                '/clone.state_store.StateStoreReceiverGRPC/Ping',
-                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+        self.AddSink = channel.unary_unary(
+                '/clone.camera_driver.CameraDriverService/AddSink',
+                request_serializer=clone__client_dot_proto_dot_camera__driver__pb2.AddSinkRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 _registered_method=True)
-        self.GetErrors = channel.unary_unary(
-                '/clone.state_store.StateStoreReceiverGRPC/GetErrors',
-                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-                response_deserializer=clone__client_dot_proto_dot_data__types__pb2.ErrorList.FromString,
+        self.RemoveSink = channel.unary_unary(
+                '/clone.camera_driver.CameraDriverService/RemoveSink',
+                request_serializer=clone__client_dot_proto_dot_camera__driver__pb2.RemoveSinkRequest.SerializeToString,
+                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                _registered_method=True)
+        self.RemoveAllSinks = channel.unary_unary(
+                '/clone.camera_driver.CameraDriverService/RemoveAllSinks',
+                request_serializer=clone__client_dot_proto_dot_camera__driver__pb2.RemoveAllSinksRequest.SerializeToString,
+                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 _registered_method=True)
 
 
-class StateStoreReceiverGRPCServicer(object):
+class CameraDriverServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def SubscribeTelemetry(self, request, context):
+    def GetConfig(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetTelemetry(self, request, context):
+    def ListStreams(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetSystemInfo(self, request, context):
+    def ListSinks(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def Ping(self, request, context):
+    def AddSink(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetErrors(self, request, context):
+    def RemoveSink(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def RemoveAllSinks(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_StateStoreReceiverGRPCServicer_to_server(servicer, server):
+def add_CameraDriverServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'SubscribeTelemetry': grpc.unary_stream_rpc_method_handler(
-                    servicer.SubscribeTelemetry,
+            'GetConfig': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetConfig,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-                    response_serializer=clone__client_dot_proto_dot_state__store__pb2.TelemetryDataResponse.SerializeToString,
+                    response_serializer=clone__client_dot_proto_dot_camera__driver__pb2.GetConfigResponse.SerializeToString,
             ),
-            'GetTelemetry': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetTelemetry,
+            'ListStreams': grpc.unary_unary_rpc_method_handler(
+                    servicer.ListStreams,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-                    response_serializer=clone__client_dot_proto_dot_state__store__pb2.TelemetryDataResponse.SerializeToString,
+                    response_serializer=clone__client_dot_proto_dot_camera__driver__pb2.ListStreamsResponse.SerializeToString,
             ),
-            'GetSystemInfo': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetSystemInfo,
-                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-                    response_serializer=clone__client_dot_proto_dot_state__store__pb2.SystemInfoResponse.SerializeToString,
+            'ListSinks': grpc.unary_unary_rpc_method_handler(
+                    servicer.ListSinks,
+                    request_deserializer=clone__client_dot_proto_dot_camera__driver__pb2.ListSinksRequest.FromString,
+                    response_serializer=clone__client_dot_proto_dot_camera__driver__pb2.ListSinksResponse.SerializeToString,
             ),
-            'Ping': grpc.unary_unary_rpc_method_handler(
-                    servicer.Ping,
-                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            'AddSink': grpc.unary_unary_rpc_method_handler(
+                    servicer.AddSink,
+                    request_deserializer=clone__client_dot_proto_dot_camera__driver__pb2.AddSinkRequest.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
-            'GetErrors': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetErrors,
-                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-                    response_serializer=clone__client_dot_proto_dot_data__types__pb2.ErrorList.SerializeToString,
+            'RemoveSink': grpc.unary_unary_rpc_method_handler(
+                    servicer.RemoveSink,
+                    request_deserializer=clone__client_dot_proto_dot_camera__driver__pb2.RemoveSinkRequest.FromString,
+                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            ),
+            'RemoveAllSinks': grpc.unary_unary_rpc_method_handler(
+                    servicer.RemoveAllSinks,
+                    request_deserializer=clone__client_dot_proto_dot_camera__driver__pb2.RemoveAllSinksRequest.FromString,
+                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'clone.state_store.StateStoreReceiverGRPC', rpc_method_handlers)
+            'clone.camera_driver.CameraDriverService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('clone.state_store.StateStoreReceiverGRPC', rpc_method_handlers)
+    server.add_registered_method_handlers('clone.camera_driver.CameraDriverService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class StateStoreReceiverGRPC(object):
+class CameraDriverService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def SubscribeTelemetry(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_stream(
-            request,
-            target,
-            '/clone.state_store.StateStoreReceiverGRPC/SubscribeTelemetry',
-            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-            clone__client_dot_proto_dot_state__store__pb2.TelemetryDataResponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
-    def GetTelemetry(request,
+    def GetConfig(request,
             target,
             options=(),
             channel_credentials=None,
@@ -176,9 +164,9 @@ class StateStoreReceiverGRPC(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/clone.state_store.StateStoreReceiverGRPC/GetTelemetry',
+            '/clone.camera_driver.CameraDriverService/GetConfig',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-            clone__client_dot_proto_dot_state__store__pb2.TelemetryDataResponse.FromString,
+            clone__client_dot_proto_dot_camera__driver__pb2.GetConfigResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -190,7 +178,7 @@ class StateStoreReceiverGRPC(object):
             _registered_method=True)
 
     @staticmethod
-    def GetSystemInfo(request,
+    def ListStreams(request,
             target,
             options=(),
             channel_credentials=None,
@@ -203,9 +191,9 @@ class StateStoreReceiverGRPC(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/clone.state_store.StateStoreReceiverGRPC/GetSystemInfo',
+            '/clone.camera_driver.CameraDriverService/ListStreams',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-            clone__client_dot_proto_dot_state__store__pb2.SystemInfoResponse.FromString,
+            clone__client_dot_proto_dot_camera__driver__pb2.ListStreamsResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -217,7 +205,7 @@ class StateStoreReceiverGRPC(object):
             _registered_method=True)
 
     @staticmethod
-    def Ping(request,
+    def ListSinks(request,
             target,
             options=(),
             channel_credentials=None,
@@ -230,8 +218,35 @@ class StateStoreReceiverGRPC(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/clone.state_store.StateStoreReceiverGRPC/Ping',
-            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            '/clone.camera_driver.CameraDriverService/ListSinks',
+            clone__client_dot_proto_dot_camera__driver__pb2.ListSinksRequest.SerializeToString,
+            clone__client_dot_proto_dot_camera__driver__pb2.ListSinksResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def AddSink(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/clone.camera_driver.CameraDriverService/AddSink',
+            clone__client_dot_proto_dot_camera__driver__pb2.AddSinkRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
@@ -244,7 +259,7 @@ class StateStoreReceiverGRPC(object):
             _registered_method=True)
 
     @staticmethod
-    def GetErrors(request,
+    def RemoveSink(request,
             target,
             options=(),
             channel_credentials=None,
@@ -257,9 +272,36 @@ class StateStoreReceiverGRPC(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/clone.state_store.StateStoreReceiverGRPC/GetErrors',
-            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-            clone__client_dot_proto_dot_data__types__pb2.ErrorList.FromString,
+            '/clone.camera_driver.CameraDriverService/RemoveSink',
+            clone__client_dot_proto_dot_camera__driver__pb2.RemoveSinkRequest.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def RemoveAllSinks(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/clone.camera_driver.CameraDriverService/RemoveAllSinks',
+            clone__client_dot_proto_dot_camera__driver__pb2.RemoveAllSinksRequest.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
             insecure,

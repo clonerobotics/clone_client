@@ -36,6 +36,7 @@ service ControllerGRPC {
   rpc GetNodes(google.protobuf.Empty) returns (clone.hardware_driver.NodeMap);
 
   rpc Ping (google.protobuf.Empty) returns (google.protobuf.Empty);
+  rpc GetErrors(google.protobuf.Empty) returns (clone.data_types.ErrorList);
 }
 
 // Controling muslces by directly setting an absolute value of a pressure

@@ -1,5 +1,7 @@
 syntax="proto3";
 
+import "google/protobuf/timestamp.proto";
+
 package clone.data_types;
 
 enum ErrorType{
@@ -7,15 +9,26 @@ enum ErrorType{
   GOLEM_ERROR = 1;
   WRONG_REQUEST = 2;
   DISABLED_FUNCTIONALITY = 3;
+  SNAIL_ERROR = 4;
 }
 
 message ErrorInfo{
   ErrorType error=1;
   string info=2;
   optional uint32 subtype=3;
+  optional string location = 4;
+  google.protobuf.Timestamp timestamp = 5;
 }
 
 message ServerResponse{
   bool success=1;
   optional ErrorInfo error=2;
+}
+
+message ErrorList{
+  message ErrorList{
+    repeated ErrorInfo errors = 1;
+  }
+  // None means error collection is disabled
+  optional ErrorList errors_list = 1;
 }

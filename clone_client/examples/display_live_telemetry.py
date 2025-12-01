@@ -13,7 +13,7 @@ async def main() -> None:
 
         print("Subscribing to telemetry")
         i = 0
-        async for telemetry in client.subscribe_telemetry():
+        async for telemetry in client.state_store.subscribe_telemetry():
             if i < DECIM_COEF:
                 i += 1
                 continue

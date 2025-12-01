@@ -96,10 +96,30 @@ class HardwareDriverGRPCStub(object):
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=clone__client_dot_proto_dot_hardware__driver__pb2.NodeMap.FromString,
                 _registered_method=True)
+        self.PingNode = channel.unary_unary(
+                '/clone.hardware_driver.HardwareDriverGRPC/PingNode',
+                request_serializer=clone__client_dot_proto_dot_hardware__driver__pb2.PingNodeMessage.SerializeToString,
+                response_deserializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
+                _registered_method=True)
+        self.Discovery = channel.unary_unary(
+                '/clone.hardware_driver.HardwareDriverGRPC/Discovery',
+                request_serializer=clone__client_dot_proto_dot_hardware__driver__pb2.DiscoveryMessage.SerializeToString,
+                response_deserializer=clone__client_dot_proto_dot_hardware__driver__pb2.DiscoveryResponse.FromString,
+                _registered_method=True)
+        self.GetNodesSettings = channel.unary_unary(
+                '/clone.hardware_driver.HardwareDriverGRPC/GetNodesSettings',
+                request_serializer=clone__client_dot_proto_dot_hardware__driver__pb2.GetNodesSettingsMessage.SerializeToString,
+                response_deserializer=clone__client_dot_proto_dot_hardware__driver__pb2.GetNodesSettingsResponse.FromString,
+                _registered_method=True)
         self.GetGaussRiderSpecSettings = channel.unary_unary(
                 '/clone.hardware_driver.HardwareDriverGRPC/GetGaussRiderSpecSettings',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=clone__client_dot_proto_dot_hardware__driver__pb2.GaussRiderSpecSettingsResponse.FromString,
+                _registered_method=True)
+        self.GetErrors = channel.unary_unary(
+                '/clone.hardware_driver.HardwareDriverGRPC/GetErrors',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=clone__client_dot_proto_dot_hardware__driver__pb2.HwDriverErrors.FromString,
                 _registered_method=True)
 
 
@@ -173,12 +193,38 @@ class HardwareDriverGRPCServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def GetNodes(self, request, context):
+        """Get list of nodes discovered at startup (as opposed to `Discovery`)
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def PingNode(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Discovery(self, request, context):
+        """Conduct discovery and return discovered nodes
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetNodesSettings(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def GetGaussRiderSpecSettings(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetErrors(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -247,10 +293,30 @@ def add_HardwareDriverGRPCServicer_to_server(servicer, server):
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                     response_serializer=clone__client_dot_proto_dot_hardware__driver__pb2.NodeMap.SerializeToString,
             ),
+            'PingNode': grpc.unary_unary_rpc_method_handler(
+                    servicer.PingNode,
+                    request_deserializer=clone__client_dot_proto_dot_hardware__driver__pb2.PingNodeMessage.FromString,
+                    response_serializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.SerializeToString,
+            ),
+            'Discovery': grpc.unary_unary_rpc_method_handler(
+                    servicer.Discovery,
+                    request_deserializer=clone__client_dot_proto_dot_hardware__driver__pb2.DiscoveryMessage.FromString,
+                    response_serializer=clone__client_dot_proto_dot_hardware__driver__pb2.DiscoveryResponse.SerializeToString,
+            ),
+            'GetNodesSettings': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetNodesSettings,
+                    request_deserializer=clone__client_dot_proto_dot_hardware__driver__pb2.GetNodesSettingsMessage.FromString,
+                    response_serializer=clone__client_dot_proto_dot_hardware__driver__pb2.GetNodesSettingsResponse.SerializeToString,
+            ),
             'GetGaussRiderSpecSettings': grpc.unary_unary_rpc_method_handler(
                     servicer.GetGaussRiderSpecSettings,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                     response_serializer=clone__client_dot_proto_dot_hardware__driver__pb2.GaussRiderSpecSettingsResponse.SerializeToString,
+            ),
+            'GetErrors': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetErrors,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=clone__client_dot_proto_dot_hardware__driver__pb2.HwDriverErrors.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -588,6 +654,87 @@ class HardwareDriverGRPC(object):
             _registered_method=True)
 
     @staticmethod
+    def PingNode(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/clone.hardware_driver.HardwareDriverGRPC/PingNode',
+            clone__client_dot_proto_dot_hardware__driver__pb2.PingNodeMessage.SerializeToString,
+            clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def Discovery(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/clone.hardware_driver.HardwareDriverGRPC/Discovery',
+            clone__client_dot_proto_dot_hardware__driver__pb2.DiscoveryMessage.SerializeToString,
+            clone__client_dot_proto_dot_hardware__driver__pb2.DiscoveryResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetNodesSettings(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/clone.hardware_driver.HardwareDriverGRPC/GetNodesSettings',
+            clone__client_dot_proto_dot_hardware__driver__pb2.GetNodesSettingsMessage.SerializeToString,
+            clone__client_dot_proto_dot_hardware__driver__pb2.GetNodesSettingsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
     def GetGaussRiderSpecSettings(request,
             target,
             options=(),
@@ -604,6 +751,33 @@ class HardwareDriverGRPC(object):
             '/clone.hardware_driver.HardwareDriverGRPC/GetGaussRiderSpecSettings',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             clone__client_dot_proto_dot_hardware__driver__pb2.GaussRiderSpecSettingsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetErrors(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/clone.hardware_driver.HardwareDriverGRPC/GetErrors',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            clone__client_dot_proto_dot_hardware__driver__pb2.HwDriverErrors.FromString,
             options,
             channel_credentials,
             insecure,

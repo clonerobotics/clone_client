@@ -22,9 +22,7 @@ async def main() -> None:
     calib_data_raw = CalibrationDataRaw.from_gauss_spec_settings(gauss_settings[0x61])
     calib_data_raw.save("calibration-data.json")
     calib_data_raw = CalibrationDataRaw.load("calibration-data.json")
-    config = GaussCalculator.Config(
-        t_dec_len=512,
-    )
+    config = GaussCalculator.Config()
     calc = GaussCalculator(config=config, calibration=calib_data_raw)
     print(gauss_settings)
     print(calib_data_raw)

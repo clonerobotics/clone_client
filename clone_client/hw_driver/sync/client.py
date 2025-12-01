@@ -4,9 +4,10 @@ import logging
 from typing import Annotated, Optional, Self
 
 from google.protobuf.empty_pb2 import Empty
+import grpc
 
 from clone_client.error_frames import get_request_error, handle_response
-from clone_client.grpc_client import GRPCAsyncClient
+from clone_client.grpc_client import GRPCClient
 from clone_client.hw_driver.config import HWDriverClientConfig
 from clone_client.proto.data_types_pb2 import ErrorInfo, ServerResponse
 from clone_client.proto.hardware_driver_pb2 import (
@@ -25,7 +26,7 @@ from clone_client.proto.hardware_driver_pb2 import (
 from clone_client.proto.hardware_driver_pb2 import BusDevice as ProtoBusDevice
 from clone_client.proto.hardware_driver_pb2 import NodeMap, PingNodeMessage
 from clone_client.proto.hardware_driver_pb2_grpc import HardwareDriverGRPCStub
-from clone_client.utils import grpc_translated_async
+from clone_client.utils import grpc_translated
 
 L = logging.getLogger(__name__)
 
@@ -112,7 +113,7 @@ class HardwareDriverErrors:
     buses_errors: dict[str, Optional[list[ErrorInfo]]]
 
 
-class HWDriverClient(GRPCAsyncClient):
+class HWDriverClient(GRPCClient[grpc.Channel]):
     """Client for receiving data from the state store."""
 
     def __init__(self, socket_address: str, config: HWDriverClientConfig) -> None:
@@ -121,26 +122,26 @@ class HWDriverClient(GRPCAsyncClient):
         self._config = config
 
     @classmethod
-    async def new(cls, socket_address: str) -> "HWDriverClient":
+    def new(cls, socket_address: str) -> "HWDriverClient":
         """Create and initialize new `HWDriverClient` instance"""
         self = cls(socket_address, HWDriverClientConfig())
-        await self.channel_ready()
+        self.channel_ready()
         return self
 
-    @grpc_translated_async()
-    async def get_nodes(self) -> dict[str, list[BusDevice]]:
+    @grpc_translated()
+    def get_nodes(self) -> dict[str, list[BusDevice]]:
         """Get bus_name -> list[(node_id, product_id)] map of discovered nodes per bus"""
-        response: NodeMap = await self.stub.GetNodes(
+        response: NodeMap = self.stub.GetNodes(
             GetNodesMessage(), timeout=self._config.continuous_rpc_timeout
         )
         ret = {bus: list(map(BusDevice.from_proto, nodes.nodes)) for bus, nodes in response.nodes.items()}
         return ret
 
-    @grpc_translated_async()
-    async def get_gauss_rider_spec_settings(self) -> dict[Annotated[int, "node id"], GaussRiderSpecSettings]:
+    @grpc_translated()
+    def get_gauss_rider_spec_settings(self) -> dict[Annotated[int, "node id"], GaussRiderSpecSettings]:
         """Get specific settings of GaussRiders present in a runnning system - they consist of
         calibration data"""
-        response: GaussRiderSpecSettingsResponse = await self.stub.GetGaussRiderSpecSettings(
+        response: GaussRiderSpecSettingsResponse = self.stub.GetGaussRiderSpecSettings(
             Empty(), timeout=self._config.continuous_rpc_timeout
         )
         match response.WhichOneof("inner"):
@@ -151,20 +152,20 @@ class HWDriverClient(GRPCAsyncClient):
             case None:
                 raise ValueError("Got None instead of any expected value")
 
-    @grpc_translated_async()
-    async def ping_node(self, node_id: int, bus_name: str, timeout_us: int = 1000) -> None:
+    @grpc_translated()
+    def ping_node(self, node_id: int, bus_name: str, timeout_us: int = 1000) -> None:
         """Ping selected node. This will trigger pinging on all buses governed
         by a hardware-driver. If error or not found - raise.
         NOTE: GRPC timeout is set to 2.0 * timeout_us to receive golem ServerResponse with timeout
         instead of GRPC one."""
-        response: ServerResponse = await self.stub.PingNode(
+        response: ServerResponse = self.stub.PingNode(
             PingNodeMessage(node_id=node_id, bus_name=bus_name, timeout_us=timeout_us),
             timeout=(timeout_us * 2.0) / 1000_000,
         )
         handle_response(response)
 
-    @grpc_translated_async()
-    async def discovery(
+    @grpc_translated()
+    def discovery(
         self,
         bus_name: str,
         discovery_ranges: list[tuple[int, int]] = [(0, 253)],
@@ -182,7 +183,7 @@ class HWDriverClient(GRPCAsyncClient):
         NOTE: GRPC timeout is set to 2.0 * timeout_us to receive golem ServerResponse with timeout
         instead of GRPC one."""
         # pylint: disable=dangerous-default-value
-        response: DiscoveryResponse = await self.stub.Discovery(
+        response: DiscoveryResponse = self.stub.Discovery(
             DiscoveryMessage(
                 bus_name=bus_name,
                 timeout_us=timeout_us,
@@ -197,15 +198,15 @@ class HWDriverClient(GRPCAsyncClient):
         handle_response(response.server_response)
         return list(response.node_ids)
 
-    @grpc_translated_async()
-    async def get_nodes_settings(
+    @grpc_translated()
+    def get_nodes_settings(
         self, bus_name: str, node_ids: list[int], timeout_us: int = 1000_000
     ) -> dict[int, Optional[NodeGenericSettings]]:
         """Get generic settings of selected devices.
         Returns map node_id -> Optional[settings] where None means an error during reception process.
         NOTE: GRPC timeout is set to 2.0 * timeout_us to receive golem ServerResponse with timeout
         instead of GRPC one."""
-        response: GetNodesSettingsResponse = await self.stub.GetNodesSettings(
+        response: GetNodesSettingsResponse = self.stub.GetNodesSettings(
             GetNodesSettingsMessage(bus_name=bus_name, node_ids=node_ids, timeout_us=timeout_us),
             timeout=(timeout_us * 2.0) / 1000_000,
         )
@@ -216,12 +217,12 @@ class HWDriverClient(GRPCAsyncClient):
             for node_id, node_settings in response.settings.items()
         }
 
-    @grpc_translated_async()
-    async def get_errors(
+    @grpc_translated()
+    def get_errors(
         self,
     ) -> HardwareDriverErrors:
         """Get hardware drivers errors"""
-        response: HwDriverErrors = await self.stub.GetErrors(
+        response: HwDriverErrors = self.stub.GetErrors(
             Empty(), timeout=self._config.continuous_rpc_timeout
         )
         if response.HasField("hw_driver_errors"):

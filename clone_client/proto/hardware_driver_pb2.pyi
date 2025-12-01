@@ -802,3 +802,239 @@ class SendManyPinchValveCommandMessage(google.protobuf.message.Message):
     def ClearField(self, field_name: typing.Literal["commands", b"commands"]) -> None: ...
 
 global___SendManyPinchValveCommandMessage = SendManyPinchValveCommandMessage
+
+@typing.final
+class PingNodeMessage(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    NODE_ID_FIELD_NUMBER: builtins.int
+    BUS_NAME_FIELD_NUMBER: builtins.int
+    TIMEOUT_US_FIELD_NUMBER: builtins.int
+    node_id: builtins.int
+    bus_name: builtins.str
+    timeout_us: builtins.int
+    def __init__(
+        self,
+        *,
+        node_id: builtins.int = ...,
+        bus_name: builtins.str = ...,
+        timeout_us: builtins.int = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["bus_name", b"bus_name", "node_id", b"node_id", "timeout_us", b"timeout_us"]) -> None: ...
+
+global___PingNodeMessage = PingNodeMessage
+
+@typing.final
+class DiscoveryMessage(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing.final
+    class DiscoveryRange(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        START_NODE_FIELD_NUMBER: builtins.int
+        END_NODE_FIELD_NUMBER: builtins.int
+        start_node: builtins.int
+        end_node: builtins.int
+        def __init__(
+            self,
+            *,
+            start_node: builtins.int = ...,
+            end_node: builtins.int = ...,
+        ) -> None: ...
+        def ClearField(self, field_name: typing.Literal["end_node", b"end_node", "start_node", b"start_node"]) -> None: ...
+
+    BUS_NAME_FIELD_NUMBER: builtins.int
+    TIMEOUT_US_FIELD_NUMBER: builtins.int
+    DISCOVERY_RANGES_FIELD_NUMBER: builtins.int
+    DISCOVERY_BLACKLIST_FIELD_NUMBER: builtins.int
+    bus_name: builtins.str
+    timeout_us: builtins.int
+    @property
+    def discovery_ranges(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___DiscoveryMessage.DiscoveryRange]:
+        """for mass discovery enter 0 - 254 range, optionally
+        eliminating some nodes with a blacklist
+        """
+
+    @property
+    def discovery_blacklist(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+    def __init__(
+        self,
+        *,
+        bus_name: builtins.str = ...,
+        timeout_us: builtins.int = ...,
+        discovery_ranges: collections.abc.Iterable[global___DiscoveryMessage.DiscoveryRange] | None = ...,
+        discovery_blacklist: collections.abc.Iterable[builtins.int] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["bus_name", b"bus_name", "discovery_blacklist", b"discovery_blacklist", "discovery_ranges", b"discovery_ranges", "timeout_us", b"timeout_us"]) -> None: ...
+
+global___DiscoveryMessage = DiscoveryMessage
+
+@typing.final
+class DiscoveryResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    SERVER_RESPONSE_FIELD_NUMBER: builtins.int
+    NODE_IDS_FIELD_NUMBER: builtins.int
+    @property
+    def server_response(self) -> clone_client.proto.data_types_pb2.ServerResponse: ...
+    @property
+    def node_ids(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+    def __init__(
+        self,
+        *,
+        server_response: clone_client.proto.data_types_pb2.ServerResponse | None = ...,
+        node_ids: collections.abc.Iterable[builtins.int] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["server_response", b"server_response"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["node_ids", b"node_ids", "server_response", b"server_response"]) -> None: ...
+
+global___DiscoveryResponse = DiscoveryResponse
+
+@typing.final
+class GetNodesSettingsMessage(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    BUS_NAME_FIELD_NUMBER: builtins.int
+    NODE_IDS_FIELD_NUMBER: builtins.int
+    TIMEOUT_US_FIELD_NUMBER: builtins.int
+    bus_name: builtins.str
+    timeout_us: builtins.int
+    @property
+    def node_ids(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+    def __init__(
+        self,
+        *,
+        bus_name: builtins.str = ...,
+        node_ids: collections.abc.Iterable[builtins.int] | None = ...,
+        timeout_us: builtins.int = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["bus_name", b"bus_name", "node_ids", b"node_ids", "timeout_us", b"timeout_us"]) -> None: ...
+
+global___GetNodesSettingsMessage = GetNodesSettingsMessage
+
+@typing.final
+class NodeGenericSettings(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    NODE_ID_FIELD_NUMBER: builtins.int
+    PRODUCT_ID_FIELD_NUMBER: builtins.int
+    PCB_ID_FIELD_NUMBER: builtins.int
+    _VALVE_HOLD_DUTY_FIELD_NUMBER: builtins.int
+    _PAD3_FIELD_NUMBER: builtins.int
+    DEVICE_RANDOM_ID_FIELD_NUMBER: builtins.int
+    node_id: builtins.int
+    product_id: builtins.int
+    pcb_id: builtins.int
+    _valve_hold_duty: builtins.int
+    """legacy"""
+    _pad3: builtins.int
+    device_random_id: builtins.int
+    def __init__(
+        self,
+        *,
+        node_id: builtins.int = ...,
+        product_id: builtins.int = ...,
+        pcb_id: builtins.int = ...,
+        _valve_hold_duty: builtins.int = ...,
+        _pad3: builtins.int = ...,
+        device_random_id: builtins.int = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["_pad3", b"_pad3", "_valve_hold_duty", b"_valve_hold_duty", "device_random_id", b"device_random_id", "node_id", b"node_id", "pcb_id", b"pcb_id", "product_id", b"product_id"]) -> None: ...
+
+global___NodeGenericSettings = NodeGenericSettings
+
+@typing.final
+class GetNodesSettingsResponse(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing.final
+    class NodeSettingsWrapper(google.protobuf.message.Message):
+        """if None then no response was received"""
+
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        SETTINGS_FIELD_NUMBER: builtins.int
+        @property
+        def settings(self) -> global___NodeGenericSettings: ...
+        def __init__(
+            self,
+            *,
+            settings: global___NodeGenericSettings | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing.Literal["_settings", b"_settings", "settings", b"settings"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["_settings", b"_settings", "settings", b"settings"]) -> None: ...
+        def WhichOneof(self, oneof_group: typing.Literal["_settings", b"_settings"]) -> typing.Literal["settings"] | None: ...
+
+    @typing.final
+    class SettingsEntry(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        KEY_FIELD_NUMBER: builtins.int
+        VALUE_FIELD_NUMBER: builtins.int
+        key: builtins.int
+        @property
+        def value(self) -> global___GetNodesSettingsResponse.NodeSettingsWrapper: ...
+        def __init__(
+            self,
+            *,
+            key: builtins.int = ...,
+            value: global___GetNodesSettingsResponse.NodeSettingsWrapper | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
+
+    SETTINGS_FIELD_NUMBER: builtins.int
+    @property
+    def settings(self) -> google.protobuf.internal.containers.MessageMap[builtins.int, global___GetNodesSettingsResponse.NodeSettingsWrapper]:
+        """if whole map is empty than no such a bus exists"""
+
+    def __init__(
+        self,
+        *,
+        settings: collections.abc.Mapping[builtins.int, global___GetNodesSettingsResponse.NodeSettingsWrapper] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["settings", b"settings"]) -> None: ...
+
+global___GetNodesSettingsResponse = GetNodesSettingsResponse
+
+@typing.final
+class HwDriverErrors(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing.final
+    class BusesErrorsEntry(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        KEY_FIELD_NUMBER: builtins.int
+        VALUE_FIELD_NUMBER: builtins.int
+        key: builtins.str
+        @property
+        def value(self) -> clone_client.proto.data_types_pb2.ErrorList: ...
+        def __init__(
+            self,
+            *,
+            key: builtins.str = ...,
+            value: clone_client.proto.data_types_pb2.ErrorList | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
+
+    HW_DRIVER_ERRORS_FIELD_NUMBER: builtins.int
+    BUSES_ERRORS_FIELD_NUMBER: builtins.int
+    @property
+    def hw_driver_errors(self) -> clone_client.proto.data_types_pb2.ErrorList.ErrorList:
+        """inner error list, cause this field is implicitly optional"""
+
+    @property
+    def buses_errors(self) -> google.protobuf.internal.containers.MessageMap[builtins.str, clone_client.proto.data_types_pb2.ErrorList]: ...
+    def __init__(
+        self,
+        *,
+        hw_driver_errors: clone_client.proto.data_types_pb2.ErrorList.ErrorList | None = ...,
+        buses_errors: collections.abc.Mapping[builtins.str, clone_client.proto.data_types_pb2.ErrorList] | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["hw_driver_errors", b"hw_driver_errors"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["buses_errors", b"buses_errors", "hw_driver_errors", b"hw_driver_errors"]) -> None: ...
+
+global___HwDriverErrors = HwDriverErrors

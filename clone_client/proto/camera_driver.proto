@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package clone.camera_driver;
+
+import "google/protobuf/empty.proto";
+
+message GetConfigResponse {
+  string config = 1;
+}
+
+message ListStreamsResponse {
+  repeated string streams = 1;
+}
+
+message Sink {
+  string address = 1;
+  uint32 port = 2;
+  optional string multicast_iface = 3;
+}
+
+message ListSinksRequest {
+  string stream_id = 1;
+}
+
+message ListSinksResponse {
+  repeated Sink sinks = 1;
+}
+
+message AddSinkRequest {
+  string stream_id = 1;
+  Sink sink = 2;
+}
+
+message RemoveSinkRequest {
+  string stream_id = 1;
+  string address = 2;
+  uint32 port = 3;
+}
+
+message RemoveAllSinksRequest {
+  string stream_id = 1;
+}
+
+service CameraDriverService {
+  rpc GetConfig(google.protobuf.Empty) returns (GetConfigResponse);
+
+  rpc ListStreams(google.protobuf.Empty) returns (ListStreamsResponse);
+
+  rpc ListSinks(ListSinksRequest) returns (ListSinksResponse);
+
+  rpc AddSink(AddSinkRequest) returns (google.protobuf.Empty);
+
+  rpc RemoveSink(RemoveSinkRequest) returns (google.protobuf.Empty);
+
+  rpc RemoveAllSinks(RemoveAllSinksRequest) returns (google.protobuf.Empty);
+}

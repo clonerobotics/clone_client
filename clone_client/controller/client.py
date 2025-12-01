@@ -1,9 +1,11 @@
+from time import time
 from typing import AsyncGenerator, AsyncIterable, Optional, Sequence
 
 from google.protobuf.empty_pb2 import Empty  # pylint: disable=E0611
 
 from clone_client.controller.config import ControllerClientConfig
 from clone_client.error_frames import handle_response
+from clone_client.exceptions import DesiredPressureNotAchievedError
 from clone_client.grpc_client import GRPCAsyncClient
 from clone_client.proto.controller_pb2 import (
     ControllerRuntimeConfig,
@@ -16,8 +18,9 @@ from clone_client.proto.controller_pb2 import (
     WaterPumpPressure,
 )
 from clone_client.proto.controller_pb2_grpc import ControllerGRPCStub
-from clone_client.proto.data_types_pb2 import ServerResponse
+from clone_client.proto.data_types_pb2 import ErrorInfo, ErrorList, ServerResponse
 from clone_client.proto.hardware_driver_pb2 import (
+    BusDevice,
     GetNodesMessage,
     HydraControlMessage,
     NodeMap,
@@ -30,7 +33,7 @@ from clone_client.proto.hardware_driver_pb2 import (
     SendPinchValveCommandMessage,
     SendPinchValveControlMessage,
 )
-from clone_client.utils import grpc_translated, grpc_translated_async
+from clone_client.utils import async_precise_interval, grpc_translated_async
 
 
 class ControllerClient(GRPCAsyncClient):
@@ -41,9 +44,17 @@ class ControllerClient(GRPCAsyncClient):
         self.stub = ControllerGRPCStub(self.channel)
         self.config = config
 
+    @classmethod
+    async def new(cls, socket_address: str) -> "ControllerClient":
+        """Create and initialize new `ControllerClient` instance"""
+        self = cls(socket_address, ControllerClientConfig())
+        await self.channel_ready()
+        return self
+
     @grpc_translated_async()
     async def get_waterpump_info(self) -> WaterPumpInfo:
-        """Send request to get the waterpump info."""
+        """Send request to get the waterpump info.
+        Get current information about waterpump metadata."""
         response: WaterPumpInfoResponse = await self.stub.GetWaterPumpInfo(
             Empty(), timeout=self.config.info_gathering_rpc_timeout
         )
@@ -52,7 +63,8 @@ class ControllerClient(GRPCAsyncClient):
 
     @grpc_translated_async()
     async def set_waterpump_pressure(self, pressure: float) -> None:
-        """Send request to set the waterpump pressure."""
+        """Send request to set the waterpump pressure.
+        Stop waterpump and set new desired pressure"""
         await self.stub.SetWaterPumpPressure(
             WaterPumpPressure(pressure=pressure),
             timeout=self.config.critical_rpc_timeout,
@@ -60,7 +72,8 @@ class ControllerClient(GRPCAsyncClient):
 
     @grpc_translated_async()
     async def set_impulses(self, impulses: Sequence[Optional[float]]) -> None:
-        """Send request to set the muscles."""
+        """Send request to set the muscles.
+        Set muscles into certain position for a certain time."""
         message = SetImpulsesMessage()
         for move in impulses:
             if move is None:
@@ -75,7 +88,8 @@ class ControllerClient(GRPCAsyncClient):
 
     @grpc_translated_async()
     async def set_pulses(self, pulses: Sequence[Optional[Pulse]]) -> None:
-        """Send request to set the muscles."""
+        """Send request to set the muscles.
+        Start pulses (timed oscilations) on muscles."""
         message = SetPulsesMessage()
         for pulse in pulses:
             if pulse is None:
@@ -105,6 +119,19 @@ class ControllerClient(GRPCAsyncClient):
 
         response: ServerResponse = await self.stub.StreamSetPressures(mapped_stream(), timeout=None)
         handle_response(response)
+
+    async def wait_for_desired_pressure(self, timeout_ms: int = 10000) -> None:
+        """Block the execution until current waterpump pressure is equal or more than desired pressure."""
+        start = time()
+        interval = async_precise_interval(1 / 10, 0.5)
+        while True:
+            await anext(interval)
+            if time() - start >= timeout_ms / 1000:
+                raise DesiredPressureNotAchievedError(timeout_ms)
+
+            info = await self.get_waterpump_info()
+            if info.pressure >= info.desired_pressure:
+                break
 
     @grpc_translated_async()
     async def send_pinch_valve_control(
@@ -227,13 +254,21 @@ class ControllerClient(GRPCAsyncClient):
         )
         return response
 
-    @grpc_translated()
-    async def get_nodes(self) -> NodeMap:
+    @grpc_translated_async()
+    async def get_nodes(self) -> dict[str, list[BusDevice]]:
         """Get bus_name -> list[(node_id, product_id)] map of discovered nodes per bus"""
         response: NodeMap = await self.stub.GetNodes(GetNodesMessage())
-        return response
+        return {bus_name: list(devices.nodes) for bus_name, devices in response.nodes.items()}
 
     @grpc_translated_async()
     async def ping(self) -> None:
         """Check if server is responding."""
         await self.stub.Ping(Empty(), timeout=self.config.info_gathering_rpc_timeout)
+
+    @grpc_translated_async()
+    async def get_errors(self) -> Optional[list[ErrorInfo]]:
+        """Obtain list of controller's errors from recent time"""
+        response: ErrorList = await self.stub.GetErrors(Empty(), timeout=self.config.continuous_rpc_timeout)
+        if response.HasField("errors_list"):
+            return list(response.errors_list.errors)
+        return None

@@ -3,6 +3,7 @@ from os import getenv
 from pprint import pprint
 
 from clone_client.client import Client
+from clone_client.pose_estimation.pose_estimator import MagInterpolConfig
 
 
 async def main() -> None:
@@ -11,11 +12,13 @@ async def main() -> None:
     async with Client(
         address=address,
         tunnels_used=Client.TunnelsUsed.STATE,
-        additional_config=Client.Config(maginterp_disable=False, maginterp_filter_avg_samples=16),
+        additional_config=Client.Config(
+            maginterp_config=MagInterpolConfig(disable=False, filter_avg_samples=16)
+        ),
     ) as client:
         print("Connected to client")
-        qpos_to_jnt_mapping = sorted(client.qpos_to_jnt_mapping.items())
-        async for qpos_vec in client.subscribe_angles():
+        qpos_to_jnt_mapping = sorted(client.state_store.qpos_to_jnt_mapping.items())
+        async for qpos_vec in client.state_store.subscribe_angles():
             print("\n" * 100)
             if show_names:
                 for qpos, (jnt_name, axis_name) in qpos_to_jnt_mapping:

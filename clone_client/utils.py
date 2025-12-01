@@ -118,45 +118,6 @@ class IsDataclass(Protocol):
     __dataclass_fields__: Dict
 
 
-T = TypeVar("T", bound=IsDataclass)
-
-
-PRetry = ParamSpec("PRetry")
-RRetry = TypeVar("RRetry")
-CatchType = Optional[List[Type[BaseException]]]
-
-
-def retry(
-    max_retries: int, catch: CatchType = None
-) -> Callable[[Callable[PRetry, Awaitable[RRetry]]], Callable[PRetry, Awaitable[RRetry]]]:
-    """Decorator for retrying an async function call."""
-
-    def decorator(
-        func: Callable[PRetry, Awaitable[RRetry]]
-    ) -> Callable[PRetry, Callable[PRetry, Awaitable[RRetry]]]:
-        async def wrapped(*args: PRetry.args, **kwargs: PRetry.kwargs) -> RRetry:
-            for curr_retry in range(max_retries + 1):
-                try:
-                    return await func(*args, **kwargs)
-                except Exception as err:  # pylint: disable=broad-except
-                    if catch is None or any(isinstance(err, error) for error in catch):
-                        if curr_retry == max_retries:
-                            raise
-
-                        LOGGER.warning(
-                            "Retrying %s, attempt %d/%d", func.__name__, curr_retry + 1, max_retries
-                        )
-                        await asyncio.sleep(curr_retry / 2)
-                    else:
-                        raise
-
-            return await func(*args, **kwargs)
-
-        return wrapped
-
-    return decorator
-
-
 def strip_local(value: str) -> str:
     """Check if value ends with .local. and remove it if it does."""
     if value.endswith(".local."):
@@ -179,7 +140,7 @@ def _precise_interval_base(interval: float, precision: float = 0.2) -> Generator
 
     if interval < 0:
         interval = 0
-        LOGGER.warning("Negative interval specified - setting to 0. ", interval)
+        LOGGER.warning("Negative interval specified (%d). Setting to 0.", interval)
 
     interval_ns = int(interval * 1e9)
     resolution = get_clock_info("perf_counter").resolution
@@ -196,7 +157,8 @@ def _precise_interval_base(interval: float, precision: float = 0.2) -> Generator
             if remaining < 0:
                 remaining = 0
                 LOGGER.warning(
-                    "Tick takes longer than specified interval. Please consider increasing it. ", remaining
+                    "Tick takes longer than specified interval (%d). Please consider increasing it. ",
+                    remaining,
                 )
 
             if fraction > 0:
@@ -225,7 +187,7 @@ def _busy_ticker_base(
 
     if dur < 0:
         dur = 0
-        LOGGER.warning("Negative duration specified - setting to 0. ", dur)
+        LOGGER.warning("Negative duration specified (%d). Setting to 0.", dur)
 
     dur_ns = int(dur * 1e9)
     min_tick_ns = int(min_tick * 1e9)

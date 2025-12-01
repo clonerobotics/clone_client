@@ -1,3 +1,4 @@
+from enum import auto, IntEnum
 import logging
 from typing import cast, Dict, Type
 
@@ -29,9 +30,22 @@ class UnknownGolemError(InternalGolemServerRequestError):
 class GolemError(InternalGolemServerRequestError):
     """Request failed with GolemError"""
 
+    class ErrorKind(IntEnum):
+        """Types of golem errors"""
+
+        GRPC = 1  # Caused by a GRPC error (tonic::Status) (in source)
+        SNAIL_PROTO = auto()  # Caused by a SnailProtoError (in source)
+        IO = auto()  # Caused by an IO error (in source)
+        MISSING_HARDWARE = auto()  # When some hardware, e.g. node or a bus is missing
+        DISABLED_FUNCTIONALITY = auto()  # When a functionality is disabled (e.g. telemetry)
+        WRONG_REQUEST = auto()  # When a wrong request comes from remote
+        CONFIGURATION = auto()  # When configuration is malformed or cannot be read during startup
+        REMOTE_GOLEM_ERROR = auto()  # When one golem's unit receives an error from another one
+        RUNTIME_ERROR = auto()  # Error from a runtime, e.g. Tokio
+
     def __init__(self, error_info: ErrorInfo) -> None:
-        self.kind = error_info.subtype
-        message = f"ServerResponse GolemError({error_info.subtype}): {error_info.info}"
+        self.kind = GolemError.ErrorKind(error_info.subtype)
+        message = f"ServerResponse GolemError({self.kind!r}): {error_info.info}"
         super().__init__(message)
 
 

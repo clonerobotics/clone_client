@@ -4,9 +4,12 @@ isort:skip_file
 """
 
 import builtins
+import collections.abc
 import google.protobuf.descriptor
+import google.protobuf.internal.containers
 import google.protobuf.internal.enum_type_wrapper
 import google.protobuf.message
+import google.protobuf.timestamp_pb2
 import sys
 import typing
 
@@ -27,6 +30,7 @@ class _ErrorTypeEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._Enum
     GOLEM_ERROR: _ErrorType.ValueType  # 1
     WRONG_REQUEST: _ErrorType.ValueType  # 2
     DISABLED_FUNCTIONALITY: _ErrorType.ValueType  # 3
+    SNAIL_ERROR: _ErrorType.ValueType  # 4
 
 class ErrorType(_ErrorType, metaclass=_ErrorTypeEnumTypeWrapper): ...
 
@@ -34,6 +38,7 @@ UNKNOWN: ErrorType.ValueType  # 0
 GOLEM_ERROR: ErrorType.ValueType  # 1
 WRONG_REQUEST: ErrorType.ValueType  # 2
 DISABLED_FUNCTIONALITY: ErrorType.ValueType  # 3
+SNAIL_ERROR: ErrorType.ValueType  # 4
 global___ErrorType = ErrorType
 
 @typing.final
@@ -43,18 +48,28 @@ class ErrorInfo(google.protobuf.message.Message):
     ERROR_FIELD_NUMBER: builtins.int
     INFO_FIELD_NUMBER: builtins.int
     SUBTYPE_FIELD_NUMBER: builtins.int
+    LOCATION_FIELD_NUMBER: builtins.int
+    TIMESTAMP_FIELD_NUMBER: builtins.int
     error: global___ErrorType.ValueType
     info: builtins.str
     subtype: builtins.int
+    location: builtins.str
+    @property
+    def timestamp(self) -> google.protobuf.timestamp_pb2.Timestamp: ...
     def __init__(
         self,
         *,
         error: global___ErrorType.ValueType = ...,
         info: builtins.str = ...,
         subtype: builtins.int | None = ...,
+        location: builtins.str | None = ...,
+        timestamp: google.protobuf.timestamp_pb2.Timestamp | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["_subtype", b"_subtype", "subtype", b"subtype"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_subtype", b"_subtype", "error", b"error", "info", b"info", "subtype", b"subtype"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["_location", b"_location", "_subtype", b"_subtype", "location", b"location", "subtype", b"subtype", "timestamp", b"timestamp"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_location", b"_location", "_subtype", b"_subtype", "error", b"error", "info", b"info", "location", b"location", "subtype", b"subtype", "timestamp", b"timestamp"]) -> None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_location", b"_location"]) -> typing.Literal["location"] | None: ...
+    @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_subtype", b"_subtype"]) -> typing.Literal["subtype"] | None: ...
 
 global___ErrorInfo = ErrorInfo
@@ -79,3 +94,37 @@ class ServerResponse(google.protobuf.message.Message):
     def WhichOneof(self, oneof_group: typing.Literal["_error", b"_error"]) -> typing.Literal["error"] | None: ...
 
 global___ServerResponse = ServerResponse
+
+@typing.final
+class ErrorList(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing.final
+    class ErrorList(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        ERRORS_FIELD_NUMBER: builtins.int
+        @property
+        def errors(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ErrorInfo]: ...
+        def __init__(
+            self,
+            *,
+            errors: collections.abc.Iterable[global___ErrorInfo] | None = ...,
+        ) -> None: ...
+        def ClearField(self, field_name: typing.Literal["errors", b"errors"]) -> None: ...
+
+    ERRORS_LIST_FIELD_NUMBER: builtins.int
+    @property
+    def errors_list(self) -> global___ErrorList.ErrorList:
+        """None means error collection is disabled"""
+
+    def __init__(
+        self,
+        *,
+        errors_list: global___ErrorList.ErrorList | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["_errors_list", b"_errors_list", "errors_list", b"errors_list"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_errors_list", b"_errors_list", "errors_list", b"errors_list"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["_errors_list", b"_errors_list"]) -> typing.Literal["errors_list"] | None: ...
+
+global___ErrorList = ErrorList

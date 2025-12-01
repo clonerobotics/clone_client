@@ -21,23 +21,23 @@ async def flush() -> None:
     Flush the pressure system with the dedicated medium
     """
     async with Client(address=GOLEM_ADDRESS, server=GOLEM_HOSTNAME) as client:
-        await client.loose_all()
+        await client.controller.loose_all()
         await asyncio.sleep(3)
-        impulses = [0] * client.number_of_muscles
+        impulses = [0] * client.state_store.number_of_muscles
 
         cursor = 0
         for _ in range(NO_FLUSHES):
-            impulses = [0] * client.number_of_muscles
+            impulses = [0] * client.state_store.number_of_muscles
             impulses[cursor : CONCURRENT_MUSCLES + cursor] = [1] * CONCURRENT_MUSCLES
-            await client.set_impulses(impulses)
+            await client.controller.set_impulses(impulses)
             await asyncio.sleep(FLUSH_TIME)
 
             impulses[cursor : CONCURRENT_MUSCLES + cursor] = [-1] * CONCURRENT_MUSCLES
-            await client.set_impulses(impulses)
+            await client.controller.set_impulses(impulses)
             await asyncio.sleep(FLUSH_TIME)
 
             cursor += CONCURRENT_MUSCLES
-            if cursor + CONCURRENT_MUSCLES >= client.number_of_muscles:
+            if cursor + CONCURRENT_MUSCLES >= client.state_store.number_of_muscles:
                 cursor = 0
 
 

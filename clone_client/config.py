@@ -40,7 +40,7 @@ class CommunicationConfig(BaseModel):
     controller_service: CommunicationService = CommunicationService(
         name="golem_controller", default_port=4689, default_unix_sock_name="controller.socket"
     )
-    rcv_web_service: CommunicationService = Field(
+    state_store_service: CommunicationService = Field(
         CommunicationService(
             name="golem_state", default_port=4690, default_unix_sock_name="state_store_rcv.socket"
         ),
@@ -56,13 +56,7 @@ class Config(BaseSettings):
 
     # pylint: disable=too-few-public-methods
 
-    class Config:
-        # pylint: disable=too-few-public-methods, missing-class-docstring
-        env_prefix = "CONFIG_"
-        env_nested_delimiter = "__"
-
     communication: CommunicationConfig = Field(CommunicationConfig(), title="Communication configuration")
-    max_retries: int = Field(3, title="Maximum number of retries before failing.")
 
 
 CONFIG: Config = Config()
