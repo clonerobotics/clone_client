@@ -10,6 +10,7 @@ import google.protobuf.descriptor
 import google.protobuf.internal.containers
 import google.protobuf.internal.enum_type_wrapper
 import google.protobuf.message
+import google.protobuf.timestamp_pb2
 import sys
 import typing
 
@@ -187,18 +188,22 @@ class TelemetryData(google.protobuf.message.Message):
 
     SENSOR_DATA_FIELD_NUMBER: builtins.int
     POSE_ESTIMATION_FIELD_NUMBER: builtins.int
+    TIME_SINCE_START_FIELD_NUMBER: builtins.int
     @property
     def sensor_data(self) -> global___SensorData: ...
     @property
     def pose_estimation(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.float]: ...
+    @property
+    def time_since_start(self) -> google.protobuf.timestamp_pb2.Timestamp: ...
     def __init__(
         self,
         *,
         sensor_data: global___SensorData | None = ...,
         pose_estimation: collections.abc.Iterable[builtins.float] | None = ...,
+        time_since_start: google.protobuf.timestamp_pb2.Timestamp | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["sensor_data", b"sensor_data"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["pose_estimation", b"pose_estimation", "sensor_data", b"sensor_data"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["sensor_data", b"sensor_data", "time_since_start", b"time_since_start"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["pose_estimation", b"pose_estimation", "sensor_data", b"sensor_data", "time_since_start", b"time_since_start"]) -> None: ...
 
 global___TelemetryData = TelemetryData
 

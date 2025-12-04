@@ -23,6 +23,63 @@ from clone_client.state_store.config import StateStoreClientConfig
 from clone_client.utils import grpc_translated_async
 
 
+class TelemetryDataExt:
+    # pylint: disable=W0212
+    """NOTE: for deriving velocities this function uses and modifies
+    internal, class-level state (shared by all `TelemetryDataExt` instances).
+    NOTE: To get possibly best velocities approximation, this must be created
+    with each telemetry value in turn, that is obtained from Golem.
+    Best to use with a telemetry stream.
+    """
+
+    # velocity related global state
+    # TBD: to avoid global state it may be benefitial to create
+    # a class wrapping `TelemetryDataExt`, which would hold
+    # that state
+    _last_pose_estimation: Optional[npt.NDArray[np.double]] = None
+    _last_telemetry_timestamp = 0.0
+
+    def __init__(self, data: TelemetryData, client: "StateStoreClient") -> None:
+        self._inner = data
+        if client._pose_estimator_maginterp is not None:
+            self._new_pose_estimation = client._pose_estimator_maginterp.get_angles_vec(
+                data.sensor_data.bfields, data.pose_estimation
+            )
+        else:
+            self._new_pose_estimation = np.array(data.pose_estimation)
+        new_timestamp = data.time_since_start.ToNanoseconds() / 1000_000_000.0
+        if TelemetryDataExt._last_pose_estimation is None:
+            self._velocities = np.zeros_like(self._new_pose_estimation)
+        else:
+            self._velocities = (self._new_pose_estimation - TelemetryDataExt._last_pose_estimation) / (
+                new_timestamp - TelemetryDataExt._last_telemetry_timestamp
+            )
+        TelemetryDataExt._last_pose_estimation = self._new_pose_estimation
+        TelemetryDataExt._last_telemetry_timestamp = new_timestamp
+
+    @property
+    def raw(self) -> TelemetryData:
+        """Access to inner raw `TelemetryData` structure.
+        Useful when access to sensor data other then pressure
+        is needed."""
+        return self._inner
+
+    @property
+    def pressures(self) -> npt.NDArray[np.double]:
+        """Get vector of pressures"""
+        return np.array(self._inner.sensor_data.pressures)
+
+    @property
+    def qpos(self) -> npt.NDArray[np.double]:
+        """Get vector of estimated joint angles."""
+        return self._new_pose_estimation
+
+    @property
+    def qvel(self) -> ...:
+        """Get vector of estimated joint velocities."""
+        return self._velocities
+
+
 class StateStoreClient(GRPCAsyncClient):
     """Client for receiving data from the state store."""
 
@@ -46,6 +103,8 @@ class StateStoreClient(GRPCAsyncClient):
         ] = {}
 
         self._pose_estimator_maginterp: Optional[PoseEstimatorMagInterpol] = None
+        self._last_pose_estimation: Optional[npt.NDArray[np.double]] = None
+        self._last_telemetry_timestamp = 0.0
 
     @classmethod
     async def new(cls, socket_address: str, maginterpol_config: MagInterpolConfig) -> "StateStoreClient":
@@ -121,30 +180,6 @@ class StateStoreClient(GRPCAsyncClient):
                 filter_avg_use=self._maginterpol_config.filter_avg_use,
             )
 
-    async def subscribe_angles(
-        self, telemetry_stream: Optional[AsyncIterable[TelemetryData]] = None
-    ) -> AsyncIterable[npt.NDArray[np.float64]]:
-        """Subscribe pose estimation stream"""
-        if telemetry_stream is None:
-            telemetry_stream = self.subscribe_telemetry()
-        if self._pose_estimator_maginterp is None:
-            async for telemetry in telemetry_stream:
-                yield np.array(telemetry.pose_estimation)
-        else:
-            async for telemetry in telemetry_stream:
-                yield self._pose_estimator_maginterp.get_angles_vec(
-                    telemetry.sensor_data.bfields, telemetry.pose_estimation
-                )
-
-    async def get_angles(self) -> npt.NDArray[np.float64]:
-        """Get current pose estimation as a numpy array"""
-        telemetry = await self.get_telemetry()
-        if self._pose_estimator_maginterp is None:
-            return np.array(telemetry.pose_estimation)
-        return self._pose_estimator_maginterp.get_angles_vec(
-            telemetry.sensor_data.bfields, telemetry.pose_estimation
-        )
-
     @property
     def muscle_order(self) -> dict[int, str]:
         """Get muscle order."""
@@ -182,3 +217,15 @@ class StateStoreClient(GRPCAsyncClient):
     ) -> dict[Annotated[tuple[str, str], "Joint and axis names"], Annotated[int, "qpos_nr"]]:
         """Get mapping from joint and axis names tuple to its qpos. It is reverse of qpos_to_jnt_mapping"""
         return self._joint_axis_name_to_qpos
+
+    def telemetry_extend(self, telemetry_data: TelemetryData) -> TelemetryDataExt:
+        """Wrap `TelemetryData` obtained from a Golem into an extension
+        object, which facilitates obtaining joint pose and velocity estimation"""
+        return TelemetryDataExt(telemetry_data, self)
+
+    async def telemetry_stream_extend(
+        self, telemetry_stream: AsyncIterable[TelemetryData]
+    ) -> AsyncIterable[TelemetryDataExt]:
+        """Wrap telemetry stream so that it returns `TelemetryDataExt`"""
+        async for tele in telemetry_stream:
+            yield TelemetryDataExt(tele, self)

@@ -1,6 +1,7 @@
 syntax="proto3";
 
 import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 import "clone_client/proto/data_types.proto";
 
 package clone.state_store;
@@ -50,6 +51,7 @@ message SensorData {
 message TelemetryData {
   SensorData sensor_data=1;
   repeated double pose_estimation=2;
+  google.protobuf.Timestamp time_since_start=3;
 }
 
 message Bfield {
