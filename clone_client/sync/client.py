@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import auto, Flag
 import ipaddress as ip
 import logging
@@ -33,7 +33,7 @@ class Client:
     class Config:
         """Additional parameters for client"""
 
-        maginterp_config: MagInterpolConfig = MagInterpolConfig()
+        maginterp_config: MagInterpolConfig = field(default_factory=MagInterpolConfig)
 
     def __init__(
         self,
