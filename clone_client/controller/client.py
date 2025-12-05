@@ -1,5 +1,5 @@
 from time import time
-from typing import AsyncGenerator, AsyncIterable, Optional, Sequence
+from typing import AsyncIterable, Optional, Sequence
 
 from google.protobuf.empty_pb2 import Empty  # pylint: disable=E0611
 
@@ -113,7 +113,7 @@ class ControllerClient(GRPCAsyncClient):
     async def stream_set_pressures(self, stream: AsyncIterable[Sequence[float]]) -> None:
         """Start streaming pressures control"""
 
-        async def mapped_stream() -> AsyncGenerator[SetPressuresMessage, None]:
+        async def mapped_stream() -> AsyncIterable[SetPressuresMessage]:
             async for pressures in stream:
                 yield SetPressuresMessage(pressures=pressures)
 

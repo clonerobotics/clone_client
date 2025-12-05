@@ -1,5 +1,5 @@
 from time import time
-from typing import Generator, Iterable, Optional, Sequence
+from typing import Iterable, Optional, Sequence
 
 from google.protobuf.empty_pb2 import Empty  # pylint: disable=E0611
 import grpc
@@ -108,7 +108,7 @@ class ControllerClient(GRPCClient[grpc.Channel]):
     def stream_set_pressures(self, stream: Iterable[Sequence[float]]) -> None:
         """Start streaming pressures control"""
 
-        def mapped_stream() -> Generator[SetPressuresMessage, None]:
+        def mapped_stream() -> Iterable[SetPressuresMessage]:
             for pressures in stream:
                 yield SetPressuresMessage(pressures=pressures)
 
