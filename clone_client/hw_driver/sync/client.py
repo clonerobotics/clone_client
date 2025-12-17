@@ -1,10 +1,16 @@
+"""
+AUTO-GENERATED SYNC FILE — DO NOT EDIT
+
+Generated from: client.py
+Any manual changes WILL be overwritten on next conversion.
+"""
+
 from dataclasses import dataclass
 from enum import IntEnum
 import logging
 from typing import Annotated, Optional
 
 from google.protobuf.empty_pb2 import Empty
-import grpc
 
 from clone_client.error_frames import get_request_error, handle_response
 from clone_client.grpc_client import GRPCClient
@@ -113,7 +119,7 @@ class HardwareDriverErrors:
     buses_errors: dict[str, Optional[list[ErrorInfo]]]
 
 
-class HWDriverClient(GRPCClient[grpc.Channel]):
+class HWDriverClient(GRPCClient):
     """Client for receiving data from the state store."""
 
     def __init__(self, socket_address: str, config: HWDriverClientConfig) -> None:

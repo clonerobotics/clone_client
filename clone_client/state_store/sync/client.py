@@ -1,9 +1,17 @@
-from typing import Annotated, Iterable, Optional, Sequence
+"""
+AUTO-GENERATED SYNC FILE — DO NOT EDIT
+
+Generated from: client.py
+Any manual changes WILL be overwritten on next conversion.
+"""
+
+from typing import Annotated, Iterable, Literal, Optional
+import warnings
 
 from google.protobuf.empty_pb2 import Empty  # pylint: disable=E0611
-import grpc
 import numpy as np
 import numpy.typing as npt
+from scipy.spatial.transform import Rotation as R  # type: ignore
 
 from clone_client.error_frames import handle_response
 from clone_client.exceptions import IncorrectMuscleIndexError, IncorrectMuscleNameError
@@ -33,30 +41,46 @@ class TelemetryDataExt:
     Best to use with a telemetry stream.
     """
 
-    # velocity related global state
-    # TBD: to avoid global state it may be benefitial to create
-    # a class wrapping `TelemetryDataExt`, which would hold
-    # that state
-    _last_pose_estimation: Optional[npt.NDArray[np.double]] = None
-    _last_telemetry_timestamp = 0.0
-
     def __init__(self, data: TelemetryData, client: "StateStoreClient") -> None:
         self._inner = data
+
+        server_pose_estimation = {
+            joint_name: R.from_quat([q.x, q.y, q.z, q.w])
+            for joint_name, q in data.pose_estimation.pose_estimation.items()
+        }
         if client._pose_estimator_maginterp is not None:
-            self._new_pose_estimation = client._pose_estimator_maginterp.get_angles_vec(
-                data.sensor_data.bfields, data.pose_estimation
+            mag_pose_estimation = client._pose_estimator_maginterp.get_rotations_dict(
+                data.sensor_data.bfields
             )
+            self._new_pose_estimation = {**server_pose_estimation, **mag_pose_estimation}
         else:
-            self._new_pose_estimation = np.array(data.pose_estimation)
+            self._new_pose_estimation = server_pose_estimation
+
         new_timestamp = data.time_since_start.ToNanoseconds() / 1000_000_000.0
-        if TelemetryDataExt._last_pose_estimation is None:
-            self._velocities = np.zeros_like(self._new_pose_estimation)
+        if client._last_pose_estimation is None:
+            self._velocities = {joint_name: np.zeros(3) for joint_name in self._new_pose_estimation}
         else:
-            self._velocities = (self._new_pose_estimation - TelemetryDataExt._last_pose_estimation) / (
-                new_timestamp - TelemetryDataExt._last_telemetry_timestamp
-            )
-        TelemetryDataExt._last_pose_estimation = self._new_pose_estimation
-        TelemetryDataExt._last_telemetry_timestamp = new_timestamp
+            # FIXME: short diff time in connection with no filtering (hence high wobbling of pose estimation)
+            # brings to spurious high values of velocities
+            # FIXME: below is a dumbfix for a situation where the same telemetry object is used
+            # two times to create TelemetryDataExt (what caused ZeroDivisionError).
+            # This one will be fixed with transferring calculation to the golem
+            try:
+                self._velocities = {
+                    joint_name: (rnew * client._last_pose_estimation[joint_name].inv()).as_rotvec()
+                    / (new_timestamp - client._last_telemetry_timestamp)
+                    for joint_name, rnew in self._new_pose_estimation.items()
+                }
+            except ZeroDivisionError:
+                warnings.warn(
+                    "ZeroDivisionError happended during velocity calculation."
+                    "Probably due to usage of the same TelemetryData object twice.",
+                    RuntimeWarning,
+                )
+                self._velocities = {joint_name: np.zeros(3) for joint_name in self._new_pose_estimation}
+
+        client._last_pose_estimation = self._new_pose_estimation
+        client._last_telemetry_timestamp = new_timestamp
 
     @property
     def raw(self) -> TelemetryData:
@@ -71,17 +95,19 @@ class TelemetryDataExt:
         return np.array(self._inner.sensor_data.pressures)
 
     @property
-    def qpos(self) -> npt.NDArray[np.double]:
-        """Get vector of estimated joint angles."""
+    def qpos(self) -> dict[str, R]:  # type: ignore[no-any-unimported]
+        """Get mapping joint name -> joint rotation"""
         return self._new_pose_estimation
 
     @property
-    def qvel(self) -> ...:
-        """Get vector of estimated joint velocities."""
-        return self._velocities
+    def qvel(
+        self,
+    ) -> dict[str, np.ndarray[tuple[Literal[3]], np.dtype[np.double]]]:  # type: ignore[no-any-unimported]
+        """Get vector of estimated joint velocities (as Vector3, rad/s)"""
+        return self._velocities  # type: ignore[return-value]
 
 
-class StateStoreClient(GRPCClient[grpc.Channel]):
+class StateStoreClient(GRPCClient):
     """Client for receiving data from the state store."""
 
     def __init__(
@@ -96,15 +122,10 @@ class StateStoreClient(GRPCClient[grpc.Channel]):
         self._ordering: dict[str, int] = {}
         self._ordering_rev: dict[int, str] = {}
 
-        self._qpos_to_joint_axis_name: dict[
-            Annotated[int, "qpos_nr"], Annotated[tuple[str, str], "Joint and axis names"]
-        ] = {}
-        self._joint_axis_name_to_qpos: dict[
-            Annotated[tuple[str, str], "Joint and axis names"], Annotated[int, "qpos_nr"]
-        ] = {}
+        self._joints_axes_mapping: dict[str, list[str]] = {}
 
         self._pose_estimator_maginterp: Optional[PoseEstimatorMagInterpol] = None
-        self._last_pose_estimation: Optional[npt.NDArray[np.double]] = None
+        self._last_pose_estimation: Optional[dict[Annotated[str, "joint name"], R]] = None  # type: ignore
         self._last_telemetry_timestamp = 0.0
 
     @classmethod
@@ -164,19 +185,12 @@ class StateStoreClient(GRPCClient[grpc.Channel]):
             self._ordering_rev[muscle_info.index] = muscle_name
         if info.HasField("pose_estimation"):
             for joint_name, joint in info.pose_estimation.joints.items():
-                for axis_name, axis in joint.joint.axes.items():
-                    self._qpos_to_joint_axis_name[axis.qpos_idx] = (joint_name, axis_name)
-            self._joint_axis_name_to_qpos = {
-                joint_axis_names: qpos for qpos, joint_axis_names in self._qpos_to_joint_axis_name.items()
-            }
-        if not self._maginterpol_config.disable:
-            if info.pose_estimation is None:
-                raise RuntimeError("No pose estimator information was obtained from golem")
-            if not info.pose_estimation.HasField("maginterp"):
-                raise RuntimeError("No information on magnetic interpolator pose estimation obtained")
+                self._joints_axes_mapping[joint_name] = []
+                for axis_name, _ in joint.joint.axes.items():
+                    self._joints_axes_mapping[joint_name].append(axis_name)
+        if info.pose_estimation is not None and info.pose_estimation.HasField("maginterp"):
             self._pose_estimator_maginterp = PoseEstimatorMagInterpol.from_maginterp_info(
                 info.pose_estimation,
-                self._joint_axis_name_to_qpos,
                 filter_avg_samples=self._maginterpol_config.filter_avg_samples,
                 filter_avg_use=self._maginterpol_config.filter_avg_use,
             )
@@ -206,18 +220,11 @@ class StateStoreClient(GRPCClient[grpc.Channel]):
             raise IncorrectMuscleIndexError(idx) from err
 
     @property
-    def qpos_to_jnt_mapping(
+    def jnt_to_axes(
         self,
-    ) -> dict[Annotated[int, "qpos_nr"], Annotated[tuple[str, str], "Joint and axis names"]]:
-        """Get mapping from position in qpos vector to joint and axis names tuple."""
-        return self._qpos_to_joint_axis_name
-
-    @property
-    def jnt_to_qpos_mapping(
-        self,
-    ) -> dict[Annotated[tuple[str, str], "Joint and axis names"], Annotated[int, "qpos_nr"]]:
-        """Get mapping from joint and axis names tuple to its qpos. It is reverse of qpos_to_jnt_mapping"""
-        return self._joint_axis_name_to_qpos
+    ) -> dict[str, list[str]]:
+        """Get mapping from a joint name to names of its axes"""
+        return self._joints_axes_mapping
 
     def telemetry_extend(self, telemetry_data: TelemetryData) -> TelemetryDataExt:
         """Wrap `TelemetryData` obtained from a Golem into an extension

@@ -1,5 +1,9 @@
-# async.sync
-# This marks this file as to be automatically converted to sync version using async2sync.py
+"""
+AUTO-GENERATED SYNC FILE — DO NOT EDIT
+
+Generated from: client.py
+Any manual changes WILL be overwritten on next conversion.
+"""
 
 import logging
 from typing import Optional
@@ -7,7 +11,7 @@ from typing import Optional
 from google.protobuf.empty_pb2 import Empty
 
 from clone_client.camera_driver.config import CameraDriverClientConfig
-from clone_client.grpc_client import GRPCAsyncClient
+from clone_client.grpc_client import GRPCClient
 from clone_client.proto.camera_driver_pb2 import (
     AddSinkRequest,
     GetConfigResponse,
@@ -19,35 +23,35 @@ from clone_client.proto.camera_driver_pb2 import (
     Sink,
 )
 from clone_client.proto.camera_driver_pb2_grpc import CameraDriverServiceStub
-from clone_client.utils import grpc_translated_async
+from clone_client.utils import grpc_translated
 
 L = logging.getLogger(__name__)
 
 
-class CameraDriverClient(GRPCAsyncClient):
+class CameraDriverClient(GRPCClient):
     def __init__(self, socket_address: str, config: CameraDriverClientConfig) -> None:
         super().__init__("CameraDriver", socket_address)
         self.stub = CameraDriverServiceStub(self.channel)
         self._config = config
 
-    @grpc_translated_async()
-    async def get_config(self) -> str:
-        resp: GetConfigResponse = await self.stub.GetConfig(Empty())
+    @grpc_translated()
+    def get_config(self) -> str:
+        resp: GetConfigResponse = self.stub.GetConfig(Empty())
         return resp.config
 
-    @grpc_translated_async()
-    async def list_streams(self) -> list[str]:
-        resp: ListStreamsResponse = await self.stub.ListStreams(Empty())
+    @grpc_translated()
+    def list_streams(self) -> list[str]:
+        resp: ListStreamsResponse = self.stub.ListStreams(Empty())
         return list(resp.streams)
 
-    @grpc_translated_async()
-    async def list_sinks(self, stream_id: str) -> list[Sink]:
+    @grpc_translated()
+    def list_sinks(self, stream_id: str) -> list[Sink]:
         req = ListSinksRequest(stream_id=stream_id)
-        resp: ListSinksResponse = await self.stub.ListSinks(req)
+        resp: ListSinksResponse = self.stub.ListSinks(req)
         return list(resp.sinks)
 
-    @grpc_translated_async()
-    async def add_sink(
+    @grpc_translated()
+    def add_sink(
         self,
         stream_id: str,
         address: str,
@@ -61,13 +65,13 @@ class CameraDriverClient(GRPCAsyncClient):
         )
         req = AddSinkRequest(stream_id=stream_id, sink=sink)
 
-        await self.stub.AddSink(
+        self.stub.AddSink(
             req,
             timeout=self._config.continuous_rpc_timeout,
         )
 
-    @grpc_translated_async()
-    async def remove_sink(
+    @grpc_translated()
+    def remove_sink(
         self,
         stream_id: str,
         address: str,
@@ -78,15 +82,15 @@ class CameraDriverClient(GRPCAsyncClient):
             address=address,
             port=port,
         )
-        await self.stub.RemoveSink(
+        self.stub.RemoveSink(
             req,
             timeout=self._config.continuous_rpc_timeout,
         )
 
-    @grpc_translated_async()
-    async def remove_all_sinks(self, stream_id: str) -> None:
+    @grpc_translated()
+    def remove_all_sinks(self, stream_id: str) -> None:
         req = RemoveAllSinksRequest(stream_id=stream_id)
-        await self.stub.RemoveAllSinks(
+        self.stub.RemoveAllSinks(
             req,
             timeout=self._config.continuous_rpc_timeout,
         )

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "clone-client"
-version = "0.0.46"
+version = "0.0.47"
 description = ""
 authors = ["Clone Inc."]
 readme = "README.md"
@@ -45,6 +45,7 @@ priority = "supplemental"
 
 [tool.taskipy.tasks]
 fmt = "isort ./clone_client && black ./clone_client"
+async2sync = "python ./async2sync.py ./clone_client/"
 lint = """
     black --check ./clone_client && \
     pylint ./clone_client --prefer-stubs y && \

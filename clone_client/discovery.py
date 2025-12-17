@@ -53,6 +53,9 @@ class Discovery(ServiceListener):
 
         self._found_address_timeout = AsyncThreadSafeEvent()
 
+    def discover_sync(self) -> Tuple[str, int]:
+        return asyncio.get_event_loop().run_until_complete(self.discover())
+
     async def discover(self) -> Tuple[str, int]:
         """
         Discover specified service.

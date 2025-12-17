@@ -1,8 +1,14 @@
+"""
+AUTO-GENERATED SYNC FILE — DO NOT EDIT
+
+Generated from: client.py
+Any manual changes WILL be overwritten on next conversion.
+"""
+
 from time import time
 from typing import Iterable, Optional, Sequence
 
 from google.protobuf.empty_pb2 import Empty  # pylint: disable=E0611
-import grpc
 
 from clone_client.controller.config import ControllerClientConfig
 from clone_client.error_frames import handle_response
@@ -37,7 +43,7 @@ from clone_client.proto.hardware_driver_pb2 import (
 from clone_client.utils import grpc_translated, precise_interval
 
 
-class ControllerClient(GRPCClient[grpc.Channel]):
+class ControllerClient(GRPCClient):
     """Client for sending commands and requests to the controller."""
 
     def __init__(self, socket_address: str, config: ControllerClientConfig) -> None:

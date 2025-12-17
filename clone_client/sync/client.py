@@ -1,3 +1,10 @@
+"""
+AUTO-GENERATED SYNC FILE — DO NOT EDIT
+
+Generated from: client.py
+Any manual changes WILL be overwritten on next conversion.
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -5,11 +12,13 @@ from enum import auto, Flag
 import ipaddress as ip
 import logging
 from pathlib import Path
+from socket import gethostname
 from types import TracebackType
-from typing import Type
+from typing import Optional, Type
 
 from clone_client.config import CommunicationService, CONFIG
 from clone_client.controller.sync.client import ControllerClient
+from clone_client.discovery import Discovery
 from clone_client.exceptions import ClientError
 from clone_client.hw_driver.sync.client import HWDriverClient
 from clone_client.pose_estimation.pose_estimator import MagInterpolConfig
@@ -37,10 +46,12 @@ class Client:
 
     def __init__(
         self,
-        address: str,
+        server: str = gethostname(),
+        address: Optional[str] = None,
         tunnels_used: TunnelsUsed = TunnelsUsed.CONTROLLER | TunnelsUsed.STATE,
         additional_config: Config = Config(),
     ) -> None:
+        self.server = server
         self.address = address
         self.tunnels_used = tunnels_used
         self._config = additional_config
@@ -65,19 +76,23 @@ class Client:
         return self._hw_driver
 
     def _create_socket_str(self, service: CommunicationService) -> str:
-        try:
-            ip.ip_address(self.address)  # test whether valid ip
-            service_address, service_port = (
-                self.address,
-                service.default_port,
-            )
+        if not self.address:
+            service_address, service_port = Discovery(self.server, service).discover_sync()
             socket_str = f"{service_address}:{service_port}"
-        except ValueError as e:
-            LOGGER.debug("Passed address is not a net address, trying to use unix-socket")
-            socket_path = Path(self.address) / Path(service.default_unix_sock_name)
-            if not socket_path.is_socket():
-                raise ValueError(f"Selected path ({socket_path}) does not point to a unix-socket") from e
-            socket_str = f"unix://{socket_path}"
+        else:
+            try:
+                ip.ip_address(self.address)  # test whether valid ip
+                service_address, service_port = (
+                    self.address,
+                    service.default_port,
+                )
+                socket_str = f"{service_address}:{service_port}"
+            except ValueError as e:
+                LOGGER.debug("Passed address is not a net address, trying to use unix-socket")
+                socket_path = Path(self.address) / Path(service.default_unix_sock_name)
+                if not socket_path.is_socket():
+                    raise ValueError(f"Selected path ({socket_path}) does not point to a unix-socket") from e
+                socket_str = f"unix://{socket_path}"
         LOGGER.debug(socket_str)
         return socket_str
 

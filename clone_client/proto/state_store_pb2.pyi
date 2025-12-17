@@ -183,26 +183,84 @@ class SensorData(google.protobuf.message.Message):
 global___SensorData = SensorData
 
 @typing.final
+class Quaternion(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    W_FIELD_NUMBER: builtins.int
+    X_FIELD_NUMBER: builtins.int
+    Y_FIELD_NUMBER: builtins.int
+    Z_FIELD_NUMBER: builtins.int
+    w: builtins.float
+    x: builtins.float
+    y: builtins.float
+    z: builtins.float
+    def __init__(
+        self,
+        *,
+        w: builtins.float = ...,
+        x: builtins.float = ...,
+        y: builtins.float = ...,
+        z: builtins.float = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["w", b"w", "x", b"x", "y", b"y", "z", b"z"]) -> None: ...
+
+global___Quaternion = Quaternion
+
+@typing.final
+class PoseEstimationData(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing.final
+    class PoseEstimationEntry(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        KEY_FIELD_NUMBER: builtins.int
+        VALUE_FIELD_NUMBER: builtins.int
+        key: builtins.str
+        @property
+        def value(self) -> global___Quaternion: ...
+        def __init__(
+            self,
+            *,
+            key: builtins.str = ...,
+            value: global___Quaternion | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
+
+    POSE_ESTIMATION_FIELD_NUMBER: builtins.int
+    @property
+    def pose_estimation(self) -> google.protobuf.internal.containers.MessageMap[builtins.str, global___Quaternion]: ...
+    def __init__(
+        self,
+        *,
+        pose_estimation: collections.abc.Mapping[builtins.str, global___Quaternion] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["pose_estimation", b"pose_estimation"]) -> None: ...
+
+global___PoseEstimationData = PoseEstimationData
+
+@typing.final
 class TelemetryData(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
     SENSOR_DATA_FIELD_NUMBER: builtins.int
-    POSE_ESTIMATION_FIELD_NUMBER: builtins.int
     TIME_SINCE_START_FIELD_NUMBER: builtins.int
+    POSE_ESTIMATION_FIELD_NUMBER: builtins.int
     @property
     def sensor_data(self) -> global___SensorData: ...
     @property
-    def pose_estimation(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.float]: ...
-    @property
     def time_since_start(self) -> google.protobuf.timestamp_pb2.Timestamp: ...
+    @property
+    def pose_estimation(self) -> global___PoseEstimationData: ...
     def __init__(
         self,
         *,
         sensor_data: global___SensorData | None = ...,
-        pose_estimation: collections.abc.Iterable[builtins.float] | None = ...,
         time_since_start: google.protobuf.timestamp_pb2.Timestamp | None = ...,
+        pose_estimation: global___PoseEstimationData | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["sensor_data", b"sensor_data", "time_since_start", b"time_since_start"]) -> builtins.bool: ...
+    def HasField(self, field_name: typing.Literal["pose_estimation", b"pose_estimation", "sensor_data", b"sensor_data", "time_since_start", b"time_since_start"]) -> builtins.bool: ...
     def ClearField(self, field_name: typing.Literal["pose_estimation", b"pose_estimation", "sensor_data", b"sensor_data", "time_since_start", b"time_since_start"]) -> None: ...
 
 global___TelemetryData = TelemetryData
@@ -309,19 +367,18 @@ class Joint(google.protobuf.message.Message):
     class Axis(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
-        QPOS_IDX_FIELD_NUMBER: builtins.int
         AXIS_FIELD_NUMBER: builtins.int
-        qpos_idx: builtins.int
         @property
-        def axis(self) -> global___Vec3: ...
+        def axis(self) -> global___Vec3:
+            """1;"""
+
         def __init__(
             self,
             *,
-            qpos_idx: builtins.int = ...,
             axis: global___Vec3 | None = ...,
         ) -> None: ...
         def HasField(self, field_name: typing.Literal["_axis", b"_axis", "axis", b"axis"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing.Literal["_axis", b"_axis", "axis", b"axis", "qpos_idx", b"qpos_idx"]) -> None: ...
+        def ClearField(self, field_name: typing.Literal["_axis", b"_axis", "axis", b"axis"]) -> None: ...
         def WhichOneof(self, oneof_group: typing.Literal["_axis", b"_axis"]) -> typing.Literal["axis"] | None: ...
 
     @typing.final
@@ -482,23 +539,22 @@ class PoseEstimationInfo(google.protobuf.message.Message):
         def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
         def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
 
-    QPOS_LEN_FIELD_NUMBER: builtins.int
     JOINTS_FIELD_NUMBER: builtins.int
     MAGINTERP_FIELD_NUMBER: builtins.int
-    qpos_len: builtins.int
     @property
-    def joints(self) -> google.protobuf.internal.containers.MessageMap[builtins.str, global___JointExt]: ...
+    def joints(self) -> google.protobuf.internal.containers.MessageMap[builtins.str, global___JointExt]:
+        """1;"""
+
     @property
     def maginterp(self) -> global___PoseEstimationInfo.MagInterpInfo: ...
     def __init__(
         self,
         *,
-        qpos_len: builtins.int = ...,
         joints: collections.abc.Mapping[builtins.str, global___JointExt] | None = ...,
         maginterp: global___PoseEstimationInfo.MagInterpInfo | None = ...,
     ) -> None: ...
     def HasField(self, field_name: typing.Literal["_maginterp", b"_maginterp", "maginterp", b"maginterp"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_maginterp", b"_maginterp", "joints", b"joints", "maginterp", b"maginterp", "qpos_len", b"qpos_len"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["_maginterp", b"_maginterp", "joints", b"joints", "maginterp", b"maginterp"]) -> None: ...
     def WhichOneof(self, oneof_group: typing.Literal["_maginterp", b"_maginterp"]) -> typing.Literal["maginterp"] | None: ...
 
 global___PoseEstimationInfo = PoseEstimationInfo
@@ -553,7 +609,7 @@ class SystemInfo(google.protobuf.message.Message):
     def muscles(self) -> google.protobuf.internal.containers.MessageMap[builtins.str, global___SystemInfo.MuscleInfo]: ...
     @property
     def calibration_data(self) -> global___CalibrationData:
-        """repeated ImuMappingModel imus=3;"""
+        """3;"""
 
     @property
     def pose_estimation(self) -> global___PoseEstimationInfo: ...

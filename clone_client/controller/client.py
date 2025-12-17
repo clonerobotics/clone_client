@@ -1,3 +1,6 @@
+# async.sync
+# This marks this file as to be automatically converted to sync version using async2sync.py
+
 from time import time
 from typing import AsyncIterable, Optional, Sequence
 

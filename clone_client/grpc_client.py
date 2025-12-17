@@ -5,7 +5,6 @@ from typing import Any, Generic, Sequence, Tuple, TypedDict, TypeVar
 import grpc
 import grpc.aio
 
-from clone_client.config import CONFIG
 from clone_client.utils import url_rfc_to_grpc
 
 LOGGER = logging.getLogger(__name__)
@@ -49,7 +48,7 @@ class GRPCClient(Generic[T]):
             "options": [("grpc.keepalive_timeout_ms", 500), ("grpc.default_authority", "localhost")],
         }
 
-    def channel_ready(self, timeout_s: int = 6) -> bool:
+    def channel_ready(self, timeout_s: int = 6) -> None:
         """Wait for channel to be ready."""
         LOGGER.info(
             "[gRPC:%s] Waiting for channel at %s to be ready...", self._name, self._channel_args["target"]
@@ -64,7 +63,7 @@ class GRPCAsyncClient(GRPCClient[grpc.aio.Channel]):
         super().__init__(name, socket_address)
         self._channel = grpc.aio.insecure_channel(**self._channel_args)
 
-    async def channel_ready(self, timeout_s: int = 6) -> bool:  # pylint: disable=invalid-overridden-method
+    async def channel_ready(self, timeout_s: int = 6) -> None:  # pylint: disable=invalid-overridden-method
         """Wait for channel to be ready."""
         LOGGER.info(
             "[gRPC:%s] Waiting for channel at %s to be ready...", self._name, self._channel_args["target"]

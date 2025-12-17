@@ -48,10 +48,21 @@ message SensorData {
   map<uint32, Bfield> bfields=5;
 }
 
+message Quaternion {
+  double w = 1;
+  double x = 2;
+  double y = 3;
+  double z = 4;
+}
+
+message PoseEstimationData {
+  map<string, Quaternion> pose_estimation = 1;
+}
+
 message TelemetryData {
   SensorData sensor_data=1;
-  repeated double pose_estimation=2;
   google.protobuf.Timestamp time_since_start=3;
+  PoseEstimationData pose_estimation=4;
 }
 
 message Bfield {
@@ -86,7 +97,7 @@ message Vec3 {
 
 message Joint {
   message Axis {
-    uint32 qpos_idx = 1;
+    // 1;
     optional Vec3 axis = 2;
   }
   map<string, Axis> axes = 1;
@@ -112,7 +123,7 @@ message PoseEstimationInfo {
     }
     map<string, MagMapJointEntry> magmap = 1;
   }
-  uint32 qpos_len = 1;
+  // 1;
   map<string, JointExt> joints=2;
   optional MagInterpInfo maginterp = 3;
 }
@@ -125,7 +136,7 @@ message SystemInfo {
   }
 
   map<string, MuscleInfo> muscles=2;
-  // repeated ImuMappingModel imus=3;
+  // 3;
   CalibrationData calibration_data=4;
   TelemetryConfig telemetry_config=5;
   optional PoseEstimationInfo pose_estimation=6;
