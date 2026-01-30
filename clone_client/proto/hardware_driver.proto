@@ -29,35 +29,91 @@ service HardwareDriverGRPC {
   rpc Discovery (DiscoveryMessage) returns (DiscoveryResponse);
   rpc GetNodesSettings (GetNodesSettingsMessage) returns (GetNodesSettingsResponse);
 
-  rpc GetGaussRiderSpecSettings(google.protobuf.Empty) returns (GaussRiderSpecSettingsResponse);
+  rpc GetGaussRiderSpecSettings(google.protobuf.Empty) returns (GaussRiderSpecSettingsMessage);
+  rpc GetIMUSpecSettings(google.protobuf.Empty) returns (IMUSpecSettingsMessage);
+  rpc SetIMUSpecSettings(IMUSpecSettingsMessage.SpecSettingsMap) returns (clone.data_types.ServerResponse);
 
   rpc GetErrors(google.protobuf.Empty) returns (HwDriverErrors);
+  rpc PauseTelemetry(PauseTelemetryMessage) returns (google.protobuf.Empty);
 }
 
-message GaussRiderSpecSettings {
-  uint32 should_write = 2;
-  repeated uint32 register_address = 3;
-  repeated int32 measurement_cfg_x = 4;
-  repeated int32 measurement_cfg_y = 5;
-  repeated int32 measurement_cfg_z = 6;
-  int32 measurement_cfg_temperature = 7;
-  repeated int32 offsets_0 = 8;
-  repeated int32 Hval_P_T0 = 9;
-  repeated int32 Hval_N_T0 = 10;
-  repeated int32 temperatures = 11;
-  repeated int32 Hval_P_T1 = 12;
-  repeated int32 Hval_N_T1 = 13;
-  repeated int32 offsets_1 = 14;
-  repeated int32 Hval_O_P = 15;
-  repeated int32 Hval_O_N = 16;
+message PauseTelemetryMessage {
+  bool pause = 1;
 }
 
-message GaussRiderSpecSettingsResponse {
-  message SuccessMessage {
+
+message IMUSpecSettingsMessage {
+  message IMUSpecSettings {
+    message TrustFactors {
+        float acc = 1;
+        float mag = 2;
+        float acc_external = 3;
+    }
+
+    message GyroBiasThresholds {
+        float acc = 1;
+        float gyr = 2;
+        float mag = 3;
+    }
+
+    enum LearningMode {
+      Off = 0;
+      Static = 1;
+      Dynamic = 2;
+    }
+
+    message Options {
+        bool use_gyro_temperature_calibration = 1;
+        bool use_acc_calibration = 2;
+        bool use_mag_calibration = 3;
+        bool enable_continuous_mag_calibration = 4;
+        bool store_bias_and_calibration_periodically = 5;
+        bool enable_magnetometer_magnitude_gating = 6;
+        bool enable_magnetometer_alignment_gating = 7;
+    }
+
+    bool should_write = 1;
+    TrustFactors trust_factors = 2;
+    GyroBiasThresholds bias_thresholds = 3;
+    LearningMode learning_mode = 4;
+    Options options = 5;
+  }
+
+  message SpecSettingsMap {
+    map<uint32, IMUSpecSettings> spec_settings = 1;
+  }
+
+  oneof inner {
+    SpecSettingsMap success = 1;
+    clone.data_types.ErrorInfo error = 2;
+  }
+}
+
+message GaussRiderSpecSettingsMessage {
+  message GaussRiderSpecSettings {
+    bool should_write = 2;
+    repeated uint32 register_address = 3;
+    repeated int32 measurement_cfg_x = 4;
+    repeated int32 measurement_cfg_y = 5;
+    repeated int32 measurement_cfg_z = 6;
+    int32 measurement_cfg_temperature = 7;
+    repeated int32 offsets_0 = 8;
+    repeated int32 Hval_P_T0 = 9;
+    repeated int32 Hval_N_T0 = 10;
+    repeated int32 temperatures = 11;
+    repeated int32 Hval_P_T1 = 12;
+    repeated int32 Hval_N_T1 = 13;
+    repeated int32 offsets_1 = 14;
+    repeated int32 Hval_O_P = 15;
+    repeated int32 Hval_O_N = 16;
+  }
+
+  message SpecSettingsMap {
       map<uint32, GaussRiderSpecSettings> spec_settings = 1;
   }
+
   oneof inner {
-    SuccessMessage success = 1;
+    SpecSettingsMap success = 1;
     clone.data_types.ErrorInfo error = 2;
   }
 }

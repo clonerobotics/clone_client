@@ -15,18 +15,22 @@ from clone_client.proto.data_types_pb2 import ErrorInfo, ServerResponse
 from clone_client.proto.hardware_driver_pb2 import (
     DiscoveryMessage,
     DiscoveryResponse,
-    GaussRiderSpecSettings,
-    GaussRiderSpecSettingsResponse,
+    GaussRiderSpecSettingsMessage,
     GetNodesMessage,
     GetNodesSettingsMessage,
     GetNodesSettingsResponse,
     HwDriverErrors,
+    IMUSpecSettingsMessage,
 )
 from clone_client.proto.hardware_driver_pb2 import (
     NodeGenericSettings as ProtoNodeGenericSettings,
 )
+from clone_client.proto.hardware_driver_pb2 import (
+    NodeMap,
+    PauseTelemetryMessage,
+    PingNodeMessage,
+)
 from clone_client.proto.hardware_driver_pb2 import BusDevice as ProtoBusDevice
-from clone_client.proto.hardware_driver_pb2 import NodeMap, PingNodeMessage
 from clone_client.proto.hardware_driver_pb2_grpc import HardwareDriverGRPCStub
 from clone_client.utils import grpc_translated_async
 
@@ -140,10 +144,12 @@ class HWDriverClient(GRPCAsyncClient):
         return ret
 
     @grpc_translated_async()
-    async def get_gauss_rider_spec_settings(self) -> dict[Annotated[int, "node id"], GaussRiderSpecSettings]:
+    async def get_gauss_rider_spec_settings(
+        self,
+    ) -> dict[Annotated[int, "node id"], GaussRiderSpecSettingsMessage.GaussRiderSpecSettings]:
         """Get specific settings of GaussRiders present in a runnning system - they consist of
         calibration data"""
-        response: GaussRiderSpecSettingsResponse = await self.stub.GetGaussRiderSpecSettings(
+        response: GaussRiderSpecSettingsMessage = await self.stub.GetGaussRiderSpecSettings(
             Empty(), timeout=self._config.continuous_rpc_timeout
         )
         match response.WhichOneof("inner"):
@@ -153,6 +159,36 @@ class HWDriverClient(GRPCAsyncClient):
                 raise get_request_error(response.error)
             case None:
                 raise ValueError("Got None instead of any expected value")
+
+    @grpc_translated_async()
+    async def get_imu_spec_settings(
+        self,
+    ) -> dict[Annotated[int, "node id"], IMUSpecSettingsMessage.IMUSpecSettings]:
+        """Get specific settings of IMU present in a runnning system - they control
+        behaviour of the sensor fusion algorithm in the firmware."""
+        response: IMUSpecSettingsMessage = await self.stub.GetIMUSpecSettings(
+            Empty(), timeout=self._config.continuous_rpc_timeout
+        )
+        match response.WhichOneof("inner"):
+            case "success":
+                return dict(response.success.spec_settings)
+            case "error":
+                raise get_request_error(response.error)
+            case None:
+                raise ValueError("Got None instead of any expected value")
+
+    @grpc_translated_async()
+    async def set_imu_spec_settings(
+        self,
+        settings: dict[Annotated[int, "node id"], IMUSpecSettingsMessage.IMUSpecSettings],
+    ) -> None:
+        """Set specific settings of IMU present in a runnning system - they control
+        behaviour of the sensor fusion algorithm in the firmware."""
+        response: ServerResponse = await self.stub.SetIMUSpecSettings(
+            IMUSpecSettingsMessage.SpecSettingsMap(spec_settings=settings),
+            timeout=self._config.continuous_rpc_timeout,
+        )
+        handle_response(response)
 
     @grpc_translated_async()
     async def ping_node(self, node_id: int, bus_name: str, timeout_us: int = 1000) -> None:
@@ -241,3 +277,10 @@ class HWDriverClient(GRPCAsyncClient):
                 buses_errors[bus_name] = None
 
         return HardwareDriverErrors(hw_driver_errors=hw_driver_errors, buses_errors=buses_errors)
+
+    @grpc_translated_async()
+    async def pause_telemetry(self, pause: bool) -> None:
+        """Pause telemetry. True -> pause, False -> unpause."""
+        _response: Empty = await self.stub.PauseTelemetry(
+            PauseTelemetryMessage(pause=pause), timeout=self._config.continuous_rpc_timeout
+        )

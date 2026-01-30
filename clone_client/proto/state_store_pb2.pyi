@@ -42,22 +42,104 @@ global___TelemetryConfig = TelemetryConfig
 class IMUData(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+    class _SignalState:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _SignalStateEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[IMUData._SignalState.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        UNKNOWN: IMUData._SignalState.ValueType  # 0
+        """*< Unknown / uninitialized"""
+        VALID: IMUData._SignalState.ValueType  # 1
+        """*< Healthy and trusted"""
+        SUSPECT: IMUData._SignalState.ValueType  # 2
+        """*< Usable but near limits"""
+        RECONFIG_FAILED: IMUData._SignalState.ValueType  # 3
+        """*< Last re-config attempt failed; using previous settings"""
+        INVALID: IMUData._SignalState.ValueType  # 4
+        """*< Fails gating or plausibility checks"""
+        NOT_AVAILABLE: IMUData._SignalState.ValueType  # 5
+        """*< No fresh data or sensor inactive"""
+        UNDER_CALIBRATION: IMUData._SignalState.ValueType  # 6
+        """*< Under user calibration"""
+        INIT: IMUData._SignalState.ValueType  # 7
+        """*< Initialization value / default"""
+
+    class SignalState(_SignalState, metaclass=_SignalStateEnumTypeWrapper): ...
+    UNKNOWN: IMUData.SignalState.ValueType  # 0
+    """*< Unknown / uninitialized"""
+    VALID: IMUData.SignalState.ValueType  # 1
+    """*< Healthy and trusted"""
+    SUSPECT: IMUData.SignalState.ValueType  # 2
+    """*< Usable but near limits"""
+    RECONFIG_FAILED: IMUData.SignalState.ValueType  # 3
+    """*< Last re-config attempt failed; using previous settings"""
+    INVALID: IMUData.SignalState.ValueType  # 4
+    """*< Fails gating or plausibility checks"""
+    NOT_AVAILABLE: IMUData.SignalState.ValueType  # 5
+    """*< No fresh data or sensor inactive"""
+    UNDER_CALIBRATION: IMUData.SignalState.ValueType  # 6
+    """*< Under user calibration"""
+    INIT: IMUData.SignalState.ValueType  # 7
+    """*< Initialization value / default"""
+
+    class _CalibrationStatusValue:
+        ValueType = typing.NewType("ValueType", builtins.int)
+        V: typing_extensions.TypeAlias = ValueType
+
+    class _CalibrationStatusValueEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[IMUData._CalibrationStatusValue.ValueType], builtins.type):
+        DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+        UNKNOWN_OR_NOT_CALIBRATED: IMUData._CalibrationStatusValue.ValueType  # 0
+        POOR: IMUData._CalibrationStatusValue.ValueType  # 1
+        OK: IMUData._CalibrationStatusValue.ValueType  # 2
+        GOOD: IMUData._CalibrationStatusValue.ValueType  # 3
+        ONGOING: IMUData._CalibrationStatusValue.ValueType  # 4
+
+    class CalibrationStatusValue(_CalibrationStatusValue, metaclass=_CalibrationStatusValueEnumTypeWrapper): ...
+    UNKNOWN_OR_NOT_CALIBRATED: IMUData.CalibrationStatusValue.ValueType  # 0
+    POOR: IMUData.CalibrationStatusValue.ValueType  # 1
+    OK: IMUData.CalibrationStatusValue.ValueType  # 2
+    GOOD: IMUData.CalibrationStatusValue.ValueType  # 3
+    ONGOING: IMUData.CalibrationStatusValue.ValueType  # 4
+
+    @typing.final
+    class CalibrationStatusPacked(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        MAG_CALIB_STATUS_FIELD_NUMBER: builtins.int
+        ACC_CALIB_STATUS_FIELD_NUMBER: builtins.int
+        GYR_CALIB_STATUS_FIELD_NUMBER: builtins.int
+        GYR_TIME_SINCE_LAST_BIAS_CALIB_MS_FIELD_NUMBER: builtins.int
+        mag_calib_status: global___IMUData.CalibrationStatusValue.ValueType
+        acc_calib_status: global___IMUData.CalibrationStatusValue.ValueType
+        gyr_calib_status: global___IMUData.CalibrationStatusValue.ValueType
+        gyr_time_since_last_bias_calib_ms: builtins.int
+        def __init__(
+            self,
+            *,
+            mag_calib_status: global___IMUData.CalibrationStatusValue.ValueType = ...,
+            acc_calib_status: global___IMUData.CalibrationStatusValue.ValueType = ...,
+            gyr_calib_status: global___IMUData.CalibrationStatusValue.ValueType = ...,
+            gyr_time_since_last_bias_calib_ms: builtins.int = ...,
+        ) -> None: ...
+        def ClearField(self, field_name: typing.Literal["acc_calib_status", b"acc_calib_status", "gyr_calib_status", b"gyr_calib_status", "gyr_time_since_last_bias_calib_ms", b"gyr_time_since_last_bias_calib_ms", "mag_calib_status", b"mag_calib_status"]) -> None: ...
+
     NODE_ID_FIELD_NUMBER: builtins.int
     W_FIELD_NUMBER: builtins.int
     X_FIELD_NUMBER: builtins.int
     Y_FIELD_NUMBER: builtins.int
     Z_FIELD_NUMBER: builtins.int
-    AX_FIELD_NUMBER: builtins.int
-    AY_FIELD_NUMBER: builtins.int
-    AZ_FIELD_NUMBER: builtins.int
+    SIGNAL_STATE_FIELD_NUMBER: builtins.int
+    CALIBRATION_STATUS_FIELD_NUMBER: builtins.int
     node_id: builtins.int
     w: builtins.float
     x: builtins.float
     y: builtins.float
     z: builtins.float
-    ax: builtins.float
-    ay: builtins.float
-    az: builtins.float
+    signal_state: global___IMUData.SignalState.ValueType
+    """6, 7, 8"""
+    @property
+    def calibration_status(self) -> global___IMUData.CalibrationStatusPacked: ...
     def __init__(
         self,
         *,
@@ -66,11 +148,11 @@ class IMUData(google.protobuf.message.Message):
         x: builtins.float = ...,
         y: builtins.float = ...,
         z: builtins.float = ...,
-        ax: builtins.float = ...,
-        ay: builtins.float = ...,
-        az: builtins.float = ...,
+        signal_state: global___IMUData.SignalState.ValueType = ...,
+        calibration_status: global___IMUData.CalibrationStatusPacked | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["ax", b"ax", "ay", b"ay", "az", b"az", "node_id", b"node_id", "w", b"w", "x", b"x", "y", b"y", "z", b"z"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["calibration_status", b"calibration_status"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["calibration_status", b"calibration_status", "node_id", b"node_id", "signal_state", b"signal_state", "w", b"w", "x", b"x", "y", b"y", "z", b"z"]) -> None: ...
 
 global___IMUData = IMUData
 
@@ -155,13 +237,13 @@ class SensorData(google.protobuf.message.Message):
         def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
 
     PRESSURES_FIELD_NUMBER: builtins.int
-    ROT_FIELD_NUMBER: builtins.int
+    IMU_FIELD_NUMBER: builtins.int
     GAUSS_RIDER_DATA_FIELD_NUMBER: builtins.int
     BFIELDS_FIELD_NUMBER: builtins.int
     @property
     def pressures(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.float]: ...
     @property
-    def rot(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___IMUData]: ...
+    def imu(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___IMUData]: ...
     @property
     def gauss_rider_data(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___GaussRiderRaw]:
         """repeated MagneticHubRaw magnetic_data=3; // Unprocessed magnetic hub's data - currently also here
@@ -174,11 +256,11 @@ class SensorData(google.protobuf.message.Message):
         self,
         *,
         pressures: collections.abc.Iterable[builtins.float] | None = ...,
-        rot: collections.abc.Iterable[global___IMUData] | None = ...,
+        imu: collections.abc.Iterable[global___IMUData] | None = ...,
         gauss_rider_data: collections.abc.Iterable[global___GaussRiderRaw] | None = ...,
         bfields: collections.abc.Mapping[builtins.int, global___Bfield] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["bfields", b"bfields", "gauss_rider_data", b"gauss_rider_data", "pressures", b"pressures", "rot", b"rot"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["bfields", b"bfields", "gauss_rider_data", b"gauss_rider_data", "imu", b"imu", "pressures", b"pressures"]) -> None: ...
 
 global___SensorData = SensorData
 
@@ -239,6 +321,275 @@ class PoseEstimationData(google.protobuf.message.Message):
     def ClearField(self, field_name: typing.Literal["pose_estimation", b"pose_estimation"]) -> None: ...
 
 global___PoseEstimationData = PoseEstimationData
+
+@typing.final
+class Mat3(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    COL0_FIELD_NUMBER: builtins.int
+    COL1_FIELD_NUMBER: builtins.int
+    COL2_FIELD_NUMBER: builtins.int
+    @property
+    def col0(self) -> global___Vec3: ...
+    @property
+    def col1(self) -> global___Vec3: ...
+    @property
+    def col2(self) -> global___Vec3: ...
+    def __init__(
+        self,
+        *,
+        col0: global___Vec3 | None = ...,
+        col1: global___Vec3 | None = ...,
+        col2: global___Vec3 | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["col0", b"col0", "col1", b"col1", "col2", b"col2"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["col0", b"col0", "col1", b"col1", "col2", b"col2"]) -> None: ...
+
+global___Mat3 = Mat3
+
+@typing.final
+class AxisToHingeBindings(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing.final
+    class AxisToHingeBindingsEntry(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        KEY_FIELD_NUMBER: builtins.int
+        VALUE_FIELD_NUMBER: builtins.int
+        key: builtins.str
+        value: builtins.str
+        def __init__(
+            self,
+            *,
+            key: builtins.str = ...,
+            value: builtins.str = ...,
+        ) -> None: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
+
+    AXIS_TO_HINGE_BINDINGS_FIELD_NUMBER: builtins.int
+    @property
+    def axis_to_hinge_bindings(self) -> google.protobuf.internal.containers.ScalarMap[builtins.str, builtins.str]: ...
+    def __init__(
+        self,
+        *,
+        axis_to_hinge_bindings: collections.abc.Mapping[builtins.str, builtins.str] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["axis_to_hinge_bindings", b"axis_to_hinge_bindings"]) -> None: ...
+
+global___AxisToHingeBindings = AxisToHingeBindings
+
+@typing.final
+class JointFrames(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing.final
+    class Frame(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        R_WJ_FIELD_NUMBER: builtins.int
+        ORIGIN_W_FIELD_NUMBER: builtins.int
+        @property
+        def r_wj(self) -> global___Mat3: ...
+        @property
+        def origin_w(self) -> global___Vec3: ...
+        def __init__(
+            self,
+            *,
+            r_wj: global___Mat3 | None = ...,
+            origin_w: global___Vec3 | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing.Literal["origin_w", b"origin_w", "r_wj", b"r_wj"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["origin_w", b"origin_w", "r_wj", b"r_wj"]) -> None: ...
+
+    @typing.final
+    class FramesEntry(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        KEY_FIELD_NUMBER: builtins.int
+        VALUE_FIELD_NUMBER: builtins.int
+        key: builtins.str
+        @property
+        def value(self) -> global___JointFrames.Frame: ...
+        def __init__(
+            self,
+            *,
+            key: builtins.str = ...,
+            value: global___JointFrames.Frame | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
+
+    FRAMES_FIELD_NUMBER: builtins.int
+    @property
+    def frames(self) -> google.protobuf.internal.containers.MessageMap[builtins.str, global___JointFrames.Frame]: ...
+    def __init__(
+        self,
+        *,
+        frames: collections.abc.Mapping[builtins.str, global___JointFrames.Frame] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["frames", b"frames"]) -> None: ...
+
+global___JointFrames = JointFrames
+
+@typing.final
+class SensorGeometry(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    FRAME_WS_FIELD_NUMBER: builtins.int
+    ORIGIN_W_FIELD_NUMBER: builtins.int
+    @property
+    def frame_wS(self) -> global___Mat3: ...
+    @property
+    def origin_w(self) -> global___Vec3: ...
+    def __init__(
+        self,
+        *,
+        frame_wS: global___Mat3 | None = ...,
+        origin_w: global___Vec3 | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["frame_wS", b"frame_wS", "origin_w", b"origin_w"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["frame_wS", b"frame_wS", "origin_w", b"origin_w"]) -> None: ...
+
+global___SensorGeometry = SensorGeometry
+
+@typing.final
+class MagnetGeometry(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ORIGIN_W_FIELD_NUMBER: builtins.int
+    BASE_Z_IN_SENSOR_FIELD_NUMBER: builtins.int
+    @property
+    def origin_w(self) -> global___Vec3: ...
+    @property
+    def base_z_in_sensor(self) -> global___Vec3: ...
+    def __init__(
+        self,
+        *,
+        origin_w: global___Vec3 | None = ...,
+        base_z_in_sensor: global___Vec3 | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["base_z_in_sensor", b"base_z_in_sensor", "origin_w", b"origin_w"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["base_z_in_sensor", b"base_z_in_sensor", "origin_w", b"origin_w"]) -> None: ...
+
+global___MagnetGeometry = MagnetGeometry
+
+@typing.final
+class DipoleSeed(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    POSITION_FIELD_NUMBER: builtins.int
+    DIRECTION_FIELD_NUMBER: builtins.int
+    @property
+    def position(self) -> global___Vec3: ...
+    @property
+    def direction(self) -> global___Vec3: ...
+    def __init__(
+        self,
+        *,
+        position: global___Vec3 | None = ...,
+        direction: global___Vec3 | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["direction", b"direction", "position", b"position"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["direction", b"direction", "position", b"position"]) -> None: ...
+
+global___DipoleSeed = DipoleSeed
+
+@typing.final
+class SensorMapping(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    CLONE_SENSOR_ID_FIELD_NUMBER: builtins.int
+    MAGNET_LOCAL_AXIS_FIELD_NUMBER: builtins.int
+    SENSOR_MAGNET_INVERSION_FIELD_NUMBER: builtins.int
+    R_CORR_FIELD_NUMBER: builtins.int
+    clone_sensor_id: builtins.str
+    sensor_magnet_inversion: builtins.bool
+    @property
+    def magnet_local_axis(self) -> global___Vec3: ...
+    @property
+    def R_corr(self) -> global___Mat3: ...
+    def __init__(
+        self,
+        *,
+        clone_sensor_id: builtins.str = ...,
+        magnet_local_axis: global___Vec3 | None = ...,
+        sensor_magnet_inversion: builtins.bool = ...,
+        R_corr: global___Mat3 | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["R_corr", b"R_corr", "magnet_local_axis", b"magnet_local_axis"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["R_corr", b"R_corr", "clone_sensor_id", b"clone_sensor_id", "magnet_local_axis", b"magnet_local_axis", "sensor_magnet_inversion", b"sensor_magnet_inversion"]) -> None: ...
+
+global___SensorMapping = SensorMapping
+
+@typing.final
+class JointModelInfo(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    @typing.final
+    class JointModel(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        JOINT_FRAMES_FIELD_NUMBER: builtins.int
+        SENSOR_FIELD_NUMBER: builtins.int
+        MAGNET_FIELD_NUMBER: builtins.int
+        DIPOLE_FIELD_NUMBER: builtins.int
+        MAPPING_FIELD_NUMBER: builtins.int
+        AXIS_TO_HINGE_BINDINGS_FIELD_NUMBER: builtins.int
+        @property
+        def joint_frames(self) -> global___JointFrames: ...
+        @property
+        def sensor(self) -> global___SensorGeometry: ...
+        @property
+        def magnet(self) -> global___MagnetGeometry: ...
+        @property
+        def dipole(self) -> global___DipoleSeed: ...
+        @property
+        def mapping(self) -> global___SensorMapping: ...
+        @property
+        def axis_to_hinge_bindings(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___AxisToHingeBindings]: ...
+        def __init__(
+            self,
+            *,
+            joint_frames: global___JointFrames | None = ...,
+            sensor: global___SensorGeometry | None = ...,
+            magnet: global___MagnetGeometry | None = ...,
+            dipole: global___DipoleSeed | None = ...,
+            mapping: global___SensorMapping | None = ...,
+            axis_to_hinge_bindings: collections.abc.Iterable[global___AxisToHingeBindings] | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing.Literal["dipole", b"dipole", "joint_frames", b"joint_frames", "magnet", b"magnet", "mapping", b"mapping", "sensor", b"sensor"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["axis_to_hinge_bindings", b"axis_to_hinge_bindings", "dipole", b"dipole", "joint_frames", b"joint_frames", "magnet", b"magnet", "mapping", b"mapping", "sensor", b"sensor"]) -> None: ...
+
+    @typing.final
+    class JointsEntry(google.protobuf.message.Message):
+        DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+        KEY_FIELD_NUMBER: builtins.int
+        VALUE_FIELD_NUMBER: builtins.int
+        key: builtins.str
+        @property
+        def value(self) -> global___JointModelInfo.JointModel: ...
+        def __init__(
+            self,
+            *,
+            key: builtins.str = ...,
+            value: global___JointModelInfo.JointModel | None = ...,
+        ) -> None: ...
+        def HasField(self, field_name: typing.Literal["value", b"value"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing.Literal["key", b"key", "value", b"value"]) -> None: ...
+
+    JOINTS_FIELD_NUMBER: builtins.int
+    @property
+    def joints(self) -> google.protobuf.internal.containers.MessageMap[builtins.str, global___JointModelInfo.JointModel]: ...
+    def __init__(
+        self,
+        *,
+        joints: collections.abc.Mapping[builtins.str, global___JointModelInfo.JointModel] | None = ...,
+    ) -> None: ...
+    def ClearField(self, field_name: typing.Literal["joints", b"joints"]) -> None: ...
+
+global___JointModelInfo = JointModelInfo
 
 @typing.final
 class TelemetryData(google.protobuf.message.Message):
@@ -604,6 +955,7 @@ class SystemInfo(google.protobuf.message.Message):
     CALIBRATION_DATA_FIELD_NUMBER: builtins.int
     TELEMETRY_CONFIG_FIELD_NUMBER: builtins.int
     POSE_ESTIMATION_FIELD_NUMBER: builtins.int
+    JOINT_MODEL_INFO_FIELD_NUMBER: builtins.int
     telemetry_config: global___TelemetryConfig.ValueType
     @property
     def muscles(self) -> google.protobuf.internal.containers.MessageMap[builtins.str, global___SystemInfo.MuscleInfo]: ...
@@ -613,6 +965,8 @@ class SystemInfo(google.protobuf.message.Message):
 
     @property
     def pose_estimation(self) -> global___PoseEstimationInfo: ...
+    @property
+    def joint_model_info(self) -> global___JointModelInfo: ...
     def __init__(
         self,
         *,
@@ -620,9 +974,13 @@ class SystemInfo(google.protobuf.message.Message):
         calibration_data: global___CalibrationData | None = ...,
         telemetry_config: global___TelemetryConfig.ValueType = ...,
         pose_estimation: global___PoseEstimationInfo | None = ...,
+        joint_model_info: global___JointModelInfo | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["_pose_estimation", b"_pose_estimation", "calibration_data", b"calibration_data", "pose_estimation", b"pose_estimation"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["_pose_estimation", b"_pose_estimation", "calibration_data", b"calibration_data", "muscles", b"muscles", "pose_estimation", b"pose_estimation", "telemetry_config", b"telemetry_config"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["_joint_model_info", b"_joint_model_info", "_pose_estimation", b"_pose_estimation", "calibration_data", b"calibration_data", "joint_model_info", b"joint_model_info", "pose_estimation", b"pose_estimation"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["_joint_model_info", b"_joint_model_info", "_pose_estimation", b"_pose_estimation", "calibration_data", b"calibration_data", "joint_model_info", b"joint_model_info", "muscles", b"muscles", "pose_estimation", b"pose_estimation", "telemetry_config", b"telemetry_config"]) -> None: ...
+    @typing.overload
+    def WhichOneof(self, oneof_group: typing.Literal["_joint_model_info", b"_joint_model_info"]) -> typing.Literal["joint_model_info"] | None: ...
+    @typing.overload
     def WhichOneof(self, oneof_group: typing.Literal["_pose_estimation", b"_pose_estimation"]) -> typing.Literal["pose_estimation"] | None: ...
 
 global___SystemInfo = SystemInfo

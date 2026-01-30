@@ -22,7 +22,7 @@ async def main() -> None:
                 client.state_store.subscribe_telemetry()
             ):
                 print("\n" * 100)
-                for name in tele_ext.qpos:
+                for name in sorted(tele_ext.qpos):
                     print(
                         f"{name:<20}: "
                         f"{np.array2string(tele_ext.qpos[name].as_quat(), formatter={'float_kind': lambda x: f'{x: .3f}'}):<20} "
@@ -32,7 +32,7 @@ async def main() -> None:
             async for tele in client.state_store.subscribe_telemetry():
                 print("\n" * 100)
                 tele_ext = client.state_store.telemetry_extend(tele)
-                for name in tele_ext.qpos:
+                for name in sorted(tele_ext.qpos):
                     print(
                         f"{name:<20}: "
                         f"{np.array2string(tele_ext.qpos[name].as_quat(), formatter={'float_kind': lambda x: f'{x: .3f}'}):<20} "

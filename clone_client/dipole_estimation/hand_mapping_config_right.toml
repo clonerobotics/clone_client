@@ -1,0 +1,309 @@
+[[joints]]
+name = "r-thumb-pip"
+axis_to_hinge_bindings = [
+    { z = "Joint__z_1dph_thumb_armature_r" },
+]
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_thumb_r__magnetometer_1dip_r__mesh_1pph_r__0"
+magnet_site = "Site__magnet__magnetometers_thumb_r__magnet_1_5mmx1mm_1dip_r__mesh_1dph_r__0"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x61"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "r-thumb-mcp"
+axis_to_hinge_bindings = [
+    { z = "Joint__z_1pph_thumb_armature_r" },
+]
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_thumb_r__magnetometer_1pip_r__mesh_1mch_r__2"
+magnet_site = "Site__magnet__magnetometers_thumb_r__magnet_2mmx1mm_1pip_r__mesh_1pph_r__1"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x62"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "r-thumb-cmc"
+axis_to_hinge_bindings = [
+    { y = "Joint__y_1mchz_thumb_armature_r" },
+    { x = "Joint__x_1mchx_thumb_armature_r" },
+]
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_thumb_r__magnetometer_1cmc_r__mesh_1mch_r__1"
+magnet_site = "Site__magnet__magnetometers_thumb_r__magnet_2mmx1mm_1cmc_r__mesh_carpal_row_2_r__2"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x63"
+sensor_magnet_inversion = true
+magnet_local_axis = [
+    0,
+    0,
+    1,
+]
+
+[[joints]]
+name = "r-index-dip"
+axis_to_hinge_bindings = [
+    { z = "Joint__z_2dph_index_armature_r" },
+]
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_index_r__magnetometer_2dip_r__mesh_2iph_r__0"
+magnet_site = "Site__magnet__magnetometers_index_r__magnet_1_5mmx1mm_2dip_r__mesh_2dph_r__0"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x66"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "r-index-pip"
+axis_to_hinge_bindings = [
+    { z = "Joint__z_2iph_index_armature_r" },
+]
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_index_r__magnetometer_2pip_r__mesh_2pph_r__1"
+magnet_site = "Site__magnet__magnetometers_index_r__magnet_2mmx1mm_2pip_r__mesh_2iph_r__2"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x67"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "r-index-mcp"
+axis_to_hinge_bindings = [
+    { x = "Joint__x_2pph_index_armature_r", z = "Joint__z_2pph_index_armature_r" },
+]
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_index_r__magnetometer_2mcp_r__mesh_2mch_r__2"
+magnet_site = "Site__magnet__magnetometers_index_r__magnet_2mmx1mm_2mcp_r__mesh_2pph_r__1"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x68"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "r-middle-dip"
+axis_to_hinge_bindings = [
+    { z = "Joint__z_3dph_middle_armature_r" },
+]
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_middle_r__magnetometer_3dip_r__mesh_3iph_r__2"
+magnet_site = "Site__magnet__magnetometers_middle_r__magnet_1_5mmx1mm_3dip_r__mesh_3dph_r__0"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x6b"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "r-middle-pip"
+axis_to_hinge_bindings = [
+    { z = "Joint__z_3iph_middle_armature_r" },
+]
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_middle_r__magnetometer_3pip_r__mesh_3pph_r__1"
+magnet_site = "Site__magnet__magnetometers_middle_r__magnet_2mmx1mm_3pip_r__mesh_3iph_r__2"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x6c"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "r-middle-mcp"
+axis_to_hinge_bindings = [
+    { x = "Joint__x_3pph_middle_armature_r", z = "Joint__z_3pph_middle_armature_r" },
+]
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_middle_r__magnetometer_3mcp_r__mesh_3mch_r__0"
+magnet_site = "Site__magnet__magnetometers_middle_r__magnet_2mmx1mm_3mcp_r__mesh_3pph_r__1"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x6d"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "r-ring-dip"
+axis_to_hinge_bindings = [
+    { z = "Joint__z_4dph_ring_armature_r" },
+]
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_ring_r__magnetometer_4dip_r__mesh_4iph_r__3"
+magnet_site = "Site__magnet__magnetometers_ring_r__magnet_1_5mmx1mm_4dip_r__mesh_4dph_r__0"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x70"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "r-ring-pip"
+axis_to_hinge_bindings = [
+    { z = "Joint__z_4iph_ring_armature_r" },
+]
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_ring_r__magnetometer_4pip_r__mesh_4pph_r__2"
+magnet_site = "Site__magnet__magnetometers_ring_r__magnet_2mmx1mm_4pip_r__mesh_4iph_r__2"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x71"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "r-ring-mcp"
+axis_to_hinge_bindings = [
+    { x = "Joint__x_4pph_ring_armature_r", z = "Joint__z_4pph_ring_armature_r" },
+]
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_ring_r__magnetometer_4mcp_r__mesh_4mch_r__0"
+magnet_site = "Site__magnet__magnetometers_ring_r__magnet_2mmx1mm_4mcp_r__mesh_4pph_r__1"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x72"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "r-pinky-dip"
+axis_to_hinge_bindings = [
+    { z = "Joint__z_5dph_pinky_armature_r" },
+]
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_pinky_r__magnetometer_5dip_r__mesh_5iph_r__2"
+magnet_site = "Site__magnet__magnetometers_pinky_r__magnet_1_5mmx1mm_5dip_r__mesh_5dph_r__0"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x75"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "r-pinky-pip"
+axis_to_hinge_bindings = [
+    { z = "Joint__z_5iph_pinky_armature_r" },
+]
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_pinky_r__magnetometer_5pip_r__mesh_5pph_r__1"
+magnet_site = "Site__magnet__magnetometers_pinky_r__magnet_2mmx1mm_5pip_r__mesh_5iph_r__2"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x76"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "r-pinky-mcp"
+axis_to_hinge_bindings = [
+    { x = "Joint__x_5pph_pinky_armature_r", z = "Joint__z_5pph_pinky_armature_r" },
+]
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_pinky_r__magnetometer_5mcp_r__mesh_5mch_r__0"
+magnet_site = "Site__magnet__magnetometers_pinky_r__magnet_2mmx1mm_5mcp_r__mesh_5pph_r__1"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x77"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "r-wrist-first"
+axis_to_hinge_bindings = [
+    { z = "Joint__z_carpal_row_1z_armature_r" },
+    { y = "Joint__y_carpal_row_1y_armature_r" },
+]
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_wrist_r__magnetometer_cr_r__mesh_carpal_row_1_r__0"
+magnet_site = "Site__magnet__magnetometers_wrist_r__magnet_cr_1_3x6_r__mesh_radius_r__2"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x7d"
+sensor_magnet_inversion = true
+magnet_local_axis = [
+    0,
+    0,
+    1,
+]
+
+[[joints]]
+name = "r-wrist-second"
+axis_to_hinge_bindings = [
+    { x = "Joint__x_carpal_row_2_armature_r" },
+]
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_wrist_r__magnetometer_cc_r__mesh_carpal_row_1_r__1"
+magnet_site = "Site__magnet__magnetometers_wrist_r__magnet_cc_r__mesh_carpal_row_2_r__0"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x92"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]

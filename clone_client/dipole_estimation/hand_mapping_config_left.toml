@@ -1,0 +1,349 @@
+[[joints]]
+name = "l-thumb-pip"
+
+[joints.axis_to_hinge_bindings]
+z = "Joint__z_1dph_thumb_armature_l"
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_thumb_l__magnetometer_1dip_l__mesh_1pph_l__0"
+magnet_site = "Site__magnet__magnetometers_thumb_l__magnet_1_5mmx1mm_1dip_l__mesh_1dph_l__0"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x7A"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "l-thumb-mcp"
+
+[joints.axis_to_hinge_bindings]
+z = "Joint__z_1pph_thumb_armature_l"
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_thumb_l__magnetometer_1pip_l__mesh_1mch_l__2"
+magnet_site = "Site__magnet__magnetometers_thumb_l__magnet_2mmx1mm_1pip_l__mesh_1pph_l__1"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x7B"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "l-thumb-cmc"
+axis_to_hinge_bindings = [
+    { y = "Joint__y_1mchz_thumb_armature_l" },
+    { x = "Joint__x_1mchx_thumb_armature_l" },
+]
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_thumb_l__magnetometer_1cmc_l__mesh_1mch_l__1"
+magnet_site = "Site__magnet__magnetometers_thumb_l__magnet_2mmx1mm_1cmc_l__mesh_carpal_row_2_l__2"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x7C"
+sensor_magnet_inversion = true
+magnet_local_axis = [
+    0,
+    0,
+    1,
+]
+
+[[joints]]
+name = "l-index-dip"
+
+[joints.axis_to_hinge_bindings]
+z = "Joint__z_2dph_index_armature_l"
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_index_l__magnetometer_2dip_l__mesh_2iph_l__0"
+magnet_site = "Site__magnet__magnetometers_index_l__magnet_1_5mmx1mm_2dip_l__mesh_2dph_l__0"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x7f"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "l-index-pip"
+
+[joints.axis_to_hinge_bindings]
+z = "Joint__z_2iph_index_armature_l"
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_index_l__magnetometer_2pip_l__mesh_2pph_l__1"
+magnet_site = "Site__magnet__magnetometers_index_l__magnet_2mmx1mm_2pip_l__mesh_2iph_l__2"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x80"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "l-index-mcp"
+
+[joints.axis_to_hinge_bindings]
+x = "Joint__x_2pph_index_armature_l"
+z = "Joint__z_2pph_index_armature_l"
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_index_l__magnetometer_2mcp_l__mesh_2mch_l__2"
+magnet_site = "Site__magnet__magnetometers_index_l__magnet_2mmx1mm_2mcp_l__mesh_2pph_l__1"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x81"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "l-middle-dip"
+
+[joints.axis_to_hinge_bindings]
+z = "Joint__z_3dph_middle_armature_l"
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_middle_l__magnetometer_3dip_l__mesh_3iph_l__2"
+magnet_site = "Site__magnet__magnetometers_middle_l__magnet_1_5mmx1mm_3dip_l__mesh_3dph_l__0"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x84"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "l-middle-pip"
+
+[joints.axis_to_hinge_bindings]
+z = "Joint__z_3iph_middle_armature_l"
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_middle_l__magnetometer_3pip_l__mesh_3pph_l__1"
+magnet_site = "Site__magnet__magnetometers_middle_l__magnet_2mmx1mm_3pip_l__mesh_3iph_l__2"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x85"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "l-middle-mcp"
+
+[joints.axis_to_hinge_bindings]
+x = "Joint__x_3pph_middle_armature_l"
+z = "Joint__z_3pph_middle_armature_l"
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_middle_l__magnetometer_3mcp_l__mesh_3mch_l__0"
+magnet_site = "Site__magnet__magnetometers_middle_l__magnet_2mmx1mm_3mcp_l__mesh_3pph_l__1"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x86"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "l-ring-dip"
+
+[joints.axis_to_hinge_bindings]
+z = "Joint__z_4dph_ring_armature_l"
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_ring_l__magnetometer_4dip_l__mesh_4iph_l__3"
+magnet_site = "Site__magnet__magnetometers_ring_l__magnet_1_5mmx1mm_4dip_l__mesh_4dph_l__0"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x89"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "l-ring-pip"
+
+[joints.axis_to_hinge_bindings]
+z = "Joint__z_4iph_ring_armature_l"
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_ring_l__magnetometer_4pip_l__mesh_4pph_l__2"
+magnet_site = "Site__magnet__magnetometers_ring_l__magnet_2mmx1mm_4pip_l__mesh_4iph_l__2"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x8a"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "l-ring-mcp"
+
+[joints.axis_to_hinge_bindings]
+x = "Joint__x_4pph_ring_armature_l"
+z = "Joint__z_4pph_ring_armature_l"
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_ring_l__magnetometer_4mcp_l__mesh_4mch_l__0"
+magnet_site = "Site__magnet__magnetometers_ring_l__magnet_2mmx1mm_4mcp_l__mesh_4pph_l__1"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x8b"
+magnet_local_axis = [
+    0,
+    0,
+    1,
+]
+
+[[joints]]
+name = "l-ring-cmc"
+
+[joints.axis_to_hinge_bindings]
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_ring_l__magnetometer_4cmc_l__mesh_4mch_l__1"
+magnet_site = "Site__magnet__magnetometers_ring_l__magnet_2mmx1mm_4cmc_l__mesh_carpal_row_2_l__3"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x8c"
+sensor_magnet_inversion = true
+magnet_local_axis = [
+    0,
+    0,
+    1,
+]
+
+[[joints]]
+name = "l-pinky-dip"
+
+[joints.axis_to_hinge_bindings]
+z = "Joint__z_5dph_pinky_armature_l"
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_pinky_l__magnetometer_5dip_l__mesh_5iph_l__2"
+magnet_site = "Site__magnet__magnetometers_pinky_l__magnet_1_5mmx1mm_5dip_l__mesh_5dph_l__0"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x8e"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "l-pinky-pip"
+
+[joints.axis_to_hinge_bindings]
+z = "Joint__z_5iph_pinky_armature_l"
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_pinky_l__magnetometer_5pip_l__mesh_5pph_l__1"
+magnet_site = "Site__magnet__magnetometers_pinky_l__magnet_2mmx1mm_5pip_l__mesh_5iph_l__2"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x8f"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "l-pinky-mcp"
+
+[joints.axis_to_hinge_bindings]
+x = "Joint__x_5pph_pinky_armature_l"
+z = "Joint__z_5pph_pinky_armature_l"
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_pinky_l__magnetometer_5mcp_l__mesh_5mch_l__0"
+magnet_site = "Site__magnet__magnetometers_pinky_l__magnet_2mmx1mm_5mcp_l__mesh_5pph_l__1"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x90"
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "l-pinky-cmc"
+
+[joints.axis_to_hinge_bindings]
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_pinky_l__magnetometer_5cmc_l__mesh_5mch_l__3"
+magnet_site = "Site__magnet__magnetometers_pinky_l__magnet_2mmx1mm_5cmc_l__mesh_carpal_row_2_l__3"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x91"
+sensor_magnet_inversion = true
+magnet_local_axis = [
+    0,
+    0,
+    1,
+]
+
+[[joints]]
+name = "l-wrist-first"
+axis_to_hinge_bindings = [
+    { z = "Joint__z_carpal_row_1z_armature_l" },
+    { y = "Joint__y_carpal_row_1y_armature_l" },
+]
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_wrist_l__magnetometer_cr_l__mesh_carpal_row_1_l__0"
+magnet_site = "Site__magnet__magnetometers_wrist_l__magnet_cr_1_3x6_l__mesh_radius_l__2"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x7d"
+sensor_magnet_inversion = true
+magnet_local_axis = [
+    0,
+    0,
+    -1,
+]
+
+[[joints]]
+name = "l-wrist-second"
+axis_to_hinge_bindings = [
+    { x = "Joint__x_carpal_row_2_armature_l" },
+]
+
+[joints.sites]
+sensor_site = "Site__center__magnetometers_wrist_l__magnetometer_cc_l__mesh_carpal_row_1_l__1"
+magnet_site = "Site__magnet__magnetometers_wrist_l__magnet_cc_l__mesh_carpal_row_2_l__0"
+
+[joints.sensor_mapping]
+clone_sensor_id = "0x82"
+magnet_local_axis = [
+    0,
+    0,
+    1,
+]

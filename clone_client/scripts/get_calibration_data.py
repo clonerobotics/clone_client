@@ -8,13 +8,17 @@ This should be implemented as a API call in the future for more automation.
 """
 
 import asyncio
-import logging
+import enum
 import os
 import socket
+from typing import AsyncGenerator
 
+import click
+from click.termui import itertools
 import numpy
 
 from clone_client.client import Client
+from clone_client.hw_driver.client import ProductId
 from clone_client.proto.hardware_driver_pb2 import (
     HydraControlMessage,
     PinchValveControl,
@@ -58,127 +62,220 @@ async def send_hydra_single(
     )
 
 
-async def send_proportional(client: Client, node_id: int, channel_id: int, value: int) -> None:
+async def send_pinch_valve_single(client: Client, node_id: int, value: int) -> None:
     if value > 0:
         pvalue = PinchValveControl.INLET_FULLY_OPENED
-        hvalue = HydraControlMessage.INLET_FULLY_OPENED
     elif value < 0:
         pvalue = PinchValveControl.OUTLET_FULLY_OPENED
-        hvalue = HydraControlMessage.OUTLET_FULLY_OPENED
     else:
         pvalue = PinchValveControl.BOTH_CLOSED
-        hvalue = HydraControlMessage.BOTH_CLOSED
 
     await client.controller.send_pinch_valve_control(
         node_id, control_mode=PinchValveControl.POSITIONS, value=pvalue
     )
-    await send_hydra_single(client, node_id, channel_id, hvalue)
 
 
 async def get_measurements(client: Client, samples: int) -> numpy.ndarray:
-    buf = numpy.zeros((samples, client.state_store.number_of_muscles))
-    s = 0
+    for _ in range(3):
+        buf = numpy.zeros((samples, client.state_store.number_of_muscles))
+        s = 0
 
-    while 1:
-        pvec = (await client.state_store.get_telemetry()).sensor_data.pressures
-        if not pvec:
-            continue
-
-        buf[s] = numpy.asarray(pvec)
-        if s == samples - 1:
-            break
-
-        s += 1
-
-    return buf
-
-
-async def calibrate():
-    logging.basicConfig(level=logging.INFO)
-    async with Client(address=GOLEM_ADDRESS, server=GOLEM_HOSTNAME) as client:
-        controller_config = await client.controller.get_controller_config()
-        info = await client.state_store.get_system_info()
-
-        # Loose ALL, wait and read min values
-        for _ in range(5):
-            await client.controller.loose_all()
-
-        meas = numpy.min(await get_measurements(client, samples=5000), axis=0)
-        assert meas.shape == (client.state_store.number_of_muscles,)
-
-        calibration_data = {}
-        for muscle_name, muscle_info in info.muscles.items():
-            if muscle_info.node_id not in calibration_data:
-                calibration_data[muscle_info.node_id] = {}
-
-            calib_min = info.calibration_data.pressure_sensors[muscle_info.index].min
-            calib_max = info.calibration_data.pressure_sensors[muscle_info.index].max
-
-            min_meas = denormalize_value(meas[muscle_info.index])
-            calibration_data[muscle_info.node_id][muscle_info.channel_id] = [min_meas, calib_max]
-
-            if MUSCLE_WHITELIST and muscle_name not in MUSCLE_WHITELIST:
+        while 1:
+            pvec = (await client.state_store.get_telemetry()).sensor_data.pressures
+            if not pvec:
                 continue
 
-            # Actuate one by one and read maxes
-            for _ in range(ACT_TIME):
-                if USE_PINCH_VALVES:
-                    await send_proportional(client, muscle_info.node_id, muscle_info.channel_id, 1)
-                    await asyncio.sleep(1)
-                else:
-                    impulses = [None] * client.state_store.number_of_muscles
-                    impulses[muscle_info.index] = ACT_TIME * controller_config.max_impulse_duration_ms
-                    await client.controller.set_impulses(impulses)
-                    await asyncio.sleep(1)
+            buf[s] = numpy.asarray(pvec)
+            if s == samples - 1:
+                break
 
-            meas = numpy.max(await get_measurements(client, samples=5000), axis=0)
-            assert meas.shape == (client.state_store.number_of_muscles,)
+            s += 1
 
-            calibration_data[muscle_info.node_id][muscle_info.channel_id][1] = denormalize_value(
-                meas[muscle_info.index], calib_min, calib_max
+        all_valid = not numpy.isnan(buf).any()
+        if not all_valid:
+
+            continue
+        return buf
+
+    raise ValueError("Encountered NaN values in some muscle readouts")
+
+
+class CalibrationStep(enum.Enum):
+    STARTING = 0
+    CALIBRATING_MIN = 1
+    CALIBRATING_MAX = 2
+    GENERATING = 3
+    DONE = 4
+
+
+async def run_calibration(
+    c: Client,
+    soft_limit_mb: int,
+    setpoint_mb: int,
+    threshold_mb: int,
+    samples: int,
+) -> AsyncGenerator[tuple[CalibrationStep, float | None, str | None], str]:
+    calibration_data = {}
+
+    await c.controller.loose_all()
+    controller_config = await c.controller.get_config()
+    info = await c.state_store.get_system_info()
+    nodes = await c.controller.get_nodes()
+    all_nodes = {n.node_id: n for n in itertools.chain.from_iterable(nodes.values())}
+
+    for i in range(2):
+        yield (CalibrationStep.STARTING, (i + 1) / 2, "Starting measurements...")
+        await c.controller.loose_all()
+        await asyncio.sleep(3)
+
+    yield (CalibrationStep.CALIBRATING_MIN, None, "Measuring mins...")
+    meas_min = numpy.min(await get_measurements(c, samples=samples), axis=0)
+    assert meas_min.shape == (c.state_store.number_of_muscles,)
+
+    yield (CalibrationStep.CALIBRATING_MAX, 0.0, None)
+    for idx, (mname, minfo) in enumerate(info.muscles.items()):
+        vkey = (hex(minfo.node_id), minfo.node_id, minfo.channel_id, mname)
+        progress = (idx + 1) / c.state_store.number_of_muscles
+
+        curr_calib_min = info.calibration_data.pressure_sensors[minfo.index].min
+        curr_calib_max = info.calibration_data.pressure_sensors[minfo.index].max
+
+        calib_min = 0
+        calib_max = 0
+        try:
+            calib_min = denormalize_value(
+                meas_min[minfo.index], original_min=curr_calib_min, original_max=curr_calib_max
             )
 
-            logging.info(
-                "Muscle %s: min=%s, max=%s",
-                f"{hex(muscle_info.node_id)}:{muscle_info.channel_id} ({muscle_name})",
-                calibration_data[muscle_info.node_id][muscle_info.channel_id][0],
-                calibration_data[muscle_info.node_id][muscle_info.channel_id][1],
+            calib_max = calib_min
+            node_device = all_nodes[minfo.node_id]
+            pid = ProductId(node_device.product_id)
+
+            yield (CalibrationStep.CALIBRATING_MAX, progress, f"Inflating muscle at {vkey}")
+
+            tp_mb = 0
+            period_s = 0.1
+            stale_count = 10
+            await c.controller.lock_all()
+            while tp_mb < (setpoint_mb - threshold_mb):
+                match pid:
+                    case ProductId.Hydra1 | ProductId.Hydra6 | ProductId.Hydra8 | ProductId.Hydra10:
+                        await send_hydra_single(
+                            c, minfo.node_id, minfo.channel_id, HydraControlMessage.INLET_FULLY_OPENED
+                        )
+                    case ProductId.PinchValve:
+                        await send_pinch_valve_single(c, minfo.node_id, 1)
+                    case ProductId.KolektivV3Ctrl:
+                        impulses: list[float | None] = [None] * c.state_store.number_of_muscles
+                        impulses[minfo.index] = 500 / controller_config.max_impulse_duration_ms
+                        await c.controller.set_impulses(impulses)
+
+                await asyncio.sleep(period_s)
+                tp = (await c.state_store.get_telemetry()).sensor_data.pressures
+                if not tp:
+                    continue
+
+                new_tp_mb = denormalize_value(
+                    tp[minfo.index], original_min=curr_calib_min, original_max=curr_calib_max
+                )
+
+                if new_tp_mb <= (tp_mb + threshold_mb) or (new_tp_mb < 0 and tp_mb < 0):
+                    # Does not seem to be increasing, decreasing stale counter
+                    stale_count -= 1
+
+                tp_mb = new_tp_mb
+                if stale_count == 0:
+                    # Muscle is staling, either leaking quite heavily indicating non-connected valve
+                    # or pressure sensor is broken / not-connected, or setpoint is mich higher than the source pressure
+                    # Either way, measurement seems useless
+                    break
+
+            await c.controller.lock_all()
+            yield (CalibrationStep.CALIBRATING_MAX, progress, f"Measuring muscle at {vkey}")
+            if stale_count == 0 and tp_mb < threshold_mb + soft_limit_mb:
+                yield (
+                    CalibrationStep.CALIBRATING_MAX,
+                    progress,
+                    f"Muscle at {vkey} skipped (stale), resetting...",
+                )
+            else:
+                # Muscle is activated properly within measurement threshold, we can start measurements
+                meas_max = numpy.max(await get_measurements(c, samples=samples), axis=0)
+                calib_max = denormalize_value(
+                    meas_max[minfo.index], original_min=curr_calib_min, original_max=curr_calib_max
+                )
+            yield (CalibrationStep.CALIBRATING_MAX, progress, f"Muscle at {vkey} measured, deflating...")
+        except ValueError:
+            calib_min = curr_calib_min
+            calib_max = curr_calib_max
+            yield (
+                CalibrationStep.CALIBRATING_MAX,
+                progress,
+                f"Incorrect base for: {vkey}(min: {curr_calib_min}, {curr_calib_max})",
             )
+            continue
 
-            for _ in range(5):
-                await client.controller.loose_all()
+        for _ in range(5):
+            await c.controller.loose_all()
+            await asyncio.sleep(0.1)
 
-        print(
-            """
-            SOFT LIMIT:
-            Soft limit is a way to compensate for the pressure sensor drift and noise.
-            This does not solve the issue, but in a scenario when a maximum and/or minimum pressure
-            happen to be a sparse noise value this helps making them more stable and
-            always 'be seen' by the sensor.
-        """
+        if minfo.node_id not in calibration_data:
+            calibration_data[minfo.node_id] = {}
+
+        calib_min += soft_limit_mb
+        calib_max -= soft_limit_mb
+        if calib_max < calib_min:
+            calib_min = calib_max  # Reverting back to the 'same value' to avoid bugs, due to small difference
+
+        calibration_data[minfo.node_id][minfo.channel_id] = [calib_min, calib_max]
+
+        yield (
+            CalibrationStep.CALIBRATING_MAX,
+            progress,
+            f"Muscle at {vkey} saved with values: (min: {calib_min}, max: {calib_max})",
         )
 
-        try:
-            soft_limit = input("What soft limit you want to set (default: 50 milibar) ?: ")
-            soft_limt = int(soft_limit)
-        except ValueError:
-            logging.warning("Invalid input, using default value of 50 milibar.")
-            soft_limt = 50
+    yield CalibrationStep.GENERATING, None, "Generating TOML snippet"
 
-        for muscle_name, muscle_info in info.muscles.items():
-            calib_min, calib_max = calibration_data[muscle_info.node_id][muscle_info.channel_id]
-            calibration_data[muscle_info.node_id][muscle_info.channel_id] = [
-                calib_min + soft_limt,
-                calib_max - soft_limt,
-            ]
+    toml_snippet = ""
+    for node_id, muscles in calibration_data.items():
+        toml_snippet += f"[pressure_sensors.{hex(node_id)}]"
+        for channel_id, minmax in muscles.items():
+            toml_snippet += f"\n{channel_id} = {minmax}"
 
-        logging.info("Done. Save the data to 'calibration.toml' file and restart the server")
+        toml_snippet += "\n\n"
 
-        for node_id, muscles in calibration_data.items():
-            print(f"[pressure_sensors.{hex(node_id)}]")
-            for channel_id, minmax in muscles.items():
-                print(f"{channel_id} = {minmax}")
+    yield CalibrationStep.DONE, 1.0, toml_snippet
+
+
+@click.command()
+@click.option(
+    "--address", type=str, help="IP Address of a remote to perform muscle calibration on", required=True
+)
+@click.option(
+    "--soft-limit-mb",
+    type=int,
+    default=50,
+    help="Soft limit (pad) of calibration to avoid noise near edges (in milibars).",
+)
+@click.option(
+    "--setpoint-mb",
+    type=int,
+    default=8500,
+    help="Soft setpoint to calibrate to (in milibars). Muscles are always calibrated to the nearest achievable value",
+)
+@click.option(
+    "--threshold-mb", type=int, default=50, help="A threshold for measurement acceptance (in milibars)."
+)
+@click.option("--samples", type=int, default=1000, help="Number of samples to extract edges (min, max).")
+def run(address: str, soft_limit_mb: int, setpoint_mb: int, threshold_mb: int, samples: int):
+    async def run_coro_iter():
+        async with Client(address=address) as c:
+            async for data in run_calibration(c, soft_limit_mb, setpoint_mb, threshold_mb, samples):
+                print(data[-1])
+
+    asyncio.run(run_coro_iter())
 
 
 if __name__ == "__main__":
-    asyncio.run(calibrate())
+    run()

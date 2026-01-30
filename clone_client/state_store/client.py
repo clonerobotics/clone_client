@@ -1,8 +1,8 @@
 # async.sync
 # This marks this file as to be automatically converted to sync version using async2sync.py
 
+import logging
 from typing import Annotated, AsyncIterable, Literal, Optional
-import warnings
 
 from google.protobuf.empty_pb2 import Empty  # pylint: disable=E0611
 import numpy as np
@@ -27,6 +27,8 @@ from clone_client.proto.state_store_pb2_grpc import StateStoreReceiverGRPCStub
 from clone_client.state_store.config import StateStoreClientConfig
 from clone_client.utils import grpc_translated_async
 
+L = logging.getLogger(__name__)
+
 
 class TelemetryDataExt:
     # pylint: disable=W0212
@@ -38,8 +40,12 @@ class TelemetryDataExt:
     """
 
     def __init__(self, data: TelemetryData, client: "StateStoreClient") -> None:
-        self._inner = data
+        # FIXME: short diff time in connection with no filtering (hence high wobbling of pose estimation)
+        # brings to spurious high values of velocities
+        # This one will be fixed with transferring calculation to the golem
 
+        self._inner = data
+        self._timestamp = data.time_since_start.ToNanoseconds() / 1000_000_000.0
         server_pose_estimation = {
             joint_name: R.from_quat([q.x, q.y, q.z, q.w])
             for joint_name, q in data.pose_estimation.pose_estimation.items()
@@ -52,31 +58,38 @@ class TelemetryDataExt:
         else:
             self._new_pose_estimation = server_pose_estimation
 
-        new_timestamp = data.time_since_start.ToNanoseconds() / 1000_000_000.0
         if client._last_pose_estimation is None:
-            self._velocities = {joint_name: np.zeros(3) for joint_name in self._new_pose_estimation}
-        else:
-            # FIXME: short diff time in connection with no filtering (hence high wobbling of pose estimation)
-            # brings to spurious high values of velocities
-            # FIXME: below is a dumbfix for a situation where the same telemetry object is used
-            # two times to create TelemetryDataExt (what caused ZeroDivisionError).
-            # This one will be fixed with transferring calculation to the golem
-            try:
-                self._velocities = {
-                    joint_name: (rnew * client._last_pose_estimation[joint_name].inv()).as_rotvec()
-                    / (new_timestamp - client._last_telemetry_timestamp)
-                    for joint_name, rnew in self._new_pose_estimation.items()
-                }
-            except ZeroDivisionError:
-                warnings.warn(
-                    "ZeroDivisionError happended during velocity calculation."
-                    "Probably due to usage of the same TelemetryData object twice.",
-                    RuntimeWarning,
-                )
-                self._velocities = {joint_name: np.zeros(3) for joint_name in self._new_pose_estimation}
+            self._on_initial_telemetry_data(client)
+            return
 
+        if client._last_telemetry_timestamp == self._timestamp:  # if exactly the same frame
+            self._on_same_telemetry_data_again(client)
+            return
+
+        self._velocities = {
+            joint_name: (rnew * client._last_pose_estimation[joint_name].inv()).as_rotvec()
+            / (self._timestamp - client._last_telemetry_timestamp)
+            for joint_name, rnew in self._new_pose_estimation.items()
+        }
+
+        self._update_last_client_values(client)
+
+    def _update_last_client_values(self, client: "StateStoreClient") -> None:
+        client._last_telemetry_timestamp = self._timestamp
         client._last_pose_estimation = self._new_pose_estimation
-        client._last_telemetry_timestamp = new_timestamp
+        client._last_velocities = self._velocities
+
+    def _on_initial_telemetry_data(self, client: "StateStoreClient") -> None:
+        self._velocities = {joint_name: np.zeros(3) for joint_name in self._new_pose_estimation}
+        self._update_last_client_values(client)
+
+    def _on_same_telemetry_data_again(self, client: "StateStoreClient") -> None:
+        self._new_pose_estimation = client._last_pose_estimation  # type: ignore
+        self._velocities = client._last_velocities  # type: ignore
+        L.debug(
+            "Telemetry with the same timestamp as the last one encountered"
+            "Probably due to usage of the same TelemetryData object twice.",
+        )
 
     @property
     def raw(self) -> TelemetryData:
@@ -123,6 +136,9 @@ class StateStoreClient(GRPCAsyncClient):
         self._pose_estimator_maginterp: Optional[PoseEstimatorMagInterpol] = None
         self._last_pose_estimation: Optional[dict[Annotated[str, "joint name"], R]] = None  # type: ignore
         self._last_telemetry_timestamp = 0.0
+        self._last_velocities: Optional[
+            dict[Annotated[str, "joint name"], np.ndarray[tuple[Literal[3]], np.dtype[np.double]]]
+        ] = None
 
     @classmethod
     async def new(cls, socket_address: str, maginterpol_config: MagInterpolConfig) -> "StateStoreClient":

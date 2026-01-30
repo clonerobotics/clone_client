@@ -15,14 +15,37 @@ service StateStoreReceiverGRPC {
 }
 
 message IMUData {
+  enum SignalState {
+    UNKNOWN = 0;          /**< Unknown / uninitialized */
+    VALID = 1;            /**< Healthy and trusted      */
+    SUSPECT = 2;          /**< Usable but near limits   */
+    RECONFIG_FAILED = 3;   /**< Last re-config attempt failed; using previous settings */
+    INVALID = 4;          /**< Fails gating or plausibility checks */
+    NOT_AVAILABLE = 5;     /**< No fresh data or sensor inactive */
+    UNDER_CALIBRATION = 6; /**< Under user calibration */
+    INIT = 7;             /**< Initialization value / default */
+  }
+  enum CalibrationStatusValue {
+    UNKNOWN_OR_NOT_CALIBRATED = 0;
+    POOR = 1;
+    OK = 2;
+    GOOD = 3;
+    ONGOING = 4;
+  }
+  message CalibrationStatusPacked {
+    CalibrationStatusValue mag_calib_status = 1;
+    CalibrationStatusValue acc_calib_status = 2;
+    CalibrationStatusValue gyr_calib_status = 3;
+    uint32 gyr_time_since_last_bias_calib_ms = 4;
+  }
   uint32 node_id=1;
   float w=2;
   float x=3;
   float y=4;
   float z=5;
-  float ax=6;
-  float ay=7;
-  float az=8;
+  // 6, 7, 8
+  SignalState signal_state = 9;
+  CalibrationStatusPacked calibration_status = 10;
 }
 
 message MagneticSensor {
@@ -42,7 +65,7 @@ message GaussRiderRaw {
 
 message SensorData {
   repeated float pressures=1;
-  repeated IMUData rot=2;
+  repeated IMUData imu=2;
   // repeated MagneticHubRaw magnetic_data=3; // Unprocessed magnetic hub's data - currently also here
   repeated GaussRiderRaw gauss_rider_data=4; // Unprocessed gauss rider's data
   map<uint32, Bfield> bfields=5;
@@ -57,6 +80,59 @@ message Quaternion {
 
 message PoseEstimationData {
   map<string, Quaternion> pose_estimation = 1;
+}
+
+message Mat3 {
+  Vec3 col0 = 1;
+  Vec3 col1 = 2;
+  Vec3 col2 = 3;
+}
+
+message AxisToHingeBindings {
+  map<string, string> axis_to_hinge_bindings = 1;
+}
+
+message JointFrames {
+  message Frame {
+    Mat3 r_wj = 1;
+    Vec3 origin_w = 2;
+  }
+  map<string, Frame> frames = 1;
+}
+
+message SensorGeometry {
+  Mat3 frame_wS = 1;
+  Vec3 origin_w = 2;
+}
+
+message MagnetGeometry {
+  Vec3 origin_w = 1;
+  Vec3 base_z_in_sensor = 2;
+}
+
+message DipoleSeed {
+  Vec3 position = 1;
+  Vec3 direction = 2;
+}
+
+message SensorMapping {
+  string clone_sensor_id = 1;
+  Vec3 magnet_local_axis = 2;
+  bool sensor_magnet_inversion = 3;
+  Mat3 R_corr = 4;
+}
+
+message JointModelInfo {
+  message JointModel {
+    JointFrames joint_frames = 1;
+    SensorGeometry sensor = 2;
+    MagnetGeometry magnet = 3;
+    DipoleSeed dipole = 4;
+    SensorMapping mapping = 5;
+    repeated AxisToHingeBindings axis_to_hinge_bindings = 6;
+  }
+
+  map<string, JointModel> joints = 1;
 }
 
 message TelemetryData {
@@ -140,6 +216,7 @@ message SystemInfo {
   CalibrationData calibration_data=4;
   TelemetryConfig telemetry_config=5;
   optional PoseEstimationInfo pose_estimation=6;
+  optional JointModelInfo joint_model_info=7;
 }
 
 message SystemInfoResponse {

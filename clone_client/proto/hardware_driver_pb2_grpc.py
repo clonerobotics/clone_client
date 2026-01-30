@@ -114,12 +114,27 @@ class HardwareDriverGRPCStub(object):
         self.GetGaussRiderSpecSettings = channel.unary_unary(
                 '/clone.hardware_driver.HardwareDriverGRPC/GetGaussRiderSpecSettings',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-                response_deserializer=clone__client_dot_proto_dot_hardware__driver__pb2.GaussRiderSpecSettingsResponse.FromString,
+                response_deserializer=clone__client_dot_proto_dot_hardware__driver__pb2.GaussRiderSpecSettingsMessage.FromString,
+                _registered_method=True)
+        self.GetIMUSpecSettings = channel.unary_unary(
+                '/clone.hardware_driver.HardwareDriverGRPC/GetIMUSpecSettings',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=clone__client_dot_proto_dot_hardware__driver__pb2.IMUSpecSettingsMessage.FromString,
+                _registered_method=True)
+        self.SetIMUSpecSettings = channel.unary_unary(
+                '/clone.hardware_driver.HardwareDriverGRPC/SetIMUSpecSettings',
+                request_serializer=clone__client_dot_proto_dot_hardware__driver__pb2.IMUSpecSettingsMessage.SpecSettingsMap.SerializeToString,
+                response_deserializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
                 _registered_method=True)
         self.GetErrors = channel.unary_unary(
                 '/clone.hardware_driver.HardwareDriverGRPC/GetErrors',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=clone__client_dot_proto_dot_hardware__driver__pb2.HwDriverErrors.FromString,
+                _registered_method=True)
+        self.PauseTelemetry = channel.unary_unary(
+                '/clone.hardware_driver.HardwareDriverGRPC/PauseTelemetry',
+                request_serializer=clone__client_dot_proto_dot_hardware__driver__pb2.PauseTelemetryMessage.SerializeToString,
+                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 _registered_method=True)
 
 
@@ -224,7 +239,25 @@ class HardwareDriverGRPCServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetIMUSpecSettings(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SetIMUSpecSettings(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def GetErrors(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def PauseTelemetry(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -311,12 +344,27 @@ def add_HardwareDriverGRPCServicer_to_server(servicer, server):
             'GetGaussRiderSpecSettings': grpc.unary_unary_rpc_method_handler(
                     servicer.GetGaussRiderSpecSettings,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-                    response_serializer=clone__client_dot_proto_dot_hardware__driver__pb2.GaussRiderSpecSettingsResponse.SerializeToString,
+                    response_serializer=clone__client_dot_proto_dot_hardware__driver__pb2.GaussRiderSpecSettingsMessage.SerializeToString,
+            ),
+            'GetIMUSpecSettings': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetIMUSpecSettings,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=clone__client_dot_proto_dot_hardware__driver__pb2.IMUSpecSettingsMessage.SerializeToString,
+            ),
+            'SetIMUSpecSettings': grpc.unary_unary_rpc_method_handler(
+                    servicer.SetIMUSpecSettings,
+                    request_deserializer=clone__client_dot_proto_dot_hardware__driver__pb2.IMUSpecSettingsMessage.SpecSettingsMap.FromString,
+                    response_serializer=clone__client_dot_proto_dot_data__types__pb2.ServerResponse.SerializeToString,
             ),
             'GetErrors': grpc.unary_unary_rpc_method_handler(
                     servicer.GetErrors,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                     response_serializer=clone__client_dot_proto_dot_hardware__driver__pb2.HwDriverErrors.SerializeToString,
+            ),
+            'PauseTelemetry': grpc.unary_unary_rpc_method_handler(
+                    servicer.PauseTelemetry,
+                    request_deserializer=clone__client_dot_proto_dot_hardware__driver__pb2.PauseTelemetryMessage.FromString,
+                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -750,7 +798,61 @@ class HardwareDriverGRPC(object):
             target,
             '/clone.hardware_driver.HardwareDriverGRPC/GetGaussRiderSpecSettings',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-            clone__client_dot_proto_dot_hardware__driver__pb2.GaussRiderSpecSettingsResponse.FromString,
+            clone__client_dot_proto_dot_hardware__driver__pb2.GaussRiderSpecSettingsMessage.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetIMUSpecSettings(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/clone.hardware_driver.HardwareDriverGRPC/GetIMUSpecSettings',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            clone__client_dot_proto_dot_hardware__driver__pb2.IMUSpecSettingsMessage.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SetIMUSpecSettings(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/clone.hardware_driver.HardwareDriverGRPC/SetIMUSpecSettings',
+            clone__client_dot_proto_dot_hardware__driver__pb2.IMUSpecSettingsMessage.SpecSettingsMap.SerializeToString,
+            clone__client_dot_proto_dot_data__types__pb2.ServerResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -778,6 +880,33 @@ class HardwareDriverGRPC(object):
             '/clone.hardware_driver.HardwareDriverGRPC/GetErrors',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             clone__client_dot_proto_dot_hardware__driver__pb2.HwDriverErrors.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def PauseTelemetry(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/clone.hardware_driver.HardwareDriverGRPC/PauseTelemetry',
+            clone__client_dot_proto_dot_hardware__driver__pb2.PauseTelemetryMessage.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
             insecure,
